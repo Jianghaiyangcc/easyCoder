@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "803bc960-2088-4f6f-8260-b2cc4b06c59e"
+        //"projectId": "d7812359-2594-4678-b5df-211225a04a93"
+        //"projectId": "eec80dc2-6c14-4392-8688-2a611159f7c5"
+        //"projectId": "6423b6cc-f4dd-453a-bff1-00acb3f7f27b"
+        //"projectId": "dbd801d5-7ae8-47f8-bba4-070e4a93efd1"
+      }
+    },
+    "owner": "qq-organization",
+    //"owner": "qqq-organization",
+    //"owner": "qqqq-organization",
+    //"owner": "qqqqq-organization",
+    //"owner": "qqqqqq-organization",
+    "slug": "easycoder"
+  }
+}
