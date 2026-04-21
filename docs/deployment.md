@@ -45,6 +45,7 @@ This document describes how to deploy the Happy backend (`packages/happy-server`
   - `GITHUB_REDIRECT_URL` is used by the OAuth callback handler.
   - `GITHUB_REDIRECT_URI` is used by the GitHub App initializer.
 - Voice: `ELEVENLABS_API_KEY` (required for `/v1/voice/conversations` in production).
+- Bailian voice: `DASHSCOPE_API_KEY` (required for `/v1/voice/bailian/*`), plus optional overrides `DASHSCOPE_API_BASE_URL`, `DASHSCOPE_ASR_MODEL`, `DASHSCOPE_TTS_MODEL`, `DASHSCOPE_TTS_VOICE`.
 - Subscriptions: `REVENUECAT_API_KEY` (server-side RevenueCat key, required for voice subscription checks).
 - Debug logging: `DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING` (enables file logging + dev log endpoint).
 
@@ -63,6 +64,7 @@ Example manifests live in `packages/happy-server/deploy`:
 The deployment config expects:
 - Prometheus scraping annotations on port `9090`.
 - A secret named `handy-secrets` populated by ExternalSecrets.
+- DashScope secrets in Vault under `/handy-dashscope` (or equivalent key merged into `handy-secrets`).
 - A service mapping port `3000` to container port `3005`.
 
 ## Local dev helpers

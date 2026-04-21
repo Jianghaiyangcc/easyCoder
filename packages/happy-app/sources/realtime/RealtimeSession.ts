@@ -23,7 +23,7 @@ let currentVoiceConversationId: string | null = null;
 let currentVoiceSessionStartedAt: number | null = null;
 
 /**
- * Start a voice session. Returns the ElevenLabs conversation ID if started, null otherwise.
+ * Start a voice session. Returns a provider conversation ID when available.
  */
 export async function startRealtimeSession(sessionId: string, initialContext?: string): Promise<string | null> {
     currentVoiceConversationId = null;
@@ -47,12 +47,28 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
     }
 
     try {
+        const voiceProvider = storage.getState().settings.voiceProvider;
+
+        if (voiceProvider === 'bailian') {
+            currentSessionId = sessionId;
+            const conversationId = await voiceSession.startSession({
+                provider: 'bailian',
+                sessionId,
+                initialContext,
+            });
+            currentVoiceConversationId = conversationId;
+            currentVoiceSessionStartedAt = Date.now();
+            voiceSessionStarted = true;
+            return conversationId;
+        }
+
         // Bypass Happy server token — only when user has their own custom agent
         const { voiceBypassToken, voiceCustomAgentId } = storage.getState().settings;
         if (voiceBypassToken && voiceCustomAgentId) {
             console.log('[Voice] Bypassing token, custom agent ID:', voiceCustomAgentId);
             currentSessionId = sessionId;
             const conversationId = await voiceSession.startSession({
+                provider: 'elevenlabs',
                 sessionId,
                 initialContext,
                 agentId: voiceCustomAgentId,
@@ -129,6 +145,7 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
         });
 
         const startedConversationId = await voiceSession.startSession({
+            provider: 'elevenlabs',
             sessionId,
             initialContext,
             systemPrompt,

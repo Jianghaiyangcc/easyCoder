@@ -217,6 +217,11 @@ export const voiceHooks = {
         const ctx = injectSessionContext(sessionId);
         if (ctx) sendContext(ctx);
         sendPrompt(formatReadyEvent(sessionId));
+
+        const voice = getVoiceSession();
+        if (voice && isVoiceSessionStarted() && typeof voice.onReady === 'function') {
+            voice.onReady(sessionId);
+        }
     },
 
     /**

@@ -1,5 +1,6 @@
 export interface VoiceSessionConfig {
     sessionId: string;
+    provider: 'bailian' | 'elevenlabs';
     initialContext?: string;
     systemPrompt?: string;
     firstMessage?: string;
@@ -13,6 +14,7 @@ export interface VoiceSession {
     endSession(): Promise<void>;
     sendTextMessage(message: string): void;
     sendContextualUpdate(update: string): void;
+    onReady?(sessionId: string): void;
 }
 
 export type ConversationStatus = 'disconnected' | 'connecting' | 'connected';

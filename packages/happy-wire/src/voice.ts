@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+export const VoiceProviderSchema = z.enum(['bailian', 'elevenlabs']);
+export type VoiceProvider = z.infer<typeof VoiceProviderSchema>;
+
 export const VoiceConversationGrantedSchema = z.object({
     allowed: z.literal(true),
     conversationToken: z.string(),
@@ -34,3 +37,21 @@ export const VoiceUsageResponseSchema = z.object({
 });
 
 export type VoiceUsageResponse = z.infer<typeof VoiceUsageResponseSchema>;
+
+export const BailianAsrResponseSchema = z.object({
+    provider: z.literal('bailian'),
+    transcript: z.string(),
+    model: z.string(),
+});
+
+export type BailianAsrResponse = z.infer<typeof BailianAsrResponseSchema>;
+
+export const BailianTtsResponseSchema = z.object({
+    provider: z.literal('bailian'),
+    audioUrl: z.string(),
+    model: z.string(),
+    voice: z.string(),
+    expiresAt: z.number().nullable(),
+});
+
+export type BailianTtsResponse = z.infer<typeof BailianTtsResponseSchema>;

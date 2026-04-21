@@ -1,13 +1,35 @@
 import { z } from "zod";
 import * as crypto from "crypto";
-import { VoiceConversationResponseSchema, VoiceUsageResponseSchema } from "@slopus/happy-wire";
+import {
+    BailianAsrResponseSchema,
+    BailianTtsResponseSchema,
+    VoiceConversationResponseSchema,
+    VoiceUsageResponseSchema,
+} from "@slopus/happy-wire";
 import { type Fastify } from "../types";
 import { log } from "@/utils/log";
+import { transcribeDashscopeAudio } from "@/modules/dashscopeAsr";
+import { synthesizeDashscopeSpeech } from "@/modules/dashscopeTts";
 
 const VOICE_FREE_LIMIT_SECONDS = 1200;  // 20 minutes free tier per 30 days (~$0.76 cost)
 const VOICE_HARD_LIMIT_SECONDS = 18000; // 5 hours absolute cap per 30 days (even with subscription)
 const VOICE_MAX_CONVERSATIONS = 100;    // Max conversations trackable per 30 days (ElevenLabs page_size limit)
 const ELEVEN_LABS_API = "https://api.elevenlabs.io/v1/convai";
+
+const BailianAsrRequestSchema = z.object({
+    audioBase64: z.string().min(1),
+    mimeType: z.string().min(1).default("audio/m4a"),
+    language: z.string().optional(),
+    model: z.string().optional(),
+    enableItn: z.boolean().optional(),
+});
+
+const BailianTtsRequestSchema = z.object({
+    text: z.string().trim().min(1).max(12000),
+    language: z.string().optional(),
+    model: z.string().optional(),
+    voice: z.string().optional(),
+});
 
 function deriveElevenUserId(happyUserId: string): string {
     const hmac = crypto.createHmac("sha256", process.env.HANDY_MASTER_SECRET!);
@@ -83,6 +105,87 @@ async function hasActiveSubscription(userId: string): Promise<boolean> {
 }
 
 export function voiceRoutes(app: Fastify) {
+    app.post('/v1/voice/bailian/asr/transcribe', {
+        preHandler: app.authenticate,
+        schema: {
+            body: BailianAsrRequestSchema,
+            response: {
+                200: BailianAsrResponseSchema,
+                400: z.object({ error: z.string() }),
+                500: z.object({ error: z.string() }),
+            },
+        },
+    }, async (request, reply) => {
+        const dashscopeApiKey = process.env.DASHSCOPE_API_KEY;
+        if (!dashscopeApiKey) {
+            return reply.code(500).send({ error: 'DASHSCOPE_API_KEY not configured' });
+        }
+
+        const { audioBase64, mimeType, language, model, enableItn } = request.body;
+
+        if (audioBase64.length < 16) {
+            return reply.code(400).send({ error: 'Invalid audio payload' });
+        }
+
+        try {
+            const result = await transcribeDashscopeAudio({
+                apiKey: dashscopeApiKey,
+                audioBase64,
+                mimeType,
+                language,
+                model,
+                enableItn,
+            });
+
+            return reply.send({
+                provider: 'bailian' as const,
+                transcript: result.transcript,
+                model: result.model,
+            });
+        } catch (error) {
+            log({ module: 'voice' }, `Bailian ASR failed for user ${request.userId}: ${error}`);
+            return reply.code(500).send({ error: 'Failed to transcribe audio' });
+        }
+    });
+
+    app.post('/v1/voice/bailian/tts', {
+        preHandler: app.authenticate,
+        schema: {
+            body: BailianTtsRequestSchema,
+            response: {
+                200: BailianTtsResponseSchema,
+                500: z.object({ error: z.string() }),
+            },
+        },
+    }, async (request, reply) => {
+        const dashscopeApiKey = process.env.DASHSCOPE_API_KEY;
+        if (!dashscopeApiKey) {
+            return reply.code(500).send({ error: 'DASHSCOPE_API_KEY not configured' });
+        }
+
+        const { text, model, voice } = request.body;
+
+        try {
+            const result = await synthesizeDashscopeSpeech({
+                apiKey: dashscopeApiKey,
+                text,
+                model,
+                voice,
+            });
+
+            return reply.send({
+                provider: 'bailian' as const,
+                audioUrl: result.audioUrl,
+                model: result.model,
+                voice: result.voice,
+                expiresAt: result.expiresAt,
+            });
+        } catch (error) {
+            log({ module: 'voice' }, `Bailian TTS failed for user ${request.userId}: ${error}`);
+            return reply.code(500).send({ error: 'Failed to synthesize speech' });
+        }
+    });
+
     app.post('/v1/voice/conversations', {
         preHandler: app.authenticate,
         schema: {
