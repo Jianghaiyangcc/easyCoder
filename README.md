@@ -7,7 +7,7 @@
 </div>
 
 <h1 align="center">
-  Mobile and Web Client for Claude Code & Codex
+  haahah.Mobile and Web Client for Claude Code & Codex
 </h1>
 
 <h4 align="center">
