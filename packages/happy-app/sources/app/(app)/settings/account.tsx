@@ -27,6 +27,7 @@ import {
     getCurrentExpoPushToken,
     getCurrentPushDeviceMetadata,
     getPushPermissionInfo,
+    isRemotePushEnabled,
     requestPushPermissionOrOpenSettings,
     removePushToken,
     syncCurrentPushToken,
@@ -108,6 +109,7 @@ export default React.memo(() => {
     const [analyticsOptOut, setAnalyticsOptOut] = useSettingMutable('analyticsOptOut');
     const { connectAccount, isLoading: isConnecting } = useConnectAccount();
     const profile = useProfile();
+    const remotePushEnabled = isRemotePushEnabled();
     const currentPushDevice = useMemo(() => getCurrentPushDeviceMetadata(), []);
     const [pushTokens, setPushTokens] = useState<PushToken[]>([]);
     const [pushPermission, setPushPermission] = useState<PushPermissionInfo | null>(null);
@@ -133,6 +135,17 @@ export default React.memo(() => {
             return;
         }
 
+        if (!remotePushEnabled) {
+            setPushTokens([]);
+            setPushPermission({
+                status: 'unsupported',
+                granted: false,
+                canAskAgain: false,
+            });
+            setCurrentPushToken(null);
+            return;
+        }
+
         setLoadingPushSettings(true);
         try {
             const [tokens, permission, liveToken] = await Promise.all([
@@ -151,7 +164,7 @@ export default React.memo(() => {
         } finally {
             setLoadingPushSettings(false);
         }
-    }, [auth.credentials]);
+    }, [auth.credentials, remotePushEnabled]);
 
     useEffect(() => {
         void loadPushSettings();
@@ -228,6 +241,10 @@ export default React.memo(() => {
             return;
         }
 
+        if (!remotePushEnabled) {
+            return;
+        }
+
         setRequestingPushPermission(true);
         try {
             const result = await requestPushPermissionOrOpenSettings();
@@ -254,10 +271,14 @@ export default React.memo(() => {
         } finally {
             setRequestingPushPermission(false);
         }
-    }, [auth.credentials, loadPushSettings]);
+    }, [auth.credentials, loadPushSettings, remotePushEnabled]);
 
     const handleRefreshCurrentPushToken = useCallback(async () => {
         if (!auth.credentials) {
+            return;
+        }
+
+        if (!remotePushEnabled) {
             return;
         }
 
@@ -279,7 +300,7 @@ export default React.memo(() => {
         } finally {
             setRefreshingPushToken(false);
         }
-    }, [auth.credentials, loadPushSettings]);
+    }, [auth.credentials, loadPushSettings, remotePushEnabled]);
 
     const handleDeletePushToken = useCallback(async (pushToken: PushToken) => {
         if (!auth.credentials) {
@@ -524,7 +545,7 @@ export default React.memo(() => {
                         icon={<Ionicons name="shield-checkmark-outline" size={29} color="#34C759" />}
                         onPress={handlePushPermissionRequest}
                         loading={requestingPushPermission}
-                        disabled={requestingPushPermission || loadingPushSettings || pushPermission?.status === 'unsupported' || !auth.credentials}
+                        disabled={requestingPushPermission || loadingPushSettings || pushPermission?.status === 'unsupported' || !auth.credentials || !remotePushEnabled}
                         showChevron={false}
                     />
                     <Item
@@ -535,7 +556,7 @@ export default React.memo(() => {
                         icon={<Ionicons name="refresh-outline" size={29} color="#FF9500" />}
                         onPress={handleRefreshCurrentPushToken}
                         loading={refreshingPushToken}
-                        disabled={refreshingPushToken || loadingPushSettings || !auth.credentials}
+                        disabled={refreshingPushToken || loadingPushSettings || pushPermission?.status === 'unsupported' || !auth.credentials || !remotePushEnabled}
                         showChevron={false}
                     />
                 </ItemGroup>

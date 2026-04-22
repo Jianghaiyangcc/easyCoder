@@ -53,7 +53,23 @@ function getExpoProjectId(): string | null {
     return Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId ?? null;
 }
 
+export function isRemotePushEnabled(): boolean {
+    const rawValue = Constants?.expoConfig?.extra?.app?.remotePushEnabled;
+    if (typeof rawValue === 'string') {
+        return rawValue === 'true';
+    }
+    return rawValue === true;
+}
+
 export async function getPushPermissionInfo(): Promise<PushPermissionInfo> {
+    if (!isRemotePushEnabled()) {
+        return {
+            status: 'unsupported',
+            granted: false,
+            canAskAgain: false,
+        };
+    }
+
     if (Platform.OS === 'web') {
         return {
             status: 'unsupported',
@@ -75,6 +91,18 @@ export async function getPushPermissionInfo(): Promise<PushPermissionInfo> {
 }
 
 export async function requestPushPermissionOrOpenSettings(): Promise<PushPermissionRequestResult> {
+    if (!isRemotePushEnabled()) {
+        return {
+            granted: false,
+            openedSettings: false,
+            permission: {
+                status: 'unsupported',
+                granted: false,
+                canAskAgain: false,
+            }
+        };
+    }
+
     if (Platform.OS === 'web') {
         return {
             granted: false,
@@ -114,6 +142,10 @@ export async function requestPushPermissionOrOpenSettings(): Promise<PushPermiss
 }
 
 export async function getCurrentExpoPushToken(): Promise<string | null> {
+    if (!isRemotePushEnabled()) {
+        return loadRegisteredPushToken();
+    }
+
     if (Platform.OS === 'web') {
         return null;
     }
@@ -138,6 +170,18 @@ export async function getCurrentExpoPushToken(): Promise<string | null> {
 }
 
 export async function syncCurrentPushToken(credentials: AuthCredentials): Promise<SyncCurrentPushTokenResult> {
+    if (!isRemotePushEnabled()) {
+        return {
+            registered: false,
+            token: loadRegisteredPushToken(),
+            permission: {
+                status: 'unsupported',
+                granted: false,
+                canAskAgain: false,
+            }
+        };
+    }
+
     if (Platform.OS === 'web') {
         return {
             registered: false,

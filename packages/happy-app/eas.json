@@ -11,7 +11,9 @@
       "channel": "development",
       "env": {
         "APP_ENV": "development",
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "ENABLE_ANDROID_GOOGLE_SERVICES": "false",
+        "EXPO_PUBLIC_REMOTE_PUSH_ENABLED": "false"
       }
     },
     "development-store": {
@@ -21,7 +23,9 @@
       "channel": "development",
       "env": {
         "APP_ENV": "development",
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "ENABLE_ANDROID_GOOGLE_SERVICES": "false",
+        "EXPO_PUBLIC_REMOTE_PUSH_ENABLED": "false"
       }
     },
     "preview": {
@@ -30,7 +34,9 @@
       "channel": "preview",
       "env": {
         "APP_ENV": "preview",
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "ENABLE_ANDROID_GOOGLE_SERVICES": "false",
+        "EXPO_PUBLIC_REMOTE_PUSH_ENABLED": "false"
       }
     },
     "preview-store": {
@@ -39,7 +45,9 @@
       "channel": "preview",
       "env": {
         "APP_ENV": "preview",
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "ENABLE_ANDROID_GOOGLE_SERVICES": "false",
+        "EXPO_PUBLIC_REMOTE_PUSH_ENABLED": "false"
       }
     },
     "production": {
@@ -47,7 +55,9 @@
       "channel": "production",
       "env": {
         "APP_ENV": "production",
-        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1"
+        "SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
+        "ENABLE_ANDROID_GOOGLE_SERVICES": "false",
+        "EXPO_PUBLIC_REMOTE_PUSH_ENABLED": "false"
       }
     }
   },

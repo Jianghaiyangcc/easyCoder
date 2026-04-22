@@ -1702,7 +1702,7 @@ class Sync {
                 hasToken: !!result.token,
                 permission: result.permission.status,
             }));
-            if (!result.permission.granted) {
+            if (!result.permission.granted && result.permission.status !== 'unsupported') {
                 console.log('Failed to get push token for push notification!');
             }
         } catch (error) {

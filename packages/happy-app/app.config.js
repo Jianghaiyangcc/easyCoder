@@ -5,9 +5,9 @@ const name = {
     production: "Happy"
 }[variant];
 const bundleId = {
-    development: "com.slopus.happy.dev",
-    preview: "com.slopus.happy.preview",
-    production: "com.ex3ndr.happy"
+    development: "club.daima.easycoder.dev",
+    preview: "club.daima.easycoder.preview",
+    production: "club.daima.easycoder"
 }[variant];
 // const stagingElevenLabsAgentId = 'agent_7801k2c0r5hjfraa1kdbytpvs6yt';
 const productionElevenLabsAgentId = 'agent_6701k211syvvegba4kt7m68nxjmw';
@@ -21,12 +21,14 @@ const consoleLoggingDefault = {
     preview: true,
     production: false,
 }[variant];
+const enableAndroidGoogleServices = process.env.ENABLE_ANDROID_GOOGLE_SERVICES === 'true';
+const remotePushEnabled = process.env.EXPO_PUBLIC_REMOTE_PUSH_ENABLED === 'true';
 
 export default {
     expo: {
         name,
-        slug: "happy",
-        version: "1.7.0",
+        slug: "easycoder",
+        version: "1.1.0",
         runtimeVersion: "21",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
@@ -66,7 +68,9 @@ export default {
                 "android.permission.READ_MEDIA_VIDEO",
             ],
             package: bundleId,
-            googleServicesFile: "./google-services.json",
+            ...(enableAndroidGoogleServices ? {
+                googleServicesFile: "./google-services.json",
+            } : {}),
             intentFilters: variant === 'production' ? [
                 {
                     "action": "VIEW",
@@ -162,7 +166,11 @@ export default {
             ]
         ],
         updates: {
-            url: "https://u.expo.dev/4558dd3d-cd5a-47cd-bad9-e591a241cc06",
+            url: "https://u.expo.dev/803bc960-2088-4f6f-8260-b2cc4b06c59e",
+            //url: "https://u.expo.dev/d7812359-2594-4678-b5df-211225a04a93",
+            //url: "https://u.expo.dev/eec80dc2-6c14-4392-8688-2a611159f7c5",
+            //url: "https://u.expo.dev/6423b6cc-f4dd-453a-bff1-00acb3f7f27b",
+            //url: "https://u.expo.dev/dbd801d5-7ae8-47f8-bba4-070e4a93efd1",
             requestHeaders: {
                 "expo-channel-name": "production"
             }
@@ -175,7 +183,11 @@ export default {
                 root: "./sources/app"
             },
             eas: {
-                projectId: "4558dd3d-cd5a-47cd-bad9-e591a241cc06"
+                projectId: "803bc960-2088-4f6f-8260-b2cc4b06c59e"
+                //"projectId": "d7812359-2594-4678-b5df-211225a04a93"
+                //"projectId": "eec80dc2-6c14-4392-8688-2a611159f7c5"
+                //"projectId": "6423b6cc-f4dd-453a-bff1-00acb3f7f27b"
+                //"projectId": "dbd801d5-7ae8-47f8-bba4-070e4a93efd1"
             },
             app: {
                 postHogKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
@@ -184,8 +196,13 @@ export default {
                 revenueCatStripeKey: process.env.EXPO_PUBLIC_REVENUE_CAT_STRIPE,
                 elevenLabsAgentId,
                 consoleLoggingDefault,
+                remotePushEnabled,
             }
         },
-        owner: "bulkacorp"
+        owner: "qq-organization"
+        //owner: "qqq-organization"
+        //owner: "qqqq-organization"
+        //owner: "qqqqq-organization"
+        //owner: "qqqqqq-organization"
     }
 };
