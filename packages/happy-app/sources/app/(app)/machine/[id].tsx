@@ -555,6 +555,15 @@ export default function MachineDetailScreen() {
                             }
                         />
                         <Item
+                            title="OpenCode"
+                            showChevron={false}
+                            rightElement={
+                                <Text style={{ color: metadata.cliAvailability.opencode ? '#34C759' : theme.colors.textSecondary, fontSize: 14 }}>
+                                    {metadata.cliAvailability.opencode ? t('machine.cliInstalled') : t('machine.cliNotFound')}
+                                </Text>
+                            }
+                        />
+                        <Item
                             title={t('machine.lastDetected')}
                             subtitle={new Date(metadata.cliAvailability.detectedAt).toLocaleString()}
                             showChevron={false}

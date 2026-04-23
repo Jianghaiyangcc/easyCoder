@@ -35,6 +35,20 @@ describe('resolveAcpAgentConfig', () => {
     });
   });
 
+  it('strips Happy internal starting mode flags for known ACP agents', () => {
+    expect(resolveAcpAgentConfig(['opencode', '--happy-starting-mode', 'remote', '--foo'])).toEqual({
+      agentName: 'opencode',
+      command: 'opencode',
+      args: ['acp', '--foo'],
+    });
+
+    expect(resolveAcpAgentConfig(['opencode', '--happy-starting-mode=remote', '--foo'])).toEqual({
+      agentName: 'opencode',
+      command: 'opencode',
+      args: ['acp', '--foo'],
+    });
+  });
+
   it('resolves custom command form with -- separator', () => {
     expect(resolveAcpAgentConfig(['--', 'custom-agent', '--flag'])).toEqual({
       agentName: 'custom-agent',

@@ -396,6 +396,7 @@ export const pt: TranslationStructure = {
             codex: 'Codex',
             gemini: 'Gemini',
             openclaw: 'OpenClaw',
+            opencode: 'OpenCode',
         },
         model: {
             title: 'MODELO',

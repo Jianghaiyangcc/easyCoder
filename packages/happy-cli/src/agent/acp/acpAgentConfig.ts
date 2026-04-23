@@ -34,10 +34,28 @@ export function resolveAcpAgentConfig(cliArgs: string[]): ResolvedAcpAgentConfig
   const agentName = cliArgs[0];
   const known = KNOWN_ACP_AGENTS[agentName];
   if (known) {
-    const passthroughArgs = cliArgs
-      .slice(1)
+    const passthroughArgs: string[] = [];
+    for (let i = 1; i < cliArgs.length; i++) {
+      const arg = cliArgs[i];
+
       // Backward-compatible with old OpenCode docs/flags.
-      .filter((arg) => !(agentName === 'opencode' && arg === '--acp'));
+      if (agentName === 'opencode' && arg === '--acp') {
+        continue;
+      }
+
+      // Happy internal flag for first-party agents; ACP providers should not receive it.
+      if (arg === '--happy-starting-mode') {
+        i++;
+        continue;
+      }
+
+      if (arg.startsWith('--happy-starting-mode=')) {
+        continue;
+      }
+
+      passthroughArgs.push(arg);
+    }
+
     return {
       agentName,
       command: known.command,

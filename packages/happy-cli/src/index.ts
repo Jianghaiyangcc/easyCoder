@@ -343,6 +343,15 @@ import { handleCodexCommand } from './commands/codexCommand'
           startedBy = args[++i] as 'daemon' | 'terminal';
           continue;
         }
+        if (!customCommandMode && args[i] === '--happy-starting-mode') {
+          // Happy internal flag for first-party agents only; ACP providers should not receive it.
+          i++;
+          continue;
+        }
+        if (!customCommandMode && args[i].startsWith('--happy-starting-mode=')) {
+          // Happy internal flag for first-party agents only; ACP providers should not receive it.
+          continue;
+        }
         if (!customCommandMode && args[i] === '--verbose') {
           verbose = true;
           continue;
