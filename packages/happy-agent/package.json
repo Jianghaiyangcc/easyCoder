@@ -7,7 +7,7 @@
   "type": "module",
   "homepage": "https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-agent",
   "bugs": "https://github.com/Jianghaiyangcc/easyCoder/issues",
-  "repository": "slopus/happy",
+  "repository": "https://github.com/Jianghaiyangcc/easyCoder",
   "bin": {
     "happy-agent": "./bin/happy-agent.mjs"
   },

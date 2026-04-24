@@ -7,7 +7,7 @@
   "type": "module",
   "homepage": "https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-wire",
   "bugs": "https://github.com/Jianghaiyangcc/easyCoder/issues",
-  "repository": "slopus/happy",
+  "repository": "https://github.com/Jianghaiyangcc/easyCoder",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
