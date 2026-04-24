@@ -30,6 +30,7 @@ import {
 import type { SessionConfigOption, SessionModeState, SessionModelState } from '@agentclientprotocol/sdk';
 
 const TURN_TIMEOUT_MS = 5 * 60 * 1000;
+const ACTIVITY_TIMEOUT_MS = 60 * 1000;
 const ACP_EVENT_PREVIEW_CHARS = 240;
 const ACP_RAW_PREVIEW_CHARS = 2000;
 const ACP_COLOR_RESET = '\u001b[0m';
@@ -433,6 +434,8 @@ type PendingTurn = {
   resolve: () => void;
   reject: (err: Error) => void;
   timeout: NodeJS.Timeout;
+  resetActivityTimeout: () => void;
+  clearActivityTimeout: () => void;
 };
 
 function resolveSessionFlavor(agentName: string): 'gemini' | 'opencode' | 'acp' {
@@ -546,6 +549,7 @@ export async function runAcp(opts: {
     if (!pendingTurn) {
       return;
     }
+    pendingTurn.clearActivityTimeout();
     clearTimeout(pendingTurn.timeout);
     const current = pendingTurn;
     pendingTurn = null;
@@ -557,11 +561,40 @@ export async function runAcp(opts: {
   };
 
   const waitForTurnEnd = () => new Promise<void>((resolve, reject) => {
+    let activityTimeout: NodeJS.Timeout | null = null;
+
+    const clearActivityTimeout = () => {
+      if (activityTimeout) {
+        clearTimeout(activityTimeout);
+        activityTimeout = null;
+      }
+    };
+
+    const resetActivityTimeout = () => {
+      clearActivityTimeout();
+      activityTimeout = setTimeout(() => {
+        if (!pendingTurn) {
+          return;
+        }
+        logger.debug(`[${opts.agentName}] Activity timeout (${ACTIVITY_TIMEOUT_MS}ms), ending turn`);
+        clearPendingTurn();
+      }, ACTIVITY_TIMEOUT_MS);
+    };
+
     const timeout = setTimeout(() => {
+      clearActivityTimeout();
       pendingTurn = null;
       reject(new Error(`Timed out waiting for ${opts.agentName} to finish the turn`));
     }, TURN_TIMEOUT_MS);
-    pendingTurn = { resolve, reject, timeout };
+
+    pendingTurn = {
+      resolve,
+      reject,
+      timeout,
+      resetActivityTimeout,
+      clearActivityTimeout,
+    };
+    resetActivityTimeout();
   });
 
   const stopRunnerFromBackendStatus = (status: 'error' | 'stopped', detail?: string) => {
@@ -674,6 +707,8 @@ export async function runAcp(opts: {
   };
 
   const onBackendMessage = (msg: AgentMessage) => {
+    pendingTurn?.resetActivityTimeout();
+
     if (verbose) {
       logAcp('muted', `Outgoing raw backend message from ${opts.agentName}: ${formatUnknownForConsole(msg, ACP_RAW_PREVIEW_CHARS)}`);
     }
