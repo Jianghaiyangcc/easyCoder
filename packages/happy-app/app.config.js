@@ -1,8 +1,8 @@
 const variant = process.env.APP_ENV || 'development';
 const name = {
-    development: "Happy (dev)",
-    preview: "Happy (preview)",
-    production: "Happy"
+    development: "码不停蹄 (dev)",
+    preview: "码不停蹄 (preview)",
+    production: "码不停蹄"
 }[variant];
 const bundleId = {
     development: "club.daima.easycoder.dev",

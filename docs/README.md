@@ -1,6 +1,6 @@
-# Happy Docs
+# Code Never Stops Docs
 
-This folder documents how Happy works internally, with a focus on protocol, backend architecture, deployment, and the CLI tool. Start here.
+This folder documents how Code Never Stops works internally, with a focus on protocol, backend architecture, deployment, and the CLI tool. Start here.
 
 ## Index
 - protocol.md: Wire protocol (WebSocket), payload formats, sequencing, and concurrency rules.

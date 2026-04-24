@@ -1,6 +1,6 @@
-# Happy Agent
+# Code Never Stops Agent
 
-CLI client for controlling Happy Coder agents remotely.
+CLI client for controlling Code Never Stops agents remotely.
 
 Unlike `happy-cli` which both runs and controls agents, `happy-agent` only controls them — listing machines, spawning sessions on a machine, creating sessions, sending messages, reading history, monitoring state, and stopping sessions.
 
@@ -20,7 +20,7 @@ cd packages/happy-agent && npm link
 
 ## Authentication
 
-Happy Agent uses account authentication via QR code, the same flow as linking a device in the Happy mobile app.
+Code Never Stops Agent uses account authentication via QR code, the same flow as linking a device in the Code Never Stops mobile app.
 
 ```bash
 # Authenticate by scanning QR code with the Happy mobile app

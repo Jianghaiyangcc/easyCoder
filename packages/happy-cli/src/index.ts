@@ -654,12 +654,12 @@ ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor c
     // Show help
     if (showHelp) {
       console.log(`
-${chalk.bold('happy')} - Claude Code On the Go
+${chalk.bold('happy')} - Code Never Stops CLI
 
 ${chalk.bold('Usage:')}
   happy [options]         Start Claude with mobile control
   happy auth              Manage authentication
-  happy resume            Resume a previous Happy session by Happy session ID
+  happy resume            Resume a previous session by session ID
   happy codex             Start Codex mode
   happy gemini            Start Gemini mode (ACP)
   happy acp               Start a generic ACP-compatible agent
@@ -672,12 +672,12 @@ ${chalk.bold('Usage:')}
 
 ${chalk.bold('Examples:')}
   happy                    Start session
-  happy resume cmmij8      Resume a previous session by Happy session ID
+  happy resume cmmij8      Resume a previous session by session ID
   happy --yolo             Start with bypassing permissions
                             happy sugar for --dangerously-skip-permissions
   happy --chrome           Enable Chrome browser access for this session
   happy --no-chrome        Disable Chrome even if default is on
-  happy --no-sandbox       Disable Happy sandbox for this session
+  happy --no-sandbox       Disable sandbox for this session
   happy --js-runtime bun   Use bun instead of node to spawn Claude Code
   happy --claude-env ANTHROPIC_BASE_URL=http://127.0.0.1:3456
                            Use a custom API endpoint (e.g., claude-code-router)
@@ -689,7 +689,7 @@ ${chalk.bold('Examples:')}
   happy auth login --force Authenticate
   happy doctor             Run diagnostics
 
-${chalk.bold('Happy supports ALL Claude options!')}
+${chalk.bold('Code Never Stops supports ALL Claude options!')}
   Use any claude flag with happy as you would with claude. Our favorite:
 
   happy --resume
@@ -770,7 +770,7 @@ ${chalk.bold('Usage:')}
 
 ${chalk.bold('Options:')}
   -p <message>    Notification message (required)
-  -t <title>      Notification title (optional, defaults to "Happy")
+  -t <title>      Notification title (optional, defaults to "Code Never Stops")
 
 ${chalk.bold('Examples:')}
   happy notify -p "Deployment complete!"
@@ -799,8 +799,8 @@ ${chalk.bold('Examples:')}
     // Create API client and send push notification
     const api = await ApiClient.create(credentials);
 
-    // Use custom title or default to "Happy"
-    const notificationTitle = title || 'Happy'
+    // Use custom title or default to "Code Never Stops"
+    const notificationTitle = title || 'Code Never Stops'
 
     // Send the push notification
     api.push().sendToAllDevices(

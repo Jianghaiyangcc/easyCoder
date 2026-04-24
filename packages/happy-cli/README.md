@@ -1,4 +1,4 @@
-# Happy
+# Code Never Stops CLI
 
 Code on the go — control AI coding agents from your phone, browser, or terminal.
 
@@ -60,7 +60,7 @@ happy auth login
 happy auth logout
 ```
 
-Happy uses cryptographic key pairs for authentication — your private key stays on your machine. All session data is end-to-end encrypted before leaving your device.
+Code Never Stops uses cryptographic key pairs for authentication — your private key stays on your machine. All session data is end-to-end encrypted before leaving your device.
 
 To connect third-party agent APIs:
 
