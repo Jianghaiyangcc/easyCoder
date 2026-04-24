@@ -58,7 +58,7 @@ export const SettingsView = React.memo(function SettingsView() {
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
     const handleGitHub = async () => {
-        const url = 'https://github.com/slopus/happy';
+        const url = 'https://github.com/Jianghaiyangcc/easyCoder';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);

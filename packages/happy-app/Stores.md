@@ -68,7 +68,7 @@ https://github.com/Jianghaiyangcc/easyCoder/blob/main/PRIVACY.md
 https://github.com/Jianghaiyangcc/easyCoder/issues
 
 ### Website / Marketing
-https://github.com/slopus/happy
+https://github.com/Jianghaiyangcc/easyCoder
 
 ## Additional Google Play Requirements
 

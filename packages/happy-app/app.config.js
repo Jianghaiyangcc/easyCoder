@@ -5,9 +5,9 @@ const name = {
     production: "码不停蹄"
 }[variant];
 const bundleId = {
-    development: "club.daima.easycoder.dev",
-    preview: "club.daima.easycoder.preview",
-    production: "club.daima.easycoder"
+    development: "club.daima.code.dev",
+    preview: "club.daima.code.preview",
+    production: "club.daima.code"
 }[variant];
 // const stagingElevenLabsAgentId = 'agent_7801k2c0r5hjfraa1kdbytpvs6yt';
 const productionElevenLabsAgentId = 'agent_6701k211syvvegba4kt7m68nxjmw';

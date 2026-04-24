@@ -54,7 +54,7 @@ Every issue should start with a **one-paragraph summary** of the problem. Don't 
 ### Getting Started
 
 ```bash
-git clone https://github.com/slopus/happy.git
+git clone https://github.com/Jianghaiyangcc/easyCoder.git
 cd happy
 pnpm install
 ```

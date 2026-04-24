@@ -28,7 +28,7 @@
       "client_info": {
         "mobilesdk_app_id": "",
         "android_client_info": {
-          "package_name": "club.daima.easycoder.dev"
+          "package_name": "club.daima.code.dev"
         }
       },
       "oauth_client": [],
@@ -47,7 +47,7 @@
       "client_info": {
         "mobilesdk_app_id": "",
         "android_client_info": {
-          "package_name": "club.daima.easycoder.preview"
+          "package_name": "club.daima.code.preview"
         }
       },
       "oauth_client": [],

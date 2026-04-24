@@ -25,7 +25,7 @@ export function versionRoutes(app: Fastify) {
             if (semver.satisfies(version, IOS_UP_TO_DATE)) {
                 reply.send({ updateUrl: null });
             } else {
-                reply.send({ updateUrl: 'https://apps.apple.com/us/app/happy-claude-code-client/id6748571505' });
+                reply.send({ updateUrl: 'https://apps.apple.com/us/app/<TODO: 后续要用实际的苹果应用ID代替掉>' });
             }
             return;
         }

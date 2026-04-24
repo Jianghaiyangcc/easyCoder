@@ -111,7 +111,7 @@ happy sandbox disable
 ### Building from source
 
 ```bash
-git clone https://github.com/slopus/happy
+git clone https://github.com/Jianghaiyangcc/easyCoder
 cd happy-cli
 yarn install
 yarn workspace happy cli --help

@@ -66,8 +66,8 @@
 
 ## Resources
 
-- GitHub: https://github.com/slopus/happy
+- GitHub: https://github.com/Jianghaiyangcc/easyCoder
 - Website: https://code.daima.club
-- iOS App: https://apps.apple.com/us/app/happy-claude-code-client/id6748571505
+- iOS App: https://apps.apple.com/us/app/<TODO: 后续要用实际的苹果应用ID代替掉>
 - Android App: https://play.google.com/store/apps/details?id=club.daima.code
 - Web App: https://code.daima.club/
