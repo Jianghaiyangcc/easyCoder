@@ -10,7 +10,7 @@ export const LocalSettingsSchema = z.object({
     devModeEnabled: z.boolean().describe('Enable developer menu in settings'),
     voiceUpsellOverride: z.enum(['control', 'show-paywall-before-first-voice-chat', 'voice-onboarding-and-upsell']).nullable().describe('Developer-only local override for the voice-upsell PostHog flag'),
     commandPaletteEnabled: z.boolean().describe('Enable CMD+K command palette (web only)'),
-    themePreference: z.enum(['light', 'dark', 'adaptive']).describe('Theme preference: light, dark, or adaptive (follows system)'),
+    themePreference: z.enum(['light', 'dark', 'zinc', 'midnight', 'claude', 'adaptive']).describe('Theme preference: light, dark, zinc, midnight, claude, or adaptive (follows system)'),
     markdownCopyV2: z.boolean().describe('Replace native paragraph selection with long-press modal for full markdown copy'),
     consoleLoggingEnabled: z.boolean().describe('Enable console output in production builds'),
     verboseLogging: z.boolean().describe('Log all network requests and responses'),

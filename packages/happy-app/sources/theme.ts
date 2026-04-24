@@ -449,4 +449,97 @@ export const darkTheme = {
     ...sharedSpacing,
 } satisfies typeof lightTheme;
 
+interface DarkThemeVariantConfig {
+    surface: string;
+    surfacePressed: string;
+    surfaceHigh: string;
+    surfaceHighest: string;
+    divider: string;
+    mutedText: string;
+    accent: string;
+}
+
+function createDarkThemeVariant(config: DarkThemeVariantConfig) {
+    return {
+        ...darkTheme,
+        colors: {
+            ...darkTheme.colors,
+            textLink: config.accent,
+            surface: config.surface,
+            surfacePressed: config.surfacePressed,
+            surfaceSelected: config.surfacePressed,
+            surfacePressedOverlay: Platform.select({ ios: config.surfacePressed, default: 'transparent' }),
+            surfaceHigh: config.surfaceHigh,
+            surfaceHighest: config.surfaceHighest,
+            divider: config.divider,
+            header: {
+                ...darkTheme.colors.header,
+                background: config.surface,
+            },
+            input: {
+                ...darkTheme.colors.input,
+                background: config.surfaceHigh,
+            },
+            groupped: {
+                ...darkTheme.colors.groupped,
+                background: config.surfacePressed,
+                chevron: config.surfaceHighest,
+                sectionTitle: config.mutedText,
+            },
+            status: {
+                ...darkTheme.colors.status,
+                connecting: config.accent,
+            },
+            diff: {
+                ...darkTheme.colors.diff,
+                contextBg: config.surfacePressed,
+                contextText: config.mutedText,
+                lineNumberBg: config.surfacePressed,
+                lineNumberText: config.mutedText,
+                hunkHeaderBg: config.surfaceHigh,
+                hunkHeaderText: config.accent,
+            },
+            userMessageBackground: config.surfaceHigh,
+            agentEventText: config.mutedText,
+            gitBranchText: config.mutedText,
+            gitFileCountText: config.mutedText,
+            terminal: {
+                ...darkTheme.colors.terminal,
+                background: config.surface,
+                prompt: config.accent,
+            },
+        },
+    } satisfies typeof darkTheme;
+}
+
+export const darkZincTheme = createDarkThemeVariant({
+    surface: '#18181B',
+    surfacePressed: '#1F1F22',
+    surfaceHigh: '#27272A',
+    surfaceHighest: '#3F3F46',
+    divider: '#27272A',
+    mutedText: '#A1A1AA',
+    accent: '#7CCBA0',
+});
+
+export const darkMidnightTheme = createDarkThemeVariant({
+    surface: '#161820',
+    surfacePressed: '#1C1E27',
+    surfaceHigh: '#252731',
+    surfaceHighest: '#3C3E4C',
+    divider: '#242636',
+    mutedText: '#9A9DB0',
+    accent: '#7EAAEB',
+});
+
+export const darkClaudeTheme = createDarkThemeVariant({
+    surface: '#1F1F1E',
+    surfacePressed: '#262523',
+    surfaceHigh: '#2F2D2B',
+    surfaceHighest: '#4A4745',
+    divider: '#2C2A27',
+    mutedText: '#ADA9A5',
+    accent: '#E89A7F',
+});
+
 export type Theme = typeof lightTheme;

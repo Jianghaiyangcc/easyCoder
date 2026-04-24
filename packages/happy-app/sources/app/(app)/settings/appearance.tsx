@@ -9,11 +9,21 @@ import { useUnistyles, UnistylesRuntime } from 'react-native-unistyles';
 import { Switch } from '@/components/Switch';
 import { Appearance } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
-import { darkTheme, lightTheme } from '@/theme';
+import { darkClaudeTheme, darkMidnightTheme, darkTheme, darkZincTheme, lightTheme } from '@/theme';
 import { t, getLanguageNativeName, SUPPORTED_LANGUAGES } from '@/text';
 
 // Define known avatar styles for this version of the app
 type KnownAvatarStyle = 'pixelated' | 'gradient' | 'brutalist';
+type ThemePreference = 'adaptive' | 'light' | 'dark' | 'zinc' | 'midnight' | 'claude';
+type SelectableThemePreference = Exclude<ThemePreference, 'adaptive'>;
+
+const selectableThemeBackgrounds: Record<SelectableThemePreference, string> = {
+    light: lightTheme.colors.groupped.background,
+    dark: darkTheme.colors.groupped.background,
+    zinc: darkZincTheme.colors.groupped.background,
+    midnight: darkMidnightTheme.colors.groupped.background,
+    claude: darkClaudeTheme.colors.groupped.background,
+};
 
 const isKnownAvatarStyle = (style: string): style is KnownAvatarStyle => {
     return style === 'pixelated' || style === 'gradient' || style === 'brutalist';
@@ -51,42 +61,109 @@ export default function AppearanceSettingsScreen() {
         }
         return t('settingsLanguage.automatic');
     };
+
+    const applyThemePreference = (nextTheme: ThemePreference) => {
+        setThemePreference(nextTheme);
+
+        if (nextTheme === 'adaptive') {
+            UnistylesRuntime.setAdaptiveThemes(true);
+            const resolvedTheme: SelectableThemePreference = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+            const color = selectableThemeBackgrounds[resolvedTheme];
+            UnistylesRuntime.setRootViewBackgroundColor(color);
+            SystemUI.setBackgroundColorAsync(color);
+            return;
+        }
+
+        UnistylesRuntime.setAdaptiveThemes(false);
+        UnistylesRuntime.setTheme(nextTheme);
+        const color = selectableThemeBackgrounds[nextTheme];
+        UnistylesRuntime.setRootViewBackgroundColor(color);
+        SystemUI.setBackgroundColorAsync(color);
+    };
+
+    const themeOptions: {
+        key: ThemePreference;
+        titleKey:
+            | 'settingsAppearance.themeOptions.adaptive'
+            | 'settingsAppearance.themeOptions.light'
+            | 'settingsAppearance.themeOptions.dark'
+            | 'settingsAppearance.themeOptions.zinc'
+            | 'settingsAppearance.themeOptions.midnight'
+            | 'settingsAppearance.themeOptions.claude';
+        subtitleKey:
+            | 'settingsAppearance.themeDescriptions.adaptive'
+            | 'settingsAppearance.themeDescriptions.light'
+            | 'settingsAppearance.themeDescriptions.dark'
+            | 'settingsAppearance.themeDescriptions.zinc'
+            | 'settingsAppearance.themeDescriptions.midnight'
+            | 'settingsAppearance.themeDescriptions.claude';
+        icon: keyof typeof Ionicons.glyphMap;
+        color: string;
+    }[] = [
+        {
+            key: 'adaptive',
+            titleKey: 'settingsAppearance.themeOptions.adaptive',
+            subtitleKey: 'settingsAppearance.themeDescriptions.adaptive',
+            icon: 'contrast-outline',
+            color: theme.colors.status.connecting,
+        },
+        {
+            key: 'light',
+            titleKey: 'settingsAppearance.themeOptions.light',
+            subtitleKey: 'settingsAppearance.themeDescriptions.light',
+            icon: 'sunny-outline',
+            color: '#FF9500',
+        },
+        {
+            key: 'dark',
+            titleKey: 'settingsAppearance.themeOptions.dark',
+            subtitleKey: 'settingsAppearance.themeDescriptions.dark',
+            icon: 'moon-outline',
+            color: '#34C759',
+        },
+        {
+            key: 'zinc',
+            titleKey: 'settingsAppearance.themeOptions.zinc',
+            subtitleKey: 'settingsAppearance.themeDescriptions.zinc',
+            icon: 'albums-outline',
+            color: '#8E8E93',
+        },
+        {
+            key: 'midnight',
+            titleKey: 'settingsAppearance.themeOptions.midnight',
+            subtitleKey: 'settingsAppearance.themeDescriptions.midnight',
+            icon: 'water-outline',
+            color: '#5F8BDB',
+        },
+        {
+            key: 'claude',
+            titleKey: 'settingsAppearance.themeOptions.claude',
+            subtitleKey: 'settingsAppearance.themeDescriptions.claude',
+            icon: 'flame-outline',
+            color: '#D97757',
+        },
+    ];
+
     return (
         <ItemList style={{ paddingTop: 0 }}>
 
             {/* Theme Settings */}
             <ItemGroup title={t('settingsAppearance.theme')} footer={t('settingsAppearance.themeDescription')}>
-                <Item
-                    title={t('settings.appearance')}
-                    subtitle={themePreference === 'adaptive' ? t('settingsAppearance.themeDescriptions.adaptive') : themePreference === 'light' ? t('settingsAppearance.themeDescriptions.light') : t('settingsAppearance.themeDescriptions.dark')}
-                    icon={<Ionicons name="contrast-outline" size={29} color={theme.colors.status.connecting} />}
-                    detail={themePreference === 'adaptive' ? t('settingsAppearance.themeOptions.adaptive') : themePreference === 'light' ? t('settingsAppearance.themeOptions.light') : t('settingsAppearance.themeOptions.dark')}
-                    onPress={() => {
-                        const currentIndex = themePreference === 'adaptive' ? 0 : themePreference === 'light' ? 1 : 2;
-                        const nextIndex = (currentIndex + 1) % 3;
-                        const nextTheme = nextIndex === 0 ? 'adaptive' : nextIndex === 1 ? 'light' : 'dark';
-                        
-                        // Update the setting
-                        setThemePreference(nextTheme);
-                        
-                        // Apply the theme change immediately
-                        if (nextTheme === 'adaptive') {
-                            // Enable adaptive themes and set to system theme
-                            UnistylesRuntime.setAdaptiveThemes(true);
-                            const systemTheme = Appearance.getColorScheme();
-                            const color = systemTheme === 'dark' ? darkTheme.colors.groupped.background : lightTheme.colors.groupped.background;
-                            UnistylesRuntime.setRootViewBackgroundColor(color);
-                            SystemUI.setBackgroundColorAsync(color);
-                        } else {
-                            // Disable adaptive themes and set explicit theme
-                            UnistylesRuntime.setAdaptiveThemes(false);
-                            UnistylesRuntime.setTheme(nextTheme);
-                            const color = nextTheme === 'dark' ? darkTheme.colors.groupped.background : lightTheme.colors.groupped.background;
-                            UnistylesRuntime.setRootViewBackgroundColor(color);
-                            SystemUI.setBackgroundColorAsync(color);
+                {themeOptions.map((option) => (
+                    <Item
+                        key={option.key}
+                        title={t(option.titleKey)}
+                        subtitle={t(option.subtitleKey)}
+                        icon={<Ionicons name={option.icon} size={29} color={option.color} />}
+                        rightElement={
+                            themePreference === option.key
+                                ? <Ionicons name="checkmark-circle" size={20} color={theme.colors.status.connected} />
+                                : undefined
                         }
-                    }}
-                />
+                        showChevron={false}
+                        onPress={() => applyThemePreference(option.key)}
+                    />
+                ))}
             </ItemGroup>
 
             {/* Language Settings */}
