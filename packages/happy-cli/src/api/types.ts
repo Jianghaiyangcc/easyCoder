@@ -124,6 +124,22 @@ export type Session = {
   agentStateVersion: number,
 }
 
+const AgentCapabilityOptionSchema = z.object({
+  code: z.string(),
+  value: z.string(),
+  description: z.string().nullable().optional(),
+})
+
+const AgentCapabilitySchema = z.object({
+  models: z.array(AgentCapabilityOptionSchema).optional(),
+  operatingModes: z.array(AgentCapabilityOptionSchema).optional(),
+  detectedAt: z.number(),
+  source: z.enum(['probe', 'fallback', 'session']).optional(),
+})
+
+export type AgentCapabilityOption = z.infer<typeof AgentCapabilityOptionSchema>
+export type AgentCapability = z.infer<typeof AgentCapabilitySchema>
+
 /**
  * Machine metadata - static information (rarely changes)
  */
@@ -134,6 +150,13 @@ export const MachineMetadataSchema = z.object({
   homeDir: z.string(),
   happyHomeDir: z.string(),
   happyLibDir: z.string(),
+  agentCapabilities: z.object({
+    claude: AgentCapabilitySchema.optional(),
+    codex: AgentCapabilitySchema.optional(),
+    gemini: AgentCapabilitySchema.optional(),
+    openclaw: AgentCapabilitySchema.optional(),
+    opencode: AgentCapabilitySchema.optional(),
+  }).optional(),
   cliAvailability: z.object({
     claude: z.boolean(),
     codex: z.boolean(),
@@ -152,6 +175,7 @@ export const MachineMetadataSchema = z.object({
 })
 
 export type MachineMetadata = z.infer<typeof MachineMetadataSchema>
+export type AgentCapabilities = NonNullable<MachineMetadata['agentCapabilities']>
 
 /**
  * Daemon state - dynamic runtime information (frequently updated)

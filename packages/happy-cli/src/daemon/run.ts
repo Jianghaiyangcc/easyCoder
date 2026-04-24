@@ -39,6 +39,7 @@ export const initialMachineMetadata: MachineMetadata = {
   homeDir: os.homedir(),
   happyHomeDir: configuration.happyHomeDir,
   happyLibDir: projectPath(),
+  agentCapabilities: {},
   cliAvailability: detectCLIAvailability(),
   resumeSupport: detectResumeSupport(),
 };

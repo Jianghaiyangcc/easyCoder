@@ -126,6 +126,22 @@ export interface DecryptedMessage {
     createdAt: number,
 }
 
+const AgentCapabilityOptionSchema = z.object({
+    code: z.string(),
+    value: z.string(),
+    description: z.string().nullable().optional(),
+});
+
+const AgentCapabilitySchema = z.object({
+    models: z.array(AgentCapabilityOptionSchema).optional(),
+    operatingModes: z.array(AgentCapabilityOptionSchema).optional(),
+    detectedAt: z.number(),
+    source: z.enum(['probe', 'fallback', 'session']).optional(),
+});
+
+export type AgentCapabilityOption = z.infer<typeof AgentCapabilityOptionSchema>;
+export type AgentCapability = z.infer<typeof AgentCapabilitySchema>;
+
 //
 // Machine states
 //
@@ -145,6 +161,13 @@ export const MachineMetadataSchema = z.object({
     daemonLastKnownPid: z.number().optional(),
     shutdownRequestedAt: z.number().optional(),
     shutdownSource: z.enum(['happy-app', 'happy-cli', 'os-signal', 'unknown']).optional(),
+    agentCapabilities: z.object({
+        claude: AgentCapabilitySchema.optional(),
+        codex: AgentCapabilitySchema.optional(),
+        gemini: AgentCapabilitySchema.optional(),
+        openclaw: AgentCapabilitySchema.optional(),
+        opencode: AgentCapabilitySchema.optional(),
+    }).optional(),
     cliAvailability: z.object({
         claude: z.boolean(),
         codex: z.boolean(),

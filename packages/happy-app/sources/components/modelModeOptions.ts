@@ -105,6 +105,12 @@ export function getOpenClawPermissionModes(translate: Translate): PermissionMode
     ];
 }
 
+export function getOpenCodePermissionModes(translate: Translate): PermissionMode[] {
+    return [
+        { key: 'default', name: translate('agentInput.permissionMode.default'), description: null },
+    ];
+}
+
 export function getHardcodedPermissionModes(flavor: AgentFlavor, translate: Translate): PermissionMode[] {
     if (flavor === 'codex') {
         return getCodexPermissionModes(translate);
@@ -115,10 +121,19 @@ export function getHardcodedPermissionModes(flavor: AgentFlavor, translate: Tran
     if (flavor === 'openclaw') {
         return getOpenClawPermissionModes(translate);
     }
+    if (flavor === 'opencode') {
+        return getOpenCodePermissionModes(translate);
+    }
     return getClaudePermissionModes(translate);
 }
 
 export function getOpenClawModelModes(): ModelMode[] {
+    return [
+        { key: 'default', name: 'default model', description: null },
+    ];
+}
+
+export function getOpenCodeModelModes(): ModelMode[] {
     return [
         { key: 'default', name: 'default model', description: null },
     ];
@@ -134,6 +149,9 @@ export function getHardcodedModelModes(flavor: AgentFlavor, _translate: Translat
     if (flavor === 'openclaw') {
         return getOpenClawModelModes();
     }
+    if (flavor === 'opencode') {
+        return getOpenCodeModelModes();
+    }
     return getClaudeModelModes();
 }
 
@@ -144,7 +162,7 @@ export function getAvailableModels(
 ): ModelMode[] {
     const metadataModels = mapMetadataOptions(metadata?.models);
     if (metadataModels.length > 0) {
-        if (flavor === 'codex' && !metadataModels.some((model) => model.key === 'default')) {
+        if ((flavor === 'codex' || flavor === 'opencode') && !metadataModels.some((model) => model.key === 'default')) {
             return [{ key: 'default', name: 'default model', description: null }, ...metadataModels];
         }
         return metadataModels;
@@ -157,10 +175,6 @@ export function getAvailablePermissionModes(
     metadata: Metadata | null | undefined,
     translate: Translate,
 ): PermissionMode[] {
-    if (flavor === 'claude' || flavor === 'codex' || flavor === 'openclaw') {
-        return hackModes(getHardcodedPermissionModes(flavor, translate));
-    }
-
     const metadataModes = mapMetadataOptions(metadata?.operatingModes);
     if (metadataModes.length > 0) {
         return hackModes(metadataModes);

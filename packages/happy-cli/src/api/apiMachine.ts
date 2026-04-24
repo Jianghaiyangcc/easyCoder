@@ -6,14 +6,48 @@
 import { io, Socket } from 'socket.io-client';
 import { logger } from '@/ui/logger';
 import { configuration } from '@/configuration';
-import { MachineMetadata, DaemonState, Machine, Update, UpdateMachineBody } from './types';
+import { AgentCapabilities, MachineMetadata, DaemonState, Machine, Update, UpdateMachineBody } from './types';
 import { registerCommonHandlers, SpawnSessionOptions, SpawnSessionResult } from '../modules/common/registerCommonHandlers';
 import { encodeBase64, decodeBase64, encrypt, decrypt } from './encryption';
 import { backoff } from '@/utils/time';
 import { RpcHandlerManager } from './rpc/RpcHandlerManager';
 import { detectCLIAvailability, CLIAvailability } from '@/utils/detectCLI';
-import { detectResumeSupport, type ResumeSupport } from '@/resume/localHappyAgentAuth';
+import {
+    AGENT_CAPABILITY_PROBE_INTERVAL_MS,
+    agentCapabilitiesEqual,
+    detectAgentCapabilities,
+} from '@/utils/detectAgentCapabilities';
+import { detectResumeSupport } from '@/resume/localHappyAgentAuth';
 import { shouldReconnect } from '@/utils/lidState';
+
+type ResumeSupportSnapshot = {
+    rpcAvailable: boolean;
+    requiresSameMachine: boolean;
+    requiresHappyAgentAuth: boolean;
+    happyAgentAuthenticated: boolean;
+    detectedAt: number;
+};
+
+function cliAvailabilityEqual(a: CLIAvailability | null, b: CLIAvailability): boolean {
+    if (!a) {
+        return false;
+    }
+    return a.claude === b.claude
+        && a.codex === b.codex
+        && a.gemini === b.gemini
+        && a.openclaw === b.openclaw
+        && a.opencode === b.opencode;
+}
+
+function resumeSupportEqual(a: ResumeSupportSnapshot | null, b: ResumeSupportSnapshot): boolean {
+    if (!a) {
+        return false;
+    }
+    return a.rpcAvailable === b.rpcAvailable
+        && a.requiresSameMachine === b.requiresSameMachine
+        && a.requiresHappyAgentAuth === b.requiresHappyAgentAuth
+        && a.happyAgentAuthenticated === b.happyAgentAuthenticated;
+}
 
 interface ServerToDaemonEvents {
     update: (data: Update) => void;
@@ -83,7 +117,10 @@ export class ApiMachineClient {
     private socket!: Socket<ServerToDaemonEvents, DaemonToServerEvents>;
     private keepAliveInterval: NodeJS.Timeout | null = null;
     private lastKnownCLIAvailability: CLIAvailability | null = null;
-    private lastKnownResumeSupport: ResumeSupport | null = null;
+    private lastKnownResumeSupport: ResumeSupportSnapshot | null = null;
+    private lastKnownAgentCapabilities: AgentCapabilities | null = null;
+    private lastAgentCapabilitiesProbeAt = 0;
+    private refreshingMachineMetadata = false;
     private rpcHandlerManager: RpcHandlerManager;
     private resumeSessionHandler: ((sessionId: string) => Promise<SpawnSessionResult>) | null = null;
     private reconnectInterval: NodeJS.Timeout | null = null;
@@ -92,6 +129,14 @@ export class ApiMachineClient {
         private token: string,
         private machine: Machine
     ) {
+        this.lastKnownCLIAvailability = this.machine.metadata?.cliAvailability ?? null;
+        this.lastKnownResumeSupport = this.machine.metadata?.resumeSupport ?? null;
+        this.lastKnownAgentCapabilities = this.machine.metadata?.agentCapabilities ?? null;
+        const existingDetectedAt = Object.values(this.lastKnownAgentCapabilities ?? {})
+            .map((capability) => capability?.detectedAt ?? 0)
+            .reduce((max, value) => Math.max(max, value), 0);
+        this.lastAgentCapabilitiesProbeAt = existingDetectedAt;
+
         // Initialize RPC handler manager
         this.rpcHandlerManager = new RpcHandlerManager({
             scopePrefix: this.machine.id,
@@ -346,6 +391,7 @@ export class ApiMachineClient {
 
     private startKeepAlive() {
         this.stopKeepAlive();
+        void this.refreshMachineMetadata(detectCLIAvailability(), detectResumeSupport());
         this.keepAliveInterval = setInterval(() => {
             const payload = {
                 machineId: this.machine.id,
@@ -356,31 +402,57 @@ export class ApiMachineClient {
             }
             this.socket.emit('machine-alive', payload);
 
-            // Re-detect CLI availability and push metadata update if changed
             const newAvailability = detectCLIAvailability();
-            const prev = this.lastKnownCLIAvailability;
             const newResumeSupport = detectResumeSupport();
-            const prevResume = this.lastKnownResumeSupport;
-            const cliAvailabilityChanged = !prev || prev.claude !== newAvailability.claude || prev.codex !== newAvailability.codex || prev.gemini !== newAvailability.gemini || prev.openclaw !== newAvailability.openclaw || prev.opencode !== newAvailability.opencode;
-            const resumeSupportChanged = !prevResume
-                || prevResume.rpcAvailable !== newResumeSupport.rpcAvailable
-                || prevResume.happyAgentAuthenticated !== newResumeSupport.happyAgentAuthenticated;
-
             this.syncResumeSessionRpcRegistration(newResumeSupport.rpcAvailable);
 
-            if (cliAvailabilityChanged || resumeSupportChanged) {
-                this.lastKnownCLIAvailability = newAvailability;
-                this.lastKnownResumeSupport = newResumeSupport;
-                this.updateMachineMetadata((metadata) => ({
-                    ...(metadata || {} as any),
-                    cliAvailability: newAvailability,
-                    resumeSupport: newResumeSupport,
-                })).catch((err) => {
-                    logger.debug('[API MACHINE] Failed to update machine capabilities:', err);
-                });
-            }
+            void this.refreshMachineMetadata(newAvailability, newResumeSupport);
         }, 20000);
         logger.debug('[API MACHINE] Keep-alive started (20s interval)');
+    }
+
+    private async refreshMachineMetadata(newAvailability: CLIAvailability, newResumeSupport: ResumeSupportSnapshot): Promise<void> {
+        if (this.refreshingMachineMetadata) {
+            return;
+        }
+        this.refreshingMachineMetadata = true;
+
+        try {
+            const cliAvailabilityChanged = !cliAvailabilityEqual(this.lastKnownCLIAvailability, newAvailability);
+            const resumeSupportChanged = !resumeSupportEqual(this.lastKnownResumeSupport, newResumeSupport);
+            const now = Date.now();
+            const shouldProbeCapabilities =
+                cliAvailabilityChanged
+                || !this.lastKnownAgentCapabilities
+                || now - this.lastAgentCapabilitiesProbeAt >= AGENT_CAPABILITY_PROBE_INTERVAL_MS;
+
+            let nextCapabilities = this.lastKnownAgentCapabilities ?? {};
+            if (shouldProbeCapabilities) {
+                nextCapabilities = await detectAgentCapabilities({ availability: newAvailability });
+                this.lastAgentCapabilitiesProbeAt = now;
+            }
+
+            const capabilitiesChanged = !agentCapabilitiesEqual(this.lastKnownAgentCapabilities, nextCapabilities);
+
+            if (!cliAvailabilityChanged && !resumeSupportChanged && !capabilitiesChanged) {
+                return;
+            }
+
+            this.lastKnownCLIAvailability = newAvailability;
+            this.lastKnownResumeSupport = newResumeSupport;
+            this.lastKnownAgentCapabilities = nextCapabilities;
+
+            await this.updateMachineMetadata((metadata) => ({
+                ...(metadata || {} as any),
+                cliAvailability: newAvailability,
+                resumeSupport: newResumeSupport,
+                agentCapabilities: nextCapabilities,
+            }));
+        } catch (err) {
+            logger.debug('[API MACHINE] Failed to update machine capabilities:', err);
+        } finally {
+            this.refreshingMachineMetadata = false;
+        }
     }
 
     private startSmartReconnect() {

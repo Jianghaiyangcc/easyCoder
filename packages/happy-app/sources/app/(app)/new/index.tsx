@@ -42,10 +42,10 @@ import { formatPathRelativeToHome, formatLastSeen } from '@/utils/sessionUtils';
 import { useNavigateToSession } from '@/hooks/useNavigateToSession';
 import { useNewSessionDraft } from '@/hooks/useNewSessionDraft';
 import { Modal } from '@/modal';
-import type { Machine, Session } from '@/sync/storageTypes';
+import type { Machine, Metadata, Session } from '@/sync/storageTypes';
 import {
-    getHardcodedPermissionModes,
-    getHardcodedModelModes,
+    getAvailableModels,
+    getAvailablePermissionModes,
     getEffortLevelsForModel,
     getDefaultEffortKeyForModel,
     getDefaultPermissionModeKey,
@@ -468,6 +468,40 @@ function getMachineName(machine: Machine): string {
     return machine.metadata?.displayName || machine.metadata?.host || 'unknown';
 }
 
+function findLatestSessionMetadataForAgent(
+    sessions: ReturnType<typeof useSessions>,
+    machineId: string | null,
+    agent: AgentKey,
+): Metadata | null {
+    if (!sessions || !machineId) {
+        return null;
+    }
+
+    let latest: Session | null = null;
+    for (const maybeSession of sessions) {
+        if (typeof maybeSession === 'string') {
+            continue;
+        }
+        const session = maybeSession as Session;
+        const metadata = session.metadata;
+        if (!metadata) {
+            continue;
+        }
+        if (metadata.machineId !== machineId || metadata.flavor !== agent) {
+            continue;
+        }
+        if (!metadata.models?.length && !metadata.operatingModes?.length) {
+            continue;
+        }
+
+        if (!latest || session.updatedAt > latest.updatedAt) {
+            latest = session;
+        }
+    }
+
+    return latest?.metadata ?? null;
+}
+
 function NewSessionScreen() {
     const { theme } = useUnistyles();
     const safeArea = useSafeAreaInsets();
@@ -630,14 +664,32 @@ function NewSessionScreen() {
         }
     }, [availableAgents, selectedAgent, setSelectedAgent]);
 
-    // Derive options from agent type
+    const detectedModeMetadata = React.useMemo<Metadata | null>(() => {
+        const capability = selectedMachine?.metadata?.agentCapabilities?.[selectedAgent];
+        if (!capability) {
+            return null;
+        }
+
+        return {
+            models: capability.models,
+            operatingModes: capability.operatingModes,
+        } as Metadata;
+    }, [selectedMachine, selectedAgent]);
+
+    const latestSessionModeMetadata = React.useMemo<Metadata | null>(() => (
+        findLatestSessionMetadataForAgent(sessions, selectedMachineId, selectedAgent)
+    ), [sessions, selectedMachineId, selectedAgent]);
+
+    const modeMetadata = detectedModeMetadata ?? latestSessionModeMetadata;
+
+    // Derive options from agent type with priority: detected capabilities > latest session metadata > hardcoded
     const permissionModes = React.useMemo<PermissionMode[]>(
-        () => getHardcodedPermissionModes(selectedAgent, t),
-        [selectedAgent],
+        () => getAvailablePermissionModes(selectedAgent, modeMetadata, t),
+        [selectedAgent, modeMetadata],
     );
     const modelModes = React.useMemo<ModelMode[]>(
-        () => getHardcodedModelModes(selectedAgent, t),
-        [selectedAgent],
+        () => getAvailableModels(selectedAgent, modeMetadata, t),
+        [selectedAgent, modeMetadata],
     );
 
     const currentModel = modelModes[modelIndex] ?? modelModes[0];
