@@ -75,7 +75,7 @@ The app has three build variants — all can be installed simultaneously on the 
 |---------|-----------|----------|----------|
 | Development | `com.slopus.happy.dev` | Happy (dev) | Local development with hot reload |
 | Preview | `com.slopus.happy.preview` | Happy (preview) | Beta testing & OTA updates |
-| Production | `com.ex3ndr.happy` | Happy | App Store release |
+| Production | `club.daima.code` | Happy | App Store release |
 
 Swap `ios:dev` for `ios:preview` or `ios:production` (same for `android:`).
 

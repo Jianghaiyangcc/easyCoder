@@ -10,31 +10,19 @@ const __dirname = dirname(__filename);
 
 // Import all translation files
 import { en } from '../text/translations/en';
-import { ru } from '../text/translations/ru';
-import { pl } from '../text/translations/pl';
-import { es } from '../text/translations/es';
-import { pt } from '../text/translations/pt';
-import { ca } from '../text/translations/ca';
 import { zhHans } from '../text/translations/zh-Hans';
+import { zhHant } from '../text/translations/zh-Hant';
 
 const translations = {
     en,
-    ru,
-    pl,
-    es,
-    pt,
-    ca,
     'zh-Hans': zhHans,
+    'zh-Hant': zhHant,
 };
 
 const languageNames: Record<string, string> = {
     en: 'English',
-    ru: 'Russian',
-    pl: 'Polish',
-    es: 'Spanish',
-    pt: 'Portuguese',
-    ca: 'Catalan',
     'zh-Hans': 'Chinese (Simplified)',
+    'zh-Hant': 'Chinese (Traditional)',
 };
 
 // Function to recursively extract all keys from an object

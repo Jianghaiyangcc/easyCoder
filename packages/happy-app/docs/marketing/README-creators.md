@@ -69,5 +69,5 @@
 - GitHub: https://github.com/slopus/happy
 - Website: https://code.daima.club
 - iOS App: https://apps.apple.com/us/app/happy-claude-code-client/id6748571505
-- Android App: https://play.google.com/store/apps/details?id=com.ex3ndr.happy
+- Android App: https://play.google.com/store/apps/details?id=club.daima.code
 - Web App: https://code.daima.club/

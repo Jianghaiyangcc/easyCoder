@@ -35,7 +35,7 @@ export function versionRoutes(app: Fastify) {
             if (semver.satisfies(version, ANDROID_UP_TO_DATE)) {
                 reply.send({ updateUrl: null });
             } else {
-                reply.send({ updateUrl: 'https://play.google.com/store/apps/details?id=com.ex3ndr.happy' });
+                reply.send({ updateUrl: 'https://play.google.com/store/apps/details?id=club.daima.code' });
             }
             return;
         }
