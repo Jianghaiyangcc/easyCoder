@@ -71,7 +71,7 @@ ${chalk.bold('Examples:')}
 ${chalk.bold('Notes:')} 
   • You must be authenticated first (run 'happy auth login')
   • API keys are encrypted and stored securely in Code Never Stops cloud
-  • You can manage your stored keys at app.happy.engineering
+  • You can manage your stored keys at code.daima.club
 `);
 }
 

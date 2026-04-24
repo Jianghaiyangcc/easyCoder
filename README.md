@@ -16,7 +16,7 @@ Use Claude Code or Codex from anywhere with end-to-end encryption.
 
 <div align="center">
   
-[📱 **iOS App**](https://apps.apple.com/us/app/happy-claude-code-client/id6748571505) • [🤖 **Android App**](https://play.google.com/store/apps/details?id=com.ex3ndr.happy) • [🌐 **Web App**](https://app.happy.engineering) • [🎥 **See a Demo**](https://youtu.be/GCS0OG9QMSE) • [📚 **Documentation**](https://happy.engineering/docs/) • [💬 **Discord**](https://discord.gg/fX9WBAhyfD)
+[📱 **iOS App**](https://apps.apple.com/us/app/happy-claude-code-client/id6748571505) • [🤖 **Android App**](https://play.google.com/store/apps/details?id=com.ex3ndr.happy) • [🌐 **Web App**](https://code.daima.club) • [🎥 **See a Demo**](https://youtu.be/GCS0OG9QMSE) • [📚 **Documentation**](https://code.daima.club/docs/) • [💬 **Discord**](https://discord.gg/fX9WBAhyfD)
 
 </div>
 
@@ -66,10 +66,10 @@ On your computer, run `happy` instead of `claude` or `happy codex` instead of `c
 
 ## 📦 Project Components
 
-- **[Code Never Stops App](https://github.com/slopus/happy/tree/main/packages/happy-app)** - Web UI + mobile client (Expo)
-- **[Code Never Stops CLI](https://github.com/slopus/happy/tree/main/packages/happy-cli)** - Command-line interface for Claude Code and Codex
-- **[Code Never Stops Agent](https://github.com/slopus/happy/tree/main/packages/happy-agent)** - Remote agent control CLI (create, send, monitor sessions)
-- **[Code Never Stops Server](https://github.com/slopus/happy/tree/main/packages/happy-server)** - Backend server for encrypted sync
+- **[Code Never Stops App](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-app)** - Web UI + mobile client (Expo)
+- **[Code Never Stops CLI](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-cli)** - Command-line interface for Claude Code and Codex
+- **[Code Never Stops Agent](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-agent)** - Remote agent control CLI (create, send, monitor sessions)
+- **[Code Never Stops Server](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-server)** - Backend server for encrypted sync
 
 ## 🏠 Who We Are
 
@@ -77,7 +77,7 @@ We're engineers scattered across Bay Area coffee shops and hacker houses, consta
 
 ## 📚 Documentation & Contributing
 
-- **[Documentation Website](https://happy.engineering/docs/)** - Learn how to use Code Never Stops effectively
+- **[Documentation Website](https://code.daima.club/docs/)** - Learn how to use Code Never Stops effectively
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute, PR guidelines, and development setup
 - **[Edit docs at github.com/slopus/slopus.github.io](https://github.com/slopus/slopus.github.io)** - Help improve our documentation and guides
 

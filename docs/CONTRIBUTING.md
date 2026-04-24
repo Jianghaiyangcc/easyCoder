@@ -143,4 +143,4 @@ For architecture details, check the [docs/](.) folder or ask Happy itself — it
 ## Community
 
 - [Discord](https://discord.gg/fX9WBAhyfD) — best place for questions and discussion
-- [Documentation](https://happy.engineering/docs/)
+- [Documentation](https://code.daima.club/docs/)

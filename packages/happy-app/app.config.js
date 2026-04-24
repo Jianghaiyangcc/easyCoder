@@ -45,7 +45,7 @@ export default {
                 NSLocalNetworkUsageDescription: "Allow $(PRODUCT_NAME) to find and connect to local devices on your network.",
                 NSBonjourServices: ["_http._tcp", "_https._tcp"]
             },
-            associatedDomains: variant === 'production' ? ["applinks:app.happy.engineering"] : []
+            associatedDomains: variant === 'production' ? ["applinks:code.daima.club"] : []
         },
         android: {
             adaptiveIcon: {
@@ -78,7 +78,7 @@ export default {
                     "data": [
                         {
                             "scheme": "https",
-                            "host": "app.happy.engineering",
+                            "host": "code.daima.club",
                             "pathPrefix": "/"
                         }
                     ],
