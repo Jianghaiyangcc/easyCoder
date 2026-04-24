@@ -1,19 +1,29 @@
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+// Import new theme system v2
+import {
+    lightThemeV2,
+    darkThemeV2,
+    darkZincThemeV2,
+    darkMidnightThemeV2,
+    darkClaudeThemeV2,
+} from './theme/v2';
+// Keep legacy imports for fallback
 import { darkClaudeTheme, darkMidnightTheme, darkTheme, darkZincTheme, lightTheme } from './theme';
 import { loadThemePreference } from './sync/persistence';
 import { Appearance } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
 
 //
-// Theme
+// Theme - Using new Theme System v2
+// The new themes maintain full backward compatibility with legacy color names
 //
 
 const appThemes = {
-    light: lightTheme,
-    dark: darkTheme,
-    zinc: darkZincTheme,
-    midnight: darkMidnightTheme,
-    claude: darkClaudeTheme,
+    light: lightThemeV2,
+    dark: darkThemeV2,
+    zinc: darkZincThemeV2,
+    midnight: darkMidnightThemeV2,
+    claude: darkClaudeThemeV2,
 };
 
 type AppThemeKey = keyof typeof appThemes;
