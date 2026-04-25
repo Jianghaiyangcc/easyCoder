@@ -15,6 +15,25 @@ export interface SessionStatus {
     isPulsing?: boolean;
 }
 
+interface VibingMessage {
+    en: string;
+    zh: string;
+}
+
+export function getRandomVibingMessage(): VibingMessage {
+    return vibingMessages[Math.floor(Math.random() * vibingMessages.length)];
+}
+
+export function formatVibingMessage(options?: {
+    lowercaseEnglish?: boolean;
+    suffix?: string;
+}): string {
+    const message = getRandomVibingMessage();
+    const english = options?.lowercaseEnglish ? message.en.toLowerCase() : message.en;
+    const suffix = options?.suffix ?? '';
+    return `${english} ${message.zh}${suffix}`;
+}
+
 /**
  * Get the current state of a session based on presence and thinking status.
  * Uses centralized session state from storage.ts
@@ -24,8 +43,7 @@ export function useSessionStatus(session: Session): SessionStatus {
     const hasPermissions = (session.agentState?.requests && Object.keys(session.agentState.requests).length > 0 ? true : false);
 
     const vibingMessage = React.useMemo(() => {
-        const msg = vibingMessages[Math.floor(Math.random() * vibingMessages.length)];
-        return `${msg.en} ${msg.zh}…`;
+        return formatVibingMessage({ suffix: '…' });
     }, [isOnline, hasPermissions, session.thinking]);
 
     if (!isOnline) {
@@ -231,7 +249,7 @@ export function formatLastSeen(activeAt: number, isActive: boolean = false): str
     }
 }
 
-export const vibingMessages = [
+export const vibingMessages: VibingMessage[] = [
     { en: "Thinking", zh: "思考中" },
     { en: "Processing", zh: "处理中" },
     { en: "Working", zh: "工作中" },

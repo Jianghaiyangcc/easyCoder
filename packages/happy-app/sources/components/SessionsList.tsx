@@ -4,7 +4,7 @@ import { Text } from '@/components/StyledText';
 import { usePathname } from 'expo-router';
 import { SessionListViewItem, SessionRowData } from '@/sync/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { type SessionState, formatLastSeen, vibingMessages } from '@/utils/sessionUtils';
+import { type SessionState, formatLastSeen, formatVibingMessage } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
 import { ActiveSessionsGroup } from './ActiveSessionsGroup';
 import { ActiveSessionsGroupCompact } from './ActiveSessionsGroupCompact';
@@ -356,7 +356,7 @@ const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }
     const status = STATUS_CONFIG[session.state];
 
     const vibingMessage = React.useMemo(() => {
-        return vibingMessages[Math.floor(Math.random() * vibingMessages.length)].toLowerCase() + '…';
+        return formatVibingMessage({ lowercaseEnglish: true, suffix: '…' });
     }, [session.state]);
 
     const statusText = session.state === 'thinking'

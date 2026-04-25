@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { Machine } from '@/sync/storageTypes';
 import { SessionRowData } from '@/sync/storage';
 import { Ionicons } from '@expo/vector-icons';
-import { type SessionState, formatLastSeen, formatPathRelativeToHome, vibingMessages } from '@/utils/sessionUtils';
+import { type SessionState, formatLastSeen, formatPathRelativeToHome, formatVibingMessage } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
 import { Typography } from '@/constants/Typography';
 import { StatusDot } from './StatusDot';
@@ -352,7 +352,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
     const [actionsAnchor, setActionsAnchor] = React.useState<SessionActionsAnchor | null>(null);
 
     const vibingMessage = React.useMemo(() => {
-        return vibingMessages[Math.floor(Math.random() * vibingMessages.length)].toLowerCase() + '…';
+        return formatVibingMessage({ lowercaseEnglish: true, suffix: '…' });
     }, [session.state]);
 
     const statusText = session.state === 'thinking'
