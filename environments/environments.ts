@@ -4,6 +4,7 @@ import * as net from "net";
 import * as crypto from "crypto";
 import { execSync, spawn, spawnSync } from "child_process";
 import { pathToFileURL } from "url";
+import * as dotenv from "dotenv";
 
 // ============================================================================
 // Configuration
@@ -737,6 +738,12 @@ function buildEnvVars(envDir: string, serverPort: number, expoPort: number): Rec
     const devAuth = readDevAuth(envDir);
     const projectDir = path.join(envDir, "project");
 
+    // 读取 .env.dev 文件以获取 Dashscope 等配置
+    const envDevPath = path.join(REPO_ROOT, "packages", "happy-server", ".env.dev");
+    if (fs.existsSync(envDevPath)) {
+        dotenv.config({ path: envDevPath });
+    }
+
     return {
         // Server
         HANDY_MASTER_SECRET: "happy-dev-secret",
@@ -746,6 +753,16 @@ function buildEnvVars(envDir: string, serverPort: number, expoPort: number): Rec
         PGLITE_DIR: path.join(envDir, "server", "pglite"),
         DATABASE_URL: "",
         METRICS_ENABLED: "false",
+
+        // Voice - DashScope/Bailian (from .env.dev)
+        DASHSCOPE_API_KEY: process.env.DASHSCOPE_API_KEY || "",
+        DASHSCOPE_API_BASE_URL: process.env.DASHSCOPE_API_BASE_URL || "https://dashscope.aliyuncs.com/api/v1",
+        DASHSCOPE_ASR_MODEL: process.env.DASHSCOPE_ASR_MODEL || "qwen3-asr-flash",
+        DASHSCOPE_TTS_MODEL: process.env.DASHSCOPE_TTS_MODEL || "qwen3-tts-flash",
+        DASHSCOPE_TTS_VOICE: process.env.DASHSCOPE_TTS_VOICE || "Cherry",
+
+        // Voice - ElevenLabs (from .env.dev)
+        ELEVENLABS_API_KEY: process.env.ELEVENLABS_API_KEY || "",
 
         // App (Expo)
         EXPO_PUBLIC_SERVER_URL: `http://localhost:${serverPort}`,
