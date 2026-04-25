@@ -1,6 +1,6 @@
 /**
- * Happy MCP server
- * Provides Happy CLI specific tools including chat session title management
+ * EasyCoder MCP server
+ * Provides EasyCoder CLI specific tools including chat session title management
  *
  * Uses stateless StreamableHTTP: each request gets a fresh McpServer + transport.
  * This is required by MCP SDK >=1.27 which rejects reuse of an already-connected transport.
@@ -17,7 +17,7 @@ import { randomUUID } from "node:crypto";
 
 function createMcpServer(handler: (title: string) => Promise<{ success: boolean; error?: string }>): McpServer {
     const mcp = new McpServer({
-        name: "Happy MCP",
+        name: "EasyCoder MCP",
         version: "1.0.0",
     });
 

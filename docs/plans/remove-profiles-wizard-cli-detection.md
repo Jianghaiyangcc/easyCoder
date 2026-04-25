@@ -57,7 +57,7 @@ export const initialMachineMetadata: MachineMetadata = {
   platform: os.platform(),
   happyCliVersion: packageJson.version,
   homeDir: os.homedir(),
-  happyHomeDir: configuration.happyHomeDir,
+  happyHomeDir: configuration.easycoderHomeDir,
   happyLibDir: projectPath(),
   cliAvailability: detectCLIAvailability(),
 };

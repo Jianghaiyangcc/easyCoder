@@ -39,15 +39,15 @@ export type ResumableHappySession = {
 export function resolveSessionRecordByPrefix<T extends { id: string }>(records: T[], sessionId: string): T {
     const trimmed = sessionId.trim();
     if (!trimmed) {
-        throw new Error('Happy session ID is required: happy resume <session-id>');
+        throw new Error('EasyCoder session ID is required: easycoder resume <session-id>');
     }
 
     const matches = records.filter((record) => record.id.startsWith(trimmed));
     if (matches.length === 0) {
-        throw new Error(`No Happy session found matching "${trimmed}"`);
+        throw new Error(`No EasyCoder session found matching "${trimmed}"`);
     }
     if (matches.length > 1) {
-        throw new Error(`Ambiguous Happy session "${trimmed}" matches ${matches.length} sessions. Be more specific.`);
+        throw new Error(`Ambiguous EasyCoder session "${trimmed}" matches ${matches.length} sessions. Be more specific.`);
     }
     return matches[0];
 }
@@ -70,7 +70,7 @@ function readAgentCredentials() {
     const credentials = readLocalHappyAgentCredentials();
     if (!credentials) {
         throw new Error(
-            `Cannot resume historical Happy sessions without ${credentialPath}. Run \`happy-agent auth login\` in this environment first.`,
+            `Cannot resume historical EasyCoder sessions without ${credentialPath}. Run \`easycoder-agent auth login\` in this environment first.`,
         );
     }
     return credentials;
@@ -81,7 +81,7 @@ function resolveSessionEncryption(session: RawSession, credentials: LocalHappyAg
         const encrypted = decodeBase64(session.dataEncryptionKey);
         const sessionKey = decryptBoxBundle(encrypted.slice(1), credentials.contentKeyPair.secretKey);
         if (!sessionKey) {
-            throw new Error(`Failed to decrypt data key for Happy session ${session.id}`);
+            throw new Error(`Failed to decrypt data key for EasyCoder session ${session.id}`);
         }
         return {
             key: sessionKey,
@@ -103,13 +103,13 @@ function decryptSessionMetadata(session: RawSession, credentials: LocalHappyAgen
         : decryptLegacy(encryptedMetadata, encryption.key);
 
     if (!metadata) {
-        throw new Error(`Failed to decrypt metadata for Happy session ${session.id}`);
+        throw new Error(`Failed to decrypt metadata for EasyCoder session ${session.id}`);
     }
 
     try {
         return ResumableMetadataSchema.parse(metadata) as Metadata;
     } catch {
-        throw new Error(`Happy session ${session.id} is missing resumable metadata.`);
+        throw new Error(`EasyCoder session ${session.id} is missing resumable metadata.`);
     }
 }
 
@@ -121,16 +121,16 @@ export async function resolveHappySession(sessionId: string): Promise<ResumableH
         const response = await axios.get(`${configuration.serverUrl}/v1/sessions`, {
             headers: {
                 Authorization: `Bearer ${credentials.token}`,
-                'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`,
+                'X-EasyCoder-Client': `cli-coding-session/${configuration.currentCliVersion}`,
             },
         });
         sessions = (response.data as { sessions: RawSession[] }).sessions;
     } catch (error) {
         if (error instanceof AxiosError) {
             if (error.response?.status === 401) {
-                throw new Error('Happy session lookup authentication expired. Run `happy-agent auth login` in this environment.');
+                throw new Error('EasyCoder session lookup authentication expired. Run `easycoder-agent auth login` in this environment.');
             }
-            throw new Error(`Failed to load Happy sessions: ${error.message}`);
+            throw new Error(`Failed to load EasyCoder sessions: ${error.message}`);
         }
         throw error;
     }

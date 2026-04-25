@@ -93,7 +93,7 @@ export async function spawnSessionOnMachine(
         );
 
         const response = await socket.timeout(30_000).emitWithAck('rpc-call', {
-            method: `${machine.id}:spawn-happy-session`,
+            method: `${machine.id}:spawn-easycoder-session`,
             params,
         }) as RpcAck;
 
@@ -163,7 +163,7 @@ export async function resumeSessionOnMachine(
         );
 
         const response = await socket.timeout(30_000).emitWithAck('rpc-call', {
-            method: `${machine.id}:resume-happy-session`,
+            method: `${machine.id}:resume-easycoder-session`,
             params,
         }) as RpcAck;
 

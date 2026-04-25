@@ -28,16 +28,16 @@ import { detectResumeSupport } from '@/resume/localHappyAgentAuth';
 import { resolveHappySession } from '@/resume/resolveHappySession';
 
 // Prepare initial metadata
-// Suffix host with `-dev` for the HAPPY_VARIANT=dev variant so the dev daemon
+// Suffix host with `-dev` for the EASYCODER_VARIANT=dev variant so the dev daemon
 // is visually distinct from the stable one in the machine list (they otherwise
 // share the same hostname and look identical).
-const hostSuffix = process.env.HAPPY_VARIANT === 'dev' ? '-dev' : '';
+const hostSuffix = process.env.EASYCODER_VARIANT === 'dev' ? '-dev' : '';
 export const initialMachineMetadata: MachineMetadata = {
   host: os.hostname() + hostSuffix,
   platform: os.platform(),
   happyCliVersion: packageJson.version,
   homeDir: os.homedir(),
-  happyHomeDir: configuration.happyHomeDir,
+  happyHomeDir: configuration.easycoderHomeDir,
   happyLibDir: projectPath(),
   agentCapabilities: {},
   cliAvailability: detectCLIAvailability(),
@@ -157,7 +157,7 @@ export async function startDaemon(): Promise<void> {
     // Helper functions
     const getCurrentChildren = () => Array.from(pidToTrackedSession.values());
 
-    // Handle webhook from happy session reporting itself
+    // Handle webhook from easycoder session reporting itself
     const onHappySessionWebhook = (sessionId: string, sessionMetadata: Metadata) => {
       logger.debugLargeJson(`[DAEMON RUN] Session reported`, sessionMetadata);
 
@@ -189,7 +189,7 @@ export async function startDaemon(): Promise<void> {
       } else if (!existingSession) {
         // New session started externally
         const trackedSession: TrackedSession = {
-          startedBy: 'happy directly - likely by user from terminal',
+          startedBy: 'easycoder directly - likely by user from terminal',
           happySessionId: sessionId,
           happySessionMetadataFromLocalWebhook: sessionMetadata,
           pid
@@ -320,22 +320,22 @@ export async function startDaemon(): Promise<void> {
             case 'claude':
             case undefined:
               return {
-                args: ['claude', '--happy-starting-mode', 'remote', '--started-by', 'daemon'],
+                args: ['claude', '--easycoder-starting-mode', 'remote', '--started-by', 'daemon'],
                 windowAgent: 'claude',
               };
             case 'codex':
               return {
-                args: ['codex', '--happy-starting-mode', 'remote', '--started-by', 'daemon'],
+                args: ['codex', '--easycoder-starting-mode', 'remote', '--started-by', 'daemon'],
                 windowAgent: 'codex',
               };
             case 'gemini':
               return {
-                args: ['gemini', '--happy-starting-mode', 'remote', '--started-by', 'daemon'],
+                args: ['gemini', '--easycoder-starting-mode', 'remote', '--started-by', 'daemon'],
                 windowAgent: 'gemini',
               };
             case 'openclaw':
               return {
-                args: ['openclaw', '--happy-starting-mode', 'remote', '--started-by', 'daemon'],
+                args: ['openclaw', '--easycoder-starting-mode', 'remote', '--started-by', 'daemon'],
                 windowAgent: 'openclaw',
               };
             case 'opencode':
@@ -518,7 +518,7 @@ export async function startDaemon(): Promise<void> {
         logger.debug('[DAEMON RUN] Failed to spawn process - no PID returned');
         return Promise.resolve({
           type: 'error',
-          errorMessage: 'Failed to spawn Happy process - no PID returned'
+          errorMessage: 'Failed to spawn EasyCoder process - no PID returned'
         });
       }
 
@@ -696,7 +696,7 @@ export async function startDaemon(): Promise<void> {
     // 2. Check if daemon needs update
     // 3. If outdated, restart with latest version
     // 4. Write heartbeat
-    const heartbeatIntervalMs = parseInt(process.env.HAPPY_DAEMON_HEARTBEAT_INTERVAL || '60000');
+    const heartbeatIntervalMs = parseInt(process.env.EASYCODER_DAEMON_HEARTBEAT_INTERVAL || '60000');
     let heartbeatRunning = false
     const restartOnStaleVersionAndHeartbeat = setInterval(async () => {
       if (heartbeatRunning) {

@@ -39,7 +39,7 @@ export async function doAuth(): Promise<Credentials | null> {
             supportsV2: true
         }, {
             headers: {
-                'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+                'X-EasyCoder-Client': `cli/${configuration.currentCliVersion}`
             }
         });
         if (process.env.DEBUG) {
@@ -99,7 +99,7 @@ async function doMobileAuth(keypair: tweetnacl.BoxKeyPair): Promise<Credentials 
     console.log('\nMobile Authentication\n');
     console.log('Scan this QR code with your Code Never Stops mobile app:\n');
 
-    const authUrl = 'happy://terminal?' + encodeBase64Url(keypair.publicKey);
+    const authUrl = 'easycoder://terminal?' + encodeBase64Url(keypair.publicKey);
     displayQRCode(authUrl);
 
     console.log('\nOr manually enter this URL:');
@@ -129,7 +129,7 @@ async function doWebAuth(keypair: tweetnacl.BoxKeyPair): Promise<Credentials | n
     }
 
     // I changed this to always show the URL because we got a report from
-    // someone running happy inside a devcontainer that they saw the
+    // someone running easycoder inside a devcontainer that they saw the
     // "Complete authentication in your browser window." but nothing opened.
     // https://github.com/Jianghaiyangcc/easyCoder/issues/19
     console.log('\nIf the browser did not open, please copy and paste this URL:');
@@ -164,7 +164,7 @@ async function waitForAuthentication(keypair: tweetnacl.BoxKeyPair): Promise<Cre
                     supportsV2: true
                 }, {
                     headers: {
-                        'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+                        'X-EasyCoder-Client': `cli/${configuration.currentCliVersion}`
                     }
                 });
                 if (response.data.state === 'authorized') {

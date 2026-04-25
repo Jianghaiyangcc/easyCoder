@@ -32,7 +32,7 @@ export default {
         runtimeVersion: "21",
         orientation: "default",
         icon: "./sources/assets/images/icon.png",
-        scheme: "happy",
+        scheme: "easycoder",
         userInterfaceStyle: "automatic",
         ios: {
             supportsTablet: true,

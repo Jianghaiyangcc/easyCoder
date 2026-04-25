@@ -2,10 +2,10 @@
  * OpenClaw Session Runner
  *
  * Entry point for OpenClaw agent sessions, following the runAcp.ts pattern.
- * The daemon spawns this as: `node dist/index.mjs openclaw --happy-starting-mode remote --started-by daemon`
+ * The daemon spawns this as: `node dist/index.mjs openclaw --easycoder-starting-mode remote --started-by daemon`
  *
  * Connects to an OpenClaw gateway via WebSocket, translates the gateway protocol
- * to Happy's AgentMessage format, and forwards everything through the session pipeline.
+ * to EasyCoder's AgentMessage format, and forwards everything through the session pipeline.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -163,7 +163,7 @@ export async function runOpenClaw(opts: RunOpenClawOptions): Promise<void> {
   });
   const response = await api.getOrCreateSession({ tag: sessionTag, metadata, state });
   if (response) {
-    log(`Happy Session ID: ${response.id}`);
+    log(`EasyCoder Session ID: ${response.id}`);
   }
 
   let session: ApiSessionClient;

@@ -165,7 +165,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
             agent?: 'codex' | 'claude' | 'gemini' | 'openclaw' | 'opencode',
         }>(
             machineId,
-            'spawn-happy-session',
+            'spawn-easycoder-session',
             { type: 'spawn-in-directory', directory, approvedNewDirectoryCreation, token, agent }
         );
         return result;
@@ -184,7 +184,7 @@ export async function machineResumeSession(options: ResumeSessionOptions): Promi
     try {
         const result = await apiSocket.machineRPC<SpawnSessionResult, { sessionId: string }>(
             machineId,
-            'resume-happy-session',
+            'resume-easycoder-session',
             { sessionId },
         );
         return result;

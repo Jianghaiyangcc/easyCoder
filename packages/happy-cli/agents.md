@@ -1,4 +1,4 @@
-# Happy CLI Agent Tests
+# EasyCoder CLI Agent Tests
 
 ## Layer 1 Rules
 

@@ -61,7 +61,7 @@ resolves into a clear, unambiguous directive. Specifically:
 - No mdashes (use - or commas). No "We're excited to". No AI smell.
 - Credit community contributors by @mention when they helped.
 - When a fix exists, ask the reporter to help verify it.
-- Only mention `npm i -g happy` when the fix is in the CLI package.
+- Only mention `npm i -g easycoder` when the fix is in the CLI package.
 - Keep it short: 3 sentences for dupes, 5 max for canonicals.
 
 ## Milestones = Themes

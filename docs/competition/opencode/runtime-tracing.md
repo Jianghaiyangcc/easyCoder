@@ -12,7 +12,7 @@ install into an isolated temp root, drive a real sample project, and only trust:
 - raw `/event` SSE logs from OpenCode
 - OpenCode source code
 
-For the Happy side of the comparison, this document only trusts Happy code.
+For the EasyCoder side of the comparison, this document only trusts EasyCoder code.
 
 ## Setup That Was Actually Used
 
@@ -71,7 +71,7 @@ across four surfaces:
    `/session/:id/children`, `/experimental/worktree`, and
    `/experimental/workspace`
 
-That distinction matters for Happy. OpenCode does **not** have one single
+That distinction matters for EasyCoder. OpenCode does **not** have one single
 append-only transcript stream that already contains everything the UI needs.
 It has:
 
@@ -124,7 +124,7 @@ here is mostly:
 - optional workspace routing
 - optional git worktree management
 
-It is **not** the same kind of OS/filesystem/network sandbox policy that Happy
+It is **not** the same kind of OS/filesystem/network sandbox policy that EasyCoder
 already has code for in `packages/happy-cli/src/sandbox/config.ts`.
 
 ## Flow 1: Permission Ask Around `apply_patch`
@@ -505,7 +505,7 @@ So the real media story is:
 
 ## Flow 4: Subtask / Child Session / Permission Constraining
 
-This was the most important trace for side-by-side comparison with Happy.
+This was the most important trace for side-by-side comparison with EasyCoder.
 
 ### 1. Prompt body sent
 
@@ -648,11 +648,11 @@ So OpenCode is not faking subagents inside one flat message lane. It uses:
 - child session transcript
 - parent tool metadata linking to the child session id
 
-## Side By Side With Happy’s Current Code
+## Side By Side With EasyCoder’s Current Code
 
-This section uses only Happy code, not Happy runtime traces.
+This section uses only EasyCoder code, not EasyCoder runtime traces.
 
-| Topic | OpenCode, proven by logs/code | Happy, proven by code |
+| Topic | OpenCode, proven by logs/code | EasyCoder, proven by code |
 |---|---|---|
 | Outer envelope | message rows already have top-level `info` plus ordered typed `parts` | `packages/happy-wire/src/messages.ts` still wraps the newer format as `role: "session"` with inner `content: sessionEnvelope` |
 | Event discriminant | parts use top-level `type` like `text`, `reasoning`, `tool`, `file`, `agent`, `subtask`, `step-start` | `packages/happy-wire/src/sessionProtocol.ts` still nests event type under `ev.t` |
@@ -665,8 +665,8 @@ This section uses only Happy code, not Happy runtime traces.
 The main conclusion is blunt:
 
 - OpenCode has the cleaner transcript shape
-- Happy has the stronger real sandbox config
-- Happy’s current reducer complexity is the strongest argument against keeping
+- EasyCoder has the stronger real sandbox config
+- EasyCoder’s current reducer complexity is the strongest argument against keeping
   multiple plaintext payload families alive
 
 ## What This Means For `provider-envelope-redesign.md`
@@ -681,7 +681,7 @@ looks right:
   transcript permissions, direct media variants
 - the current proposal in that plan doc is still the plan of record
 - OpenCode raw protocol shape remains the strongest outside reference to
-  evaluate before locking a new steady-state Happy schema
+  evaluate before locking a new steady-state EasyCoder schema
 - Claude’s older transcript-like format is still a plausible fallback if the
   simplest stable model turns out to be closer to that history
 
@@ -694,14 +694,14 @@ copying the raw transcript shape:
 - explicit child-session identity
 - clear separation between transcript state and live patch transport
 
-## The Hard Part For Happy: Encrypted Storage
+## The Hard Part For EasyCoder: Encrypted Storage
 
-This is where OpenCode and Happy diverge most.
+This is where OpenCode and EasyCoder diverge most.
 
 OpenCode can happily keep canonical message rows and patch parts over time
 because its storage layer sees plaintext session state.
 
-Happy stores opaque encrypted blobs. That means copying OpenCode literally
+EasyCoder stores opaque encrypted blobs. That means copying OpenCode literally
 forces a storage decision.
 
 ### Option A: Append-only canonical transcript events
@@ -720,7 +720,7 @@ Pros:
 
 - keeps storage immutable
 - refetch is simple
-- matches Happy’s current transport assumptions
+- matches EasyCoder’s current transport assumptions
 - avoids replaying raw deltas to rebuild a usable transcript
 
 Cons:
@@ -795,7 +795,7 @@ Pros:
 
 Cons:
 
-- this is exactly the direction most likely to recreate Happy’s current reducer
+- this is exactly the direction most likely to recreate EasyCoder’s current reducer
   pain
 - refetch requires replay/materialization
 - encrypted storage plus legacy format support makes this the highest-complexity
@@ -803,7 +803,7 @@ Cons:
 
 ### Recommendation
 
-If Happy borrows from OpenCode, it should probably steal the **shape** but not
+If EasyCoder borrows from OpenCode, it should probably steal the **shape** but not
 the entire persistence strategy.
 
 The strongest options are:

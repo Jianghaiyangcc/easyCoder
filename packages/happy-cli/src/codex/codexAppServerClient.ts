@@ -386,7 +386,7 @@ export class CodexAppServerClient {
                 'Please install Codex CLI using one of these methods:\n\n' +
                 'Option 1 - npm (recommended):\n  npm install -g @openai/codex\n\n' +
                 'Option 2 - Homebrew (macOS):\n  brew install --cask codex\n\n' +
-                'Alternatively, use Claude Code:\n  happy claude',
+                'Alternatively, use Claude Code:\n  easycoder claude',
             );
         }
 
@@ -475,8 +475,8 @@ export class CodexAppServerClient {
         // Perform initialize handshake
         const initParams: InitializeParams = {
             clientInfo: {
-                name: 'happy-codex',
-                title: 'Happy Codex Client',
+                name: 'easycoder-codex',
+                title: 'EasyCoder Codex Client',
                 version: packageJson.version,
             },
             capabilities: {
@@ -1204,7 +1204,7 @@ export class CodexAppServerClient {
         }
 
         // MCP server lifecycle: log payload so we can diagnose failed launches
-        // (e.g. happy-mcp bridge failing on Windows due to shebang execution).
+        // (e.g. easycoder-mcp bridge failing on Windows due to shebang execution).
         if (method === 'mcpServer/startupStatus/updated') {
             logger.debug(`[CodexAppServer] mcpServer startup status:`, params);
             return;

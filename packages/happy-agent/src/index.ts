@@ -106,7 +106,7 @@ function ensureMachineCanResume(machine: DecryptedMachine): void {
     }
 
     if (metadata.resumeSupport?.happyAgentAuthenticated === false) {
-        throw new Error('Resume is unavailable on this machine. Run `happy-agent auth login` in that machine environment first.');
+        throw new Error('Resume is unavailable on this machine. Run `easycoder-agent auth login` in that machine environment first.');
     }
 
     throw new Error('Resume RPC is unavailable on this machine right now.');
@@ -117,8 +117,8 @@ function ensureMachineCanResume(machine: DecryptedMachine): void {
 const program = new Command();
 
 program
-    .name('happy-agent')
-    .description('CLI client for controlling Happy Coder agents remotely')
+    .name('easycoder-agent')
+    .description('CLI client for controlling EasyCoder Coder agents remotely')
     .version('0.1.0');
 
 program

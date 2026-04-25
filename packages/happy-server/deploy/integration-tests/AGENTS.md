@@ -1,6 +1,6 @@
 # Integration Tests
 
-Stress tests that run against a real multi-replica Happy server on minikube.
+Stress tests that run against a real multi-replica EasyCoder server on minikube.
 
 ## Prerequisites
 

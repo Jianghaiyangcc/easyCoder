@@ -19,11 +19,11 @@ declare global {
 
 export async function installIntegrationEnvironment(profile: IntegrationEnvironmentProfile) {
     const previousEnv = {
-        HAPPY_SERVER_URL: process.env.HAPPY_SERVER_URL,
-        HAPPY_WEBAPP_URL: process.env.HAPPY_WEBAPP_URL,
-        HAPPY_HOME_DIR: process.env.HAPPY_HOME_DIR,
-        HAPPY_PROJECT_DIR: process.env.HAPPY_PROJECT_DIR,
-        HAPPY_VARIANT: process.env.HAPPY_VARIANT,
+        EASYCODER_SERVER_URL: process.env.EASYCODER_SERVER_URL,
+        EASYCODER_WEBAPP_URL: process.env.EASYCODER_WEBAPP_URL,
+        EASYCODER_HOME_DIR: process.env.EASYCODER_HOME_DIR,
+        EASYCODER_PROJECT_DIR: process.env.EASYCODER_PROJECT_DIR,
+        EASYCODER_VARIANT: process.env.EASYCODER_VARIANT,
         DEBUG: process.env.DEBUG,
     };
 

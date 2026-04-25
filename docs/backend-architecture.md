@@ -1,6 +1,6 @@
 # Backend Architecture
 
-This document describes the Happy backend structure as implemented in `packages/happy-server`. It focuses on how the server is wired, how data flows through the system, and which subsystems handle which responsibilities.
+This document describes the EasyCoder backend structure as implemented in `packages/happy-server`. It focuses on how the server is wired, how data flows through the system, and which subsystems handle which responsibilities.
 
 ## System overview
 
@@ -12,7 +12,7 @@ graph TB
         Daemon[Machine Daemon]
     end
 
-    subgraph "Happy Server"
+    subgraph "EasyCoder Server"
         API[Fastify API]
         Socket[Socket.IO]
         Events[Event Router]

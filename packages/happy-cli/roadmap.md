@@ -5,7 +5,7 @@ API Error: 500 {"type":"error","error":{"type":"api_error","message":"Overloaded
 Not showng
 Session
 213d643d-fc52-4d43-83cd-d4d1e1b45fc6
-logs  /Users/kirilldubovitskiy/.happy/logs/2025-07-20-20-48-12.log
+logs  /Users/kirilldubovitskiy/.easycoder/logs/2025-07-20-20-48-12.log
 
 
 
@@ -330,7 +330,7 @@ Blocking
 ### Nice to have
 - UX final touches - onboarding make sure terminal, add session icons or something catchy
 - See if I can simplify / get rid of a likely race condition in pty related code
-- Pass --local-installation to setup .happy folder locally and avoid clashing with global installation
+- Pass --local-installation to setup .easycoder folder locally and avoid clashing with global installation
 
 # Distribution
 
@@ -349,5 +349,5 @@ Blocking
     - We can parse the terminal output
 
 - e2e single tests
-  - Would be nice to be able to run the whole thing - including pty to emulate a simple scenario and make sure a single multi step happy path works fine
+  - Would be nice to be able to run the whole thing - including pty to emulate a simple scenario and make sure a single multi step easycoder path works fine
 

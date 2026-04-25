@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { resolveCodexExecutionPolicy } from '../executionPolicy';
 
 describe('resolveCodexExecutionPolicy', () => {
-    it('forces never + danger-full-access when sandbox is managed by Happy', () => {
+    it('forces never + danger-full-access when sandbox is managed by EasyCoder', () => {
         const policy = resolveCodexExecutionPolicy('default', true);
 
         expect(policy).toEqual({

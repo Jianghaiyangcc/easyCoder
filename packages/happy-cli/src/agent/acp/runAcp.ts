@@ -479,7 +479,7 @@ export async function runAcp(opts: {
   });
   const response = await api.getOrCreateSession({ tag: sessionTag, metadata, state });
   if (response) {
-    logAcp('muted', `Happy Session ID: ${response.id}`);
+    logAcp('muted', `EasyCoder Session ID: ${response.id}`);
   }
 
   let session: ApiSessionClient;
@@ -522,8 +522,8 @@ export async function runAcp(opts: {
 
   const happyServer = await startHappyServer(session);
   const mcpServers = {
-    happy: {
-      command: join(projectPath(), 'bin', 'happy-mcp.mjs'),
+    easycoder: {
+      command: join(projectPath(), 'bin', 'easycoder-mcp.mjs'),
       args: ['--url', happyServer.url],
     },
   };
@@ -976,7 +976,7 @@ export async function runAcp(opts: {
     try {
       happyServer.stop();
     } catch (error) {
-      logger.debug(`[${opts.agentName}] Failed to stop Happy MCP server:`, error);
+      logger.debug(`[${opts.agentName}] Failed to stop EasyCoder MCP server:`, error);
     }
 
     try {

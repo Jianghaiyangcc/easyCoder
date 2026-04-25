@@ -1,7 +1,7 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
 import { getServerUrl } from './serverConfig';
-import { getHappyClientId } from './apiSocket';
+import { getEasyCoderClientId } from './apiSocket';
 
 /**
  * Connect a service to the user's account
@@ -19,7 +19,7 @@ export async function connectService(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             },
             body: JSON.stringify({ token: JSON.stringify(token) })
         });
@@ -46,7 +46,7 @@ export async function disconnectService(credentials: AuthCredentials, service: s
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 

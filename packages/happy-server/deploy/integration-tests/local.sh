@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 OVERLAY="$SCRIPT_DIR/../overlays/local"
 
-echo "=== Happy Local Deployment (minikube) ==="
+echo "=== EasyCoder Local Deployment (minikube) ==="
 
 # 1. Ensure minikube is running
 if ! minikube status --format='{{.Host}}' 2>/dev/null | grep -q Running; then
@@ -34,7 +34,7 @@ kubectl wait --for=condition=ready pod -l app=happy-postgres --timeout=60s
 kubectl run happy-migrate --rm -i --restart=Never \
     --image=happy-server:local \
     --image-pull-policy=Never \
-    --env="DATABASE_URL=postgresql://happy:happy@happy-postgres:5432/happy" \
+    --env="DATABASE_URL=postgresql://happy:easycoder@happy-postgres:5432/happy" \
     -- sh -c "cd /repo && npx prisma migrate deploy --schema=packages/happy-server/prisma/schema.prisma" \
     2>/dev/null || true
 

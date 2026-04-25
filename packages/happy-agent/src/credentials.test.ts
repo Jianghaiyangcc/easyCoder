@@ -107,7 +107,7 @@ describe('credentials', () => {
 
         it('throws when credentials are missing', () => {
             expect(() => requireCredentials(config)).toThrow(
-                'Not authenticated. Run `happy-agent auth login` first.'
+                'Not authenticated. Run `easycoder-agent auth login` first.'
             );
         });
     });

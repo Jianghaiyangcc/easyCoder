@@ -22,13 +22,13 @@ describe('resolveSessionRecordByPrefix', () => {
 
     it('rejects unknown prefixes', () => {
         expect(() => resolveSessionRecordByPrefix(sessions, 'missing')).toThrow(
-            'No Happy session found matching "missing"',
+            'No EasyCoder session found matching "missing"',
         );
     });
 
     it('rejects ambiguous prefixes', () => {
         expect(() => resolveSessionRecordByPrefix(sessions, 'cmm')).toThrow(
-            'Ambiguous Happy session "cmm" matches 2 sessions. Be more specific.',
+            'Ambiguous EasyCoder session "cmm" matches 2 sessions. Be more specific.',
         );
     });
 });

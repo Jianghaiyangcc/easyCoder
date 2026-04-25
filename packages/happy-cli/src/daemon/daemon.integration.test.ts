@@ -3,7 +3,7 @@
  *
  * Tests the full flow of daemon startup, session tracking, and shutdown
  *
- * This file boots one authenticated Happy environment and restarts the daemon
+ * This file boots one authenticated EasyCoder environment and restarts the daemon
  * inside that env for each test against the copied lab-rat project.
  */
 
@@ -109,7 +109,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
     expect(sessions).toHaveLength(1);
     
     const tracked = sessions[0];
-    expect(tracked.startedBy).toBe('happy directly - likely by user from terminal');
+    expect(tracked.startedBy).toBe('easycoder directly - likely by user from terminal');
     expect(tracked.happySessionId).toBe('test-session-123');
     expect(tracked.pid).toBe(99999);
   });
@@ -165,9 +165,9 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
   });
 
   it('should track both daemon-spawned and terminal sessions', async () => {
-    // Spawn a real happy process that looks like it was started from terminal
+    // Spawn a real easycoder process that looks like it was started from terminal
     const terminalHappyProcess = spawnHappyCLI([
-      '--happy-starting-mode', 'remote',
+      '--easycoder-starting-mode', 'remote',
       '--started-by', 'terminal'
     ], {
       cwd: integrationEnv.projectPath,
@@ -175,7 +175,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
       stdio: 'ignore'
     });
     if (!terminalHappyProcess || !terminalHappyProcess.pid) {
-      throw new Error('Failed to spawn terminal happy process');
+      throw new Error('Failed to spawn terminal easycoder process');
     }
     // Give time to start & report itself
     await new Promise(resolve => setTimeout(resolve, 5_000));
@@ -196,7 +196,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
     );
 
     expect(terminalSession).toBeDefined();
-    expect(terminalSession.startedBy).toBe('happy directly - likely by user from terminal');
+    expect(terminalSession.startedBy).toBe('easycoder directly - likely by user from terminal');
     
     expect(daemonSession).toBeDefined();
     expect(daemonSession.startedBy).toBe('daemon');
@@ -370,7 +370,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
    * 7. New daemon starts, reads daemon.state.json, sees old version != its compiled version
    * 8. New daemon calls stopDaemon() to kill old daemon, then takes over
    * 
-   * This simulates what happens during `npm upgrade happy`:
+   * This simulates what happens during `npm upgrade easycoder`:
    * - Running daemon has OLD version loaded in memory (configuration.currentCliVersion)
    * - npm replaces node_modules/happy/ with NEW version files
    * - package.json on disk now has NEW version
@@ -430,7 +430,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
 
       // The daemon should automatically detect the version mismatch and restart itself
       // We check once per minute, wait for a little longer than that
-      await new Promise(resolve => setTimeout(resolve, parseInt(process.env.HAPPY_DAEMON_HEARTBEAT_INTERVAL || '30000') + 10_000));
+      await new Promise(resolve => setTimeout(resolve, parseInt(process.env.EASYCODER_DAEMON_HEARTBEAT_INTERVAL || '30000') + 10_000));
 
       // Check that the daemon is running with the new version
       const finalState = await readDaemonState();
@@ -450,7 +450,7 @@ describe('Daemon Integration Tests', { timeout: 180_000 }, () => {
 
   // TODO: Add a test to see if a corrupted file will work
   
-  // TODO: Test npm uninstall scenario - daemon should gracefully handle when happy is uninstalled
+  // TODO: Test npm uninstall scenario - daemon should gracefully handle when easycoder is uninstalled
   // Current behavior: daemon tries to spawn new daemon on version mismatch but dist/index.mjs is gone
   // Expected: daemon should detect missing entrypoint and either exit cleanly or at minimum not respawn infinitely
 });

@@ -1,6 +1,6 @@
 # @slopus/happy-wire
 
-Canonical wire specification package for Happy clients and services.
+Canonical wire specification package for EasyCoder clients and services.
 
 This package defines shared wire contracts as TypeScript types + Zod schemas. It is intentionally small and focused on protocol-level data only.
 

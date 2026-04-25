@@ -22,7 +22,7 @@ state, but it is not one clean protocol surface.
 
 - Claude is a great source of ideas for agent teams, subagent identity, and permission/mode control.
 - Claude is a worse reference for a single canonical session protocol than OpenCode or Codex.
-- If Happy borrows from Claude, it should borrow product behavior and workflow ideas, not the hidden local-state dependency.
+- If EasyCoder borrows from Claude, it should borrow product behavior and workflow ideas, not the hidden local-state dependency.
 
 ## Important sources
 

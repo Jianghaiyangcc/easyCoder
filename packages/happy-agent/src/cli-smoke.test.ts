@@ -1,5 +1,5 @@
 /**
- * CLI smoke tests for happy-agent.
+ * CLI smoke tests for easycoder-agent.
  *
  * These are local command-shape and helper checks only.
  * Real end-to-end coverage for auth + spawn lives in the integration test suite.
@@ -33,7 +33,7 @@ import { resolveSessionEncryption } from './api';
 import { formatSessionTable, formatSessionStatus, formatMessageHistory, formatJson } from './output';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const binPath = resolve(__dirname, '..', 'bin', 'happy-agent.mjs');
+const binPath = resolve(__dirname, '..', 'bin', 'easycoder-agent.mjs');
 
 // --- CLI runner ---
 
@@ -44,7 +44,7 @@ function runCli(...args: string[]): { stdout: string; stderr: string; exitCode: 
             '--no-deprecation',
             binPath,
             ...args,
-        ], { encoding: 'utf-8', env: { ...process.env, HAPPY_HOME_DIR: '/tmp/nonexistent-happy-acceptance' } });
+        ], { encoding: 'utf-8', env: { ...process.env, EASYCODER_HOME_DIR: '/tmp/nonexistent-happy-acceptance' } });
         return { stdout, stderr: '', exitCode: 0 };
     } catch (err: unknown) {
         const e = err as { stdout?: string; stderr?: string; status?: number };
@@ -161,7 +161,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('list');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -175,7 +175,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('status', 'abc');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -196,7 +196,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('create', '--tag', 'test');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -213,7 +213,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('send', 'abc', 'hello');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -228,7 +228,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('history', 'abc');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -241,7 +241,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('stop', 'abc');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 
@@ -255,7 +255,7 @@ describe('Smoke: CLI command surface', () => {
         it('fails with auth error when not authenticated', () => {
             const { stderr, exitCode } = runCli('wait', 'abc');
             expect(exitCode).not.toBe(0);
-            expect(stderr).toContain('happy-agent auth login');
+            expect(stderr).toContain('easycoder-agent auth login');
         });
     });
 });
@@ -314,7 +314,7 @@ describe('Smoke: Error handling', () => {
             for (const args of commands) {
                 const { stderr, exitCode } = runCli(...args);
                 expect(exitCode).not.toBe(0);
-                expect(stderr).toContain('happy-agent auth login');
+                expect(stderr).toContain('easycoder-agent auth login');
             }
         });
     });
@@ -350,8 +350,8 @@ describe('Smoke: Error handling', () => {
     describe('server error handling (via API error mapper)', () => {
         it('HTTP 401 maps to re-authenticate message', async () => {
             // This is tested in api.test.ts but we verify the error message format here
-            const errorMsg = 'Authentication expired. Run `happy-agent auth login` to re-authenticate.';
-            expect(errorMsg).toContain('happy-agent auth login');
+            const errorMsg = 'Authentication expired. Run `easycoder-agent auth login` to re-authenticate.';
+            expect(errorMsg).toContain('easycoder-agent auth login');
         });
 
         it('HTTP 404 maps to not found message', () => {
@@ -409,7 +409,7 @@ describe('Smoke: Interop — dataKey vs legacy encryption', () => {
 
     it('messages encrypted with dataKey can be round-tripped', () => {
         const sessionKey = getRandomBytes(32);
-        const messageContent = { role: 'user', content: { type: 'text', text: 'Hello from happy-agent' } };
+        const messageContent = { role: 'user', content: { type: 'text', text: 'Hello from easycoder-agent' } };
 
         const encrypted = encrypt(sessionKey, 'dataKey', messageContent);
         const decrypted = decrypt(sessionKey, 'dataKey', encrypted);
@@ -546,19 +546,19 @@ describe('Smoke: Full test suite runs', () => {
     });
 
     it('config loads with correct defaults', () => {
-        const origUrl = process.env.HAPPY_SERVER_URL;
-        const origHome = process.env.HAPPY_HOME_DIR;
-        delete process.env.HAPPY_SERVER_URL;
-        delete process.env.HAPPY_HOME_DIR;
+        const origUrl = process.env.EASYCODER_SERVER_URL;
+        const origHome = process.env.EASYCODER_HOME_DIR;
+        delete process.env.EASYCODER_SERVER_URL;
+        delete process.env.EASYCODER_HOME_DIR;
 
         try {
             const config = loadConfig();
             expect(config.serverUrl).toBe('https://codeapi.daima.club');
-            expect(config.homeDir).toContain('.happy');
+            expect(config.homeDir).toContain('.easycoder');
             expect(config.credentialPath).toContain('agent.key');
         } finally {
-            if (origUrl !== undefined) process.env.HAPPY_SERVER_URL = origUrl;
-            if (origHome !== undefined) process.env.HAPPY_HOME_DIR = origHome;
+            if (origUrl !== undefined) process.env.EASYCODER_SERVER_URL = origUrl;
+            if (origHome !== undefined) process.env.EASYCODER_HOME_DIR = origHome;
         }
     });
 });

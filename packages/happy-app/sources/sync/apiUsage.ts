@@ -1,7 +1,7 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
 import { getServerUrl } from './serverConfig';
-import { getHappyClientId } from './apiSocket';
+import { getEasyCoderClientId } from './apiSocket';
 
 export interface UsageDataPoint {
     timestamp: number;
@@ -36,7 +36,7 @@ export async function queryUsage(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             },
             body: JSON.stringify(params)
         });

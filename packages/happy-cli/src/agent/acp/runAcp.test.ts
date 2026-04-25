@@ -83,7 +83,7 @@ vi.mock('@/api/api', () => ({
 }));
 
 vi.mock('@/daemon/run', () => ({
-  initialMachineMetadata: { host: 'host', platform: 'darwin', happyCliVersion: 'test', homeDir: '/tmp', happyHomeDir: '/tmp/.happy', happyLibDir: '/tmp/happy' },
+  initialMachineMetadata: { host: 'host', platform: 'darwin', happyCliVersion: 'test', homeDir: '/tmp', happyHomeDir: '/tmp/.easycoder', happyLibDir: '/tmp/happy' },
 }));
 
 vi.mock('@/utils/setupOfflineReconnection', () => ({
@@ -257,7 +257,7 @@ describe('runAcp', () => {
     expect(mocks.mockSession.sendSessionEvent).toHaveBeenCalledWith({ type: 'ready' });
     expect(mocks.mockSession.close).toHaveBeenCalled();
     expect(consoleLines()).toEqual(expect.arrayContaining([
-      'Happy Session ID: session-1',
+      'EasyCoder Session ID: session-1',
       'Incoming prompt: Build a test plan',
       'Status: running',
       'Outgoing message: "hello"',
@@ -496,9 +496,9 @@ describe('runAcp', () => {
       path: '/repo',
       host: 'host',
       homeDir: '/home/user',
-      happyHomeDir: '/home/user/.happy',
-      happyLibDir: '/repo/.happy/lib',
-      happyToolsDir: '/repo/.happy/tools',
+      happyHomeDir: '/home/user/.easycoder',
+      happyLibDir: '/repo/.easycoder/lib',
+      happyToolsDir: '/repo/.easycoder/tools',
     };
     const appliedMetadata = metadataHandlers.map((handler) => handler(baseMetadata));
 

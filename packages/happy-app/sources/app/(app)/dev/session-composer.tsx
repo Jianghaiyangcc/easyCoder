@@ -61,7 +61,7 @@ const SAMPLE_MACHINES: PickerItem[] = [
 ];
 
 const SAMPLE_PATHS: PickerItem[] = [
-    { key: 'happy', label: '~/projects/happy/happy' },
+    { key: 'easycoder', label: '~/projects/happy/happy' },
     { key: 'website', label: '~/projects/website' },
     { key: 'dotfiles', label: '~/dotfiles' },
 ];
@@ -281,7 +281,7 @@ function SessionComposerDemo() {
 
     // Picker state — unified for machine, path, worktree
     const [selectedMachine, setSelectedMachine] = React.useState('macbook');
-    const [selectedPath, setSelectedPath] = React.useState('happy');
+    const [selectedPath, setSelectedPath] = React.useState('easycoder');
     const [worktreeKey, setWorktreeKey] = React.useState('__none__');
     const [activePicker, setActivePicker] = React.useState<PickerType | null>(null);
 

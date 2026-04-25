@@ -1,5 +1,5 @@
 /**
- * Claude Code SDK integration for Happy CLI
+ * Claude Code SDK integration for EasyCoder CLI
  * Uses official @anthropic-ai/claude-agent-sdk
  */
 

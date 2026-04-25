@@ -1,7 +1,7 @@
 # Competition Research
 
 Use this folder for distilled competitor research that is worth keeping in the
-Happy repo.
+EasyCoder repo.
 
 ## What belongs here
 
@@ -9,7 +9,7 @@ Happy repo.
 - protocol writeups, message samples, and sequence diagrams
 - screenshots and small sanitized artifacts that explain behavior
 - links to upstream docs, repos, commits, issues, and blog posts
-- comparisons back to Happy when the finding affects product or protocol design
+- comparisons back to EasyCoder when the finding affects product or protocol design
 
 ## What does not belong here
 
@@ -65,7 +65,7 @@ to keep.
 
 ## Current priorities
 
-Start with the protocol and control surfaces that matter most for Happy:
+Start with the protocol and control surfaces that matter most for EasyCoder:
 
 - message protocol and event envelopes
 - tool call representation and streaming

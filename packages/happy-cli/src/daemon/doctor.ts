@@ -9,7 +9,7 @@ import psList from 'ps-list';
 import spawn from 'cross-spawn';
 
 /**
- * Find all Happy CLI processes (including current process)
+ * Find all EasyCoder CLI processes (including current process)
  */
 export async function findAllHappyProcesses(): Promise<Array<{ pid: number, command: string, type: string }>> {
   try {
@@ -20,10 +20,10 @@ export async function findAllHappyProcesses(): Promise<Array<{ pid: number, comm
       const cmd = proc.cmd || '';
       const name = proc.name || '';
       
-      // Check if it's a Happy process
-      const isHappy = name.includes('happy') || 
+      // Check if it's a EasyCoder process
+      const isHappy = name.includes('easycoder') || 
                       name === 'node' && (cmd.includes('happy-cli') || cmd.includes('dist/index.mjs')) ||
-                      cmd.includes('happy.mjs') ||
+                      cmd.includes('easycoder.mjs') ||
                       cmd.includes('happy-coder') || // legacy npm package name
                       cmd.includes('/happy/') ||
                       (cmd.includes('tsx') && cmd.includes('src/index.ts') && cmd.includes('happy-cli'));
@@ -58,7 +58,7 @@ export async function findAllHappyProcesses(): Promise<Array<{ pid: number, comm
 }
 
 /**
- * Find all runaway Happy CLI processes that should be killed
+ * Find all runaway EasyCoder CLI processes that should be killed
  */
 export async function findRunawayHappyProcesses(): Promise<Array<{ pid: number, command: string }>> {
   const allProcesses = await findAllHappyProcesses();
@@ -79,7 +79,7 @@ export async function findRunawayHappyProcesses(): Promise<Array<{ pid: number, 
 }
 
 /**
- * Kill all runaway Happy CLI processes
+ * Kill all runaway EasyCoder CLI processes
  */
 export async function killRunawayHappyProcesses(): Promise<{ killed: number, errors: Array<{ pid: number, error: string }> }> {
   const runawayProcesses = await findRunawayHappyProcesses();

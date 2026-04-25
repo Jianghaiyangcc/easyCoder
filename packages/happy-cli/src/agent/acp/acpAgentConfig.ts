@@ -16,13 +16,13 @@ export type ResolvedAcpAgentConfig = {
 
 export function resolveAcpAgentConfig(cliArgs: string[]): ResolvedAcpAgentConfig {
   if (cliArgs.length === 0) {
-    throw new Error('Usage: happy acp <agent-name> or happy acp -- <command> [args]');
+    throw new Error('Usage: easycoder acp <agent-name> or easycoder acp -- <command> [args]');
   }
 
   if (cliArgs[0] === '--') {
     const command = cliArgs[1];
     if (!command) {
-      throw new Error('Missing command after "--". Usage: happy acp -- <command> [args]');
+      throw new Error('Missing command after "--". Usage: easycoder acp -- <command> [args]');
     }
     return {
       agentName: command,
@@ -43,13 +43,13 @@ export function resolveAcpAgentConfig(cliArgs: string[]): ResolvedAcpAgentConfig
         continue;
       }
 
-      // Happy internal flag for first-party agents; ACP providers should not receive it.
-      if (arg === '--happy-starting-mode') {
+      // EasyCoder internal flag for first-party agents; ACP providers should not receive it.
+      if (arg === '--easycoder-starting-mode') {
         i++;
         continue;
       }
 
-      if (arg.startsWith('--happy-starting-mode=')) {
+      if (arg.startsWith('--easycoder-starting-mode=')) {
         continue;
       }
 

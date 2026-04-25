@@ -7,19 +7,19 @@ Free. Open source. Code anywhere.
 ## Installation
 
 ```bash
-npm install -g happy
+npm install -g easycoder
 ```
 
-> Migrated from the `happy-coder` package. Thanks to [@franciscop](https://github.com/franciscop) for donating the `happy` package name!
+> Migrated from the `happy-coder` package. Thanks to [@franciscop](https://github.com/franciscop) for donating the `easycoder` package name!
 
 ## Usage
 
 ### Claude Code (default)
 
 ```bash
-happy
+easycoder
 # or
-happy claude
+easycoder claude
 ```
 
 This will:
@@ -31,13 +31,13 @@ This will:
 ### More agents
 
 ```
-happy codex
-happy gemini
-happy openclaw
+easycoder codex
+easycoder gemini
+easycoder openclaw
 
 # or any ACP-compatible CLI
-happy acp opencode
-happy acp -- custom-agent --flag
+easycoder acp opencode
+easycoder acp -- custom-agent --flag
 ```
 
 ## Daemon
@@ -45,19 +45,19 @@ happy acp -- custom-agent --flag
 The daemon is a background service that stays running on your machine. It lets you spawn and manage coding sessions remotely — from your phone or the web app — without needing an open terminal.
 
 ```bash
-happy daemon start
-happy daemon stop
-happy daemon status
-happy daemon list
+easycoder daemon start
+easycoder daemon stop
+easycoder daemon status
+easycoder daemon list
 ```
 
-The daemon starts automatically when you run `happy`, so you usually don't need to manage it manually.
+The daemon starts automatically when you run `easycoder`, so you usually don't need to manage it manually.
 
 ## Authentication
 
 ```bash
-happy auth login
-happy auth logout
+easycoder auth login
+easycoder auth logout
 ```
 
 Code Never Stops uses cryptographic key pairs for authentication — your private key stays on your machine. All session data is end-to-end encrypted before leaving your device.
@@ -65,24 +65,24 @@ Code Never Stops uses cryptographic key pairs for authentication — your privat
 To connect third-party agent APIs:
 
 ```bash
-happy connect gemini
-happy connect claude
-happy connect codex
-happy connect status
+easycoder connect gemini
+easycoder connect claude
+easycoder connect codex
+easycoder connect status
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `happy` | Start Claude Code session (default) |
-| `happy codex` | Start Codex mode |
-| `happy gemini` | Start Gemini CLI session |
-| `happy openclaw` | Start OpenClaw session |
-| `happy acp` | Start any ACP-compatible agent |
-| `happy resume <id>` | Resume a previous session |
-| `happy notify` | Send push notification to your devices |
-| `happy doctor` | Diagnostics & troubleshooting |
+| `easycoder` | Start Claude Code session (default) |
+| `easycoder codex` | Start Codex mode |
+| `easycoder gemini` | Start Gemini CLI session |
+| `easycoder openclaw` | Start OpenClaw session |
+| `easycoder acp` | Start any ACP-compatible agent |
+| `easycoder resume <id>` | Resume a previous session |
+| `easycoder notify` | Send push notification to your devices |
+| `easycoder doctor` | Diagnostics & troubleshooting |
 
 ---
 
@@ -92,20 +92,20 @@ happy connect status
 
 | Variable | Description |
 |----------|-------------|
-| `HAPPY_SERVER_URL` | Custom server URL (default: `https://codeapi.daima.club`) |
-| `HAPPY_WEBAPP_URL` | Custom web app URL (default: `https://code.daima.club`) |
-| `HAPPY_HOME_DIR` | Custom home directory for Happy data (default: `~/.happy`) |
-| `HAPPY_DISABLE_CAFFEINATE` | Disable macOS sleep prevention |
-| `HAPPY_EXPERIMENTAL` | Enable experimental features |
+| `EASYCODER_SERVER_URL` | Custom server URL (default: `https://codeapi.daima.club`) |
+| `EASYCODER_WEBAPP_URL` | Custom web app URL (default: `https://code.daima.club`) |
+| `EASYCODER_HOME_DIR` | Custom home directory for EasyCoder data (default: `~/.easycoder`) |
+| `EASYCODER_DISABLE_CAFFEINATE` | Disable macOS sleep prevention |
+| `EASYCODER_EXPERIMENTAL` | Enable experimental features |
 
 ### Sandbox (experimental)
 
-Happy can run agents inside an OS-level sandbox to restrict file system and network access.
+EasyCoder can run agents inside an OS-level sandbox to restrict file system and network access.
 
 ```bash
-happy sandbox configure
-happy sandbox status
-happy sandbox disable
+easycoder sandbox configure
+easycoder sandbox status
+easycoder sandbox disable
 ```
 
 ### Building from source
@@ -114,7 +114,7 @@ happy sandbox disable
 git clone https://github.com/Jianghaiyangcc/easyCoder
 cd happy-cli
 yarn install
-yarn workspace happy cli --help
+yarn workspace easycoder cli --help
 ```
 
 ## Requirements
@@ -122,7 +122,7 @@ yarn workspace happy cli --help
 - Node.js >= 20.0.0
 - For Claude: `claude` CLI installed & logged in
 - For Codex: `codex` CLI installed & logged in
-- For Gemini: `npm install -g @google/gemini-cli` + `happy connect gemini`
+- For Gemini: `npm install -g @google/gemini-cli` + `easycoder connect gemini`
 
 ## License
 

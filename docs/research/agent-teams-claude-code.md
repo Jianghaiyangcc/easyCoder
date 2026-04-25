@@ -420,15 +420,15 @@ Same prompt, run inside a normal `claude` interactive session.
 - **This is fine in practice** — as we move up levels of abstraction, digging into what individual agents did doesn't make sense. You can just ask the lead. The lead receives all reports and idle notifications, so it has the full picture.
 - **Topology matters for performance, not visibility** — the team breakdown (how many agents, what roles, task dependencies) affects task execution quality. Visibility into individual agents is a bonus, not a requirement. The lead is the abstraction boundary.
 
-**For Happy:**
+**For EasyCoder:**
 
 We don't need to intercept Remote Control or support viewing individual agent sessions (we don't for regular subagents either). What would be cool:
 
-1. **Force-enable agent teams** — set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` from Happy so users get multi-agent capabilities without manual setup.
+1. **Force-enable agent teams** — set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` from EasyCoder so users get multi-agent capabilities without manual setup.
 2. **Show sub-agents in the UI** — read `~/.claude/teams/{team-name}/config.json` to discover team members. Display who's active, their colors, idle/working status. The data is all on disk already (inboxes track messages, idle notifications come through the lead's inbox).
 3. **Don't need to support viewing sub-agent sessions** — just show the team topology and activity indicators. The lead's session is the only one that matters for interaction.
 
-This is a lightweight UI feature with high visual impact — agent swarm activity showing up in the Happy sidebar would trend on Twitter.
+This is a lightweight UI feature with high visual impact — agent swarm activity showing up in the EasyCoder sidebar would trend on Twitter.
 
 ---
 

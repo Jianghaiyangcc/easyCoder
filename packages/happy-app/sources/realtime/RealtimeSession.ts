@@ -62,7 +62,7 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
             return conversationId;
         }
 
-        // Bypass Happy server token — only when user has their own custom agent
+        // Bypass EasyCoder server token — only when user has their own custom agent
         const { voiceBypassToken, voiceCustomAgentId } = storage.getState().settings;
         if (voiceBypassToken && voiceCustomAgentId) {
             console.log('[Voice] Bypassing token, custom agent ID:', voiceCustomAgentId);

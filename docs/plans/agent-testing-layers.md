@@ -12,15 +12,15 @@ Source of truth:
 
 ## Layer 2
 
-Layer 2 is full Happy product validation.
+Layer 2 is full EasyCoder product validation.
 
 Source of truth:
 
 - `./product.md`
 
-## happy-agent spawn
+## easycoder-agent spawn
 
-`happy-agent spawn` is product-layer validation work.
+`easycoder-agent spawn` is product-layer validation work.
 
 Source of truth:
 

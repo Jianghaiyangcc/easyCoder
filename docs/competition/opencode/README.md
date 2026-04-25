@@ -5,12 +5,12 @@ Reviewed on 2026-03-21 from `../happy-adjacent/research/opencode` at commit
 
 ## Why it matters
 
-OpenCode is currently the strongest overall product reference for Happy.
+OpenCode is currently the strongest overall product reference for EasyCoder.
 
 - the desktop UI is excellent
 - the feature set feels coherent and ambitious
 - clicking the context field opens a genuinely useful debug/context inspector
-- the transcript and sync model look much closer to what Happy should want than a flat custom message stream
+- the transcript and sync model look much closer to what EasyCoder should want than a flat custom message stream
 
 ## Current take
 

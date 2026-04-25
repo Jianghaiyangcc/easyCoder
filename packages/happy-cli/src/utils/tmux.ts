@@ -355,7 +355,7 @@ const CONTROL_SEQUENCES: Set<TmuxControlSequence> = new Set([
 
 export class TmuxUtilities {
     /** Default session name to prevent interference */
-    public static readonly DEFAULT_SESSION_NAME = "happy";
+    public static readonly DEFAULT_SESSION_NAME = "easycoder";
 
     private controlState: TmuxControlState = TmuxControlState.NORMAL;
     public readonly sessionName: string;
@@ -755,8 +755,8 @@ export class TmuxUtilities {
             }
 
             // Handle session name resolution
-            // - undefined: Use first existing session or create "happy"
-            // - empty string: Use first existing session or create "happy"
+            // - undefined: Use first existing session or create "easycoder"
+            // - empty string: Use first existing session or create "easycoder"
             // - specific name: Use that session (create if doesn't exist)
             let sessionName = options.sessionName !== undefined && options.sessionName !== ''
                 ? options.sessionName
@@ -771,8 +771,8 @@ export class TmuxUtilities {
                     sessionName = firstSession;
                     logger.debug(`[TMUX] Using first existing session: ${sessionName}`);
                 } else {
-                    // No sessions exist, create "happy"
-                    sessionName = 'happy';
+                    // No sessions exist, create "easycoder"
+                    sessionName = 'easycoder';
                     logger.debug(`[TMUX] No existing sessions, using default: ${sessionName}`);
                 }
             }

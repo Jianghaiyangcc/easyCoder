@@ -10,8 +10,8 @@ const packageDir = resolve(__dirname, '..');
 const repoRoot = resolve(packageDir, '..', '..');
 const environmentsDir = join(repoRoot, 'environments', 'data', 'envs');
 const currentEnvironmentPath = join(repoRoot, 'environments', 'data', 'current.json');
-const binPath = resolve(packageDir, 'bin', 'happy-agent.mjs');
-const keepIntegrationEnv = ['1', 'true', 'yes'].includes((process.env.HAPPY_AGENT_KEEP_ENV ?? '').toLowerCase());
+const binPath = resolve(packageDir, 'bin', 'easycoder-agent.mjs');
+const keepIntegrationEnv = ['1', 'true', 'yes'].includes((process.env.EASYCODER_AGENT_KEEP_ENV ?? '').toLowerCase());
 
 type EnvironmentConfig = {
     name: string;
@@ -93,8 +93,8 @@ function readDaemonState(envDir: string): DaemonState | null {
 function agentEnvVars(serverPort: number, homeDir: string): NodeJS.ProcessEnv {
     return {
         ...process.env,
-        HAPPY_SERVER_URL: `http://localhost:${serverPort}`,
-        HAPPY_HOME_DIR: homeDir,
+        EASYCODER_SERVER_URL: `http://localhost:${serverPort}`,
+        EASYCODER_HOME_DIR: homeDir,
     };
 }
 
@@ -122,10 +122,10 @@ function createGitProject(envDir: string): { projectDir: string; worktreeDir: st
 
     mkdirSync(projectDir, { recursive: true });
     runCommand('git', ['init', '--initial-branch=main'], projectDir);
-    runCommand('git', ['config', 'user.name', 'Happy Agent Test'], projectDir);
+    runCommand('git', ['config', 'user.name', 'EasyCoder Agent Test'], projectDir);
     runCommand('git', ['config', 'user.email', 'happy-agent-tests@example.com'], projectDir);
 
-    writeFile(join(projectDir, 'README.md'), '# Happy Agent Test Project\n');
+    writeFile(join(projectDir, 'README.md'), '# EasyCoder Agent Test Project\n');
     writeFile(join(projectDir, 'src', 'index.ts'), 'export const answer = 42;\n');
     runCommand('git', ['add', '.'], projectDir);
     runCommand('git', ['commit', '-m', 'Initial commit'], projectDir);
@@ -160,7 +160,7 @@ async function waitForSessionInList(sessionId: string, env: NodeJS.ProcessEnv): 
     await waitFor(async () => {
         const sessions = parseJson<Array<{ id: string }>>(runAgentCli(['list', '--json'], env));
         return sessions.some(session => session.id === sessionId);
-    }, 20_000, `session ${sessionId} to appear in happy-agent list`);
+    }, 20_000, `session ${sessionId} to appear in easycoder-agent list`);
 }
 
 async function waitForHistoryMessage(sessionId: string, expectedText: string, env: NodeJS.ProcessEnv): Promise<void> {
@@ -213,7 +213,7 @@ async function approveAgentLogin(
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': 'cli-control-plane/0.1.0',
+            'X-EasyCoder-Client': 'cli-control-plane/0.1.0',
         },
         body: JSON.stringify({
             publicKey: publicKeyBase64,
@@ -250,7 +250,7 @@ async function runAgentAuthLogin(env: NodeJS.ProcessEnv, approval: { serverUrl: 
             }
             settled = true;
             child.kill('SIGKILL');
-            rejectPromise(new Error(`Timed out waiting for happy-agent auth login.\n${stdout}\n${stderr}`));
+            rejectPromise(new Error(`Timed out waiting for easycoder-agent auth login.\n${stdout}\n${stderr}`));
         }, 60_000);
 
         const finish = (error?: Error, output?: string) => {
@@ -301,7 +301,7 @@ async function runAgentAuthLogin(env: NodeJS.ProcessEnv, approval: { serverUrl: 
 
         child.on('close', code => {
             if (code !== 0) {
-                finish(new Error(`happy-agent auth login exited with code ${code}\n${stdout}\n${stderr}`));
+                finish(new Error(`easycoder-agent auth login exited with code ${code}\n${stdout}\n${stderr}`));
                 return;
             }
             finish(undefined, stdout);
@@ -339,7 +339,7 @@ async function stopDaemonSession(httpPort: number, sessionId: string): Promise<b
     return parsed.success === true;
 }
 
-describe('happy-agent integration', { timeout: 180_000 }, () => {
+describe('easycoder-agent integration', { timeout: 180_000 }, () => {
     beforeAll(async () => {
         previousCurrentEnv = readCurrentEnvName();
 
@@ -359,8 +359,8 @@ describe('happy-agent integration', { timeout: 180_000 }, () => {
         testWorktreeDir = testProject.worktreeDir;
 
         if (keepIntegrationEnv) {
-            console.log(`[happy-agent integration] keeping environment: ${integrationEnvName}`);
-            console.log(`[happy-agent integration] environment dir: ${integrationEnvDir}`);
+            console.log(`[easycoder-agent integration] keeping environment: ${integrationEnvName}`);
+            console.log(`[easycoder-agent integration] environment dir: ${integrationEnvDir}`);
         }
     });
 
@@ -506,13 +506,13 @@ describe('happy-agent integration', { timeout: 180_000 }, () => {
         }, 20_000, 'spawned session to be tracked by daemon');
     });
 
-    it('spawns in the test project root and sends a message through happy-agent CLI', async () => {
+    it('spawns in the test project root and sends a message through easycoder-agent CLI', async () => {
         if (!activeMachineId || !integrationConfig || !agentHomeDir || !testProjectDir) {
             throw new Error('Integration environment not initialized');
         }
 
         const agentEnv = agentEnvVars(integrationConfig.serverPort, agentHomeDir);
-        const prompt = 'happy-agent root message';
+        const prompt = 'easycoder-agent root message';
         const spawnResult = parseJson<{
             type: 'success' | 'requestToApproveDirectoryCreation' | 'error';
             sessionId?: string;
@@ -557,13 +557,13 @@ describe('happy-agent integration', { timeout: 180_000 }, () => {
         await waitForHistoryMessage(sessionId, prompt, agentEnv);
     });
 
-    it('spawns in a git worktree and sends a message through happy-agent CLI', async () => {
+    it('spawns in a git worktree and sends a message through easycoder-agent CLI', async () => {
         if (!activeMachineId || !integrationConfig || !agentHomeDir || !testWorktreeDir) {
             throw new Error('Integration environment not initialized');
         }
 
         const agentEnv = agentEnvVars(integrationConfig.serverPort, agentHomeDir);
-        const prompt = 'happy-agent worktree message';
+        const prompt = 'easycoder-agent worktree message';
         const spawnResult = parseJson<{
             type: 'success' | 'requestToApproveDirectoryCreation' | 'error';
             sessionId?: string;

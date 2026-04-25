@@ -37,10 +37,10 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Build package
-      run: pnpm --filter happy build
+      run: pnpm --filter easycoder build
 
     - name: Pack package
-      run: pnpm --filter happy pack --pack-destination packages/happy-cli
+      run: pnpm --filter easycoder pack --pack-destination packages/happy-cli
 
     - name: Install packed package globally
       run: |
@@ -50,27 +50,27 @@ jobs:
     - name: Test binary execution
       run: |
         # Test that the binary starts successfully
-        echo "Testing happy --help..."
-        timeout 30s happy --help || {
-          echo "Error: happy --help failed or timed out"
+        echo "Testing easycoder --help..."
+        timeout 30s easycoder --help || {
+          echo "Error: easycoder --help failed or timed out"
           exit 1
         }
 
-        echo "Testing happy --version..."
-        timeout 10s happy --version || {
-          echo "Error: happy --version failed or timed out"
+        echo "Testing easycoder --version..."
+        timeout 10s easycoder --version || {
+          echo "Error: easycoder --version failed or timed out"
           exit 1
         }
 
-        echo "Testing happy doctor..."
-        timeout 30s happy doctor || {
-          echo "Error: happy doctor failed or timed out"
+        echo "Testing easycoder doctor..."
+        timeout 30s easycoder doctor || {
+          echo "Error: easycoder doctor failed or timed out"
           exit 1
         }
 
-        echo "Testing happy daemon status..."
-        timeout 10s happy daemon status || {
-          echo "Error: happy daemon status failed or timed out"
+        echo "Testing easycoder daemon status..."
+        timeout 10s easycoder daemon status || {
+          echo "Error: easycoder daemon status failed or timed out"
           exit 1
         }
 
@@ -99,10 +99,10 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Build package
-      run: pnpm --filter happy build
+      run: pnpm --filter easycoder build
 
     - name: Pack package
-      run: pnpm --filter happy pack --pack-destination packages/happy-cli
+      run: pnpm --filter easycoder pack --pack-destination packages/happy-cli
 
     - name: Install packed package globally
       shell: cmd
@@ -122,20 +122,20 @@ jobs:
           echo Found node_modules directory
           dir "%NPM_PREFIX%\node_modules" 2>nul
           echo.
-          echo Checking for happy package:
-          if exist "%NPM_PREFIX%\node_modules\happy" (
-            echo Found happy package
-            dir "%NPM_PREFIX%\node_modules\happy" 2>nul
+          echo Checking for easycoder package:
+          if exist "%NPM_PREFIX%\node_modules\easycoder" (
+            echo Found easycoder package
+            dir "%NPM_PREFIX%\node_modules\easycoder" 2>nul
             echo.
             echo Checking for dist directory:
-            if exist "%NPM_PREFIX%\node_modules\happy\dist" (
+            if exist "%NPM_PREFIX%\node_modules\easycoder\dist" (
               echo Found dist directory
-              dir "%NPM_PREFIX%\node_modules\happy\dist" 2>nul
+              dir "%NPM_PREFIX%\node_modules\easycoder\dist" 2>nul
             ) else (
               echo No dist directory found
             )
           ) else (
-            echo No happy package found
+            echo No easycoder package found
           )
         ) else (
           echo No node_modules directory found
@@ -152,67 +152,67 @@ jobs:
         echo NPM_PREFIX: %NPM_PREFIX%
         echo Current PATH: %PATH%
 
-        rem Debug: Check if happy exists in various locations
-        echo Checking for happy binary...
-        where happy 2>nul && echo Found happy in PATH || echo happy not found in PATH
-        if exist "%NPM_PREFIX%\happy.cmd" echo Found happy.cmd in NPM_PREFIX
-        if exist "%NPM_PREFIX%\node_modules\.bin\happy.cmd" echo Found happy.cmd in .bin directory
-        dir "%NPM_PREFIX%\*happy*" 2>nul || echo No happy files found in NPM_PREFIX
+        rem Debug: Check if easycoder exists in various locations
+        echo Checking for easycoder binary...
+        where easycoder 2>nul && echo Found easycoder in PATH || echo easycoder not found in PATH
+        if exist "%NPM_PREFIX%\easycoder.cmd" echo Found easycoder.cmd in NPM_PREFIX
+        if exist "%NPM_PREFIX%\node_modules\.bin\easycoder.cmd" echo Found easycoder.cmd in .bin directory
+        dir "%NPM_PREFIX%\*easycoder*" 2>nul || echo No easycoder files found in NPM_PREFIX
 
         rem Debug: Check the actual contents and encoding of the installed file
-        if exist "%NPM_PREFIX%\happy.cmd" (
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
           echo File size and type:
-          dir "%NPM_PREFIX%\happy.cmd"
+          dir "%NPM_PREFIX%\easycoder.cmd"
           echo.
           echo First few lines of the file:
-          type "%NPM_PREFIX%\happy.cmd" | head -5
+          type "%NPM_PREFIX%\easycoder.cmd" | head -5
           echo.
           echo Hex dump of first 50 bytes to check line endings:
-          powershell -Command "Get-Content '%NPM_PREFIX%\happy.cmd' -Encoding Byte -TotalCount 50 | ForEach-Object { '{0:X2}' -f $_ } | Join-String -Separator ' '"
+          powershell -Command "Get-Content '%NPM_PREFIX%\easycoder.cmd' -Encoding Byte -TotalCount 50 | ForEach-Object { '{0:X2}' -f $_ } | Join-String -Separator ' '"
           echo.
           echo Testing with direct path...
-          "%NPM_PREFIX%\happy.cmd" --help
+          "%NPM_PREFIX%\easycoder.cmd" --help
         ) else (
-          echo Testing happy --help...
-          happy --help
+          echo Testing easycoder --help...
+          easycoder --help
         )
         if errorlevel 1 (
-          echo Error: happy --help failed
+          echo Error: easycoder --help failed
           exit /b 1
         )
 
         rem Test version
-        if exist "%NPM_PREFIX%\happy.cmd" (
-          "%NPM_PREFIX%\happy.cmd" --version
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" --version
         ) else (
-          happy --version
+          easycoder --version
         )
         if errorlevel 1 (
-          echo Error: happy --version failed
+          echo Error: easycoder --version failed
           exit /b 1
         )
 
         rem Test doctor
-        echo Testing happy doctor...
-        if exist "%NPM_PREFIX%\happy.cmd" (
-          "%NPM_PREFIX%\happy.cmd" doctor
+        echo Testing easycoder doctor...
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" doctor
         ) else (
-          happy doctor
+          easycoder doctor
         )
         if errorlevel 1 (
-          echo Error: happy doctor failed
+          echo Error: easycoder doctor failed
           exit /b 1
         )
 
         rem Test daemon status
-        echo Testing happy daemon status...
-        if exist "%NPM_PREFIX%\happy.cmd" (
-          "%NPM_PREFIX%\happy.cmd" daemon status
+        echo Testing easycoder daemon status...
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" daemon status
         ) else (
-          happy daemon status
+          easycoder daemon status
         )
         if errorlevel 1 (
-          echo Error: happy daemon status failed
+          echo Error: easycoder daemon status failed
           exit /b 1
         )
 

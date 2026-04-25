@@ -18,13 +18,13 @@ This update migrates the monorepo from Yarn to pnpm, delivering dramatically fas
 
 ## Version 7 - 2026-04-08
 
-This preview release expands the current update with the latest Gemini models, a smarter voice onboarding flow, and more reliable Happy CLI sessions for plan approvals and Codex turns.
+This preview release expands the current update with the latest Gemini models, a smarter voice onboarding flow, and more reliable EasyCoder CLI sessions for plan approvals and Codex turns.
 
-- Update Happy CLI with `npm i -g happy`
+- Update EasyCoder CLI with `npm i -g easycoder`
 - Added the latest Gemini models to the picker
 - Improved voice onboarding with smarter first-run prompts and clearer upgrade guidance for free users
-- Fixed Happy CLI plan approval flows so Accept and Reject buttons show up reliably in plan mode
-- Fixed Happy CLI background task updates and Codex turns that could sometimes hang or fail to complete
+- Fixed EasyCoder CLI plan approval flows so Accept and Reject buttons show up reliably in plan mode
+- Fixed EasyCoder CLI background task updates and Codex turns that could sometimes hang or fail to complete
 
 ## Version 6 - 2026-03-19
 
@@ -47,7 +47,7 @@ This is the biggest update since launch — a redesigned session creation experi
 This release expands AI agent support and refines the voice experience, while improving markdown rendering for a better chat experience.
 
 - We are working on adding Gemini support using ACP and hopefully fixing codex stability issues using the same approach soon! Stay tuned.
-- Removed model configurations from agents. We were not able to keep up with the models so for now we are removing the configuration from the mobile app. You can still configure it through your CLIs, happy will simply use defaults.
+- Removed model configurations from agents. We were not able to keep up with the models so for now we are removing the configuration from the mobile app. You can still configure it through your CLIs, easycoder will simply use defaults.
 - Elevenlabs ... is epxensive. Voice conversations will soon require a subscription after 3 free trials - we'll soon allow connecting your own ElevenLabs agent if you want to manage your own spendings.
 - Improved markdown table rendering in chat - no more ASCII pipes `|--|`, actual formatted tables (layout still needs work, but much better!)
 
@@ -62,7 +62,7 @@ This release revolutionizes remote development with Codex integration and Daemon
 
 ## Version 3 - 2025-08-29
 
-This update introduces seamless GitHub integration, bringing your developer identity directly into Happy while maintaining our commitment to privacy and security.
+This update introduces seamless GitHub integration, bringing your developer identity directly into EasyCoder while maintaining our commitment to privacy and security.
 
 - Added GitHub account connection through secure OAuth authentication flow
 - Integrated profile synchronization displaying your GitHub avatar, name, and bio
@@ -83,7 +83,7 @@ This update focuses on seamless device connectivity, visual refinements, and int
 
 ## Version 1 - 2025-05-12
 
-Welcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.
+Welcome to EasyCoder - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.
 
 - Implemented end-to-end encrypted session management ensuring complete privacy
 - Integrated intelligent voice assistant with natural conversation capabilities

@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { apiSocket, getHappyClientId } from '@/sync/apiSocket';
+import { apiSocket, getEasyCoderClientId } from '@/sync/apiSocket';
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { Encryption } from '@/sync/encryption/encryption';
 import { decodeBase64, encodeBase64 } from '@/encryption/base64';
@@ -398,7 +398,7 @@ class Sync {
             await Notifications.scheduleNotificationAsync({
                 content: {
                     title: 'Message failed',
-                    body: 'A message failed to send while the app was in background. Open Happy and retry.',
+                    body: 'A message failed to send while the app was in background. Open EasyCoder and retry.',
                     sound: true
                 },
                 trigger: null
@@ -720,7 +720,7 @@ class Sync {
             headers: {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 
@@ -1095,7 +1095,7 @@ class Sync {
             headers: {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 
@@ -1324,7 +1324,7 @@ class Sync {
                     headers: {
                         'Authorization': `Bearer ${this.credentials.token}`,
                         'Content-Type': 'application/json',
-                        'X-Happy-Client': getHappyClientId(),
+                        'X-EasyCoder-Client': getEasyCoderClientId(),
                     }
                 });
                 const data = await response.json() as {
@@ -1389,7 +1389,7 @@ class Sync {
             headers: {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
         if (!response.ok) {
@@ -1435,7 +1435,7 @@ class Sync {
             headers: {
                 'Authorization': `Bearer ${this.credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 
@@ -1484,7 +1484,7 @@ class Sync {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Happy-Client': getHappyClientId(),
+                    'X-EasyCoder-Client': getEasyCoderClientId(),
                 },
                 body: JSON.stringify({
                     platform,

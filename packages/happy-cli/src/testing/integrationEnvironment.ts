@@ -74,11 +74,11 @@ export async function createIntegrationEnvironment(options?: { template?: Enviro
 }
 
 export function applyEnvironmentToProcess(env: IntegrationEnvironment) {
-    process.env.HAPPY_SERVER_URL = `http://localhost:${env.serverPort}`;
-    process.env.HAPPY_WEBAPP_URL = `http://localhost:${env.expoPort}`;
-    process.env.HAPPY_HOME_DIR = join(env.envDir, 'cli', 'home');
-    process.env.HAPPY_PROJECT_DIR = env.projectPath;
-    process.env.HAPPY_VARIANT = 'dev';
+    process.env.EASYCODER_SERVER_URL = `http://localhost:${env.serverPort}`;
+    process.env.EASYCODER_WEBAPP_URL = `http://localhost:${env.expoPort}`;
+    process.env.EASYCODER_HOME_DIR = join(env.envDir, 'cli', 'home');
+    process.env.EASYCODER_PROJECT_DIR = env.projectPath;
+    process.env.EASYCODER_VARIANT = 'dev';
     process.env.DEBUG = '1';
 }
 

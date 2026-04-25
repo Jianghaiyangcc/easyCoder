@@ -35,14 +35,14 @@ describe('resolveAcpAgentConfig', () => {
     });
   });
 
-  it('strips Happy internal starting mode flags for known ACP agents', () => {
-    expect(resolveAcpAgentConfig(['opencode', '--happy-starting-mode', 'remote', '--foo'])).toEqual({
+  it('strips EasyCoder internal starting mode flags for known ACP agents', () => {
+    expect(resolveAcpAgentConfig(['opencode', '--easycoder-starting-mode', 'remote', '--foo'])).toEqual({
       agentName: 'opencode',
       command: 'opencode',
       args: ['acp', '--foo'],
     });
 
-    expect(resolveAcpAgentConfig(['opencode', '--happy-starting-mode=remote', '--foo'])).toEqual({
+    expect(resolveAcpAgentConfig(['opencode', '--easycoder-starting-mode=remote', '--foo'])).toEqual({
       agentName: 'opencode',
       command: 'opencode',
       args: ['acp', '--foo'],
@@ -66,10 +66,10 @@ describe('resolveAcpAgentConfig', () => {
   });
 
   it('throws with helpful usage when no args are provided', () => {
-    expect(() => resolveAcpAgentConfig([])).toThrow('Usage: happy acp <agent-name> or happy acp -- <command> [args]');
+    expect(() => resolveAcpAgentConfig([])).toThrow('Usage: easycoder acp <agent-name> or easycoder acp -- <command> [args]');
   });
 
   it('throws when separator form omits command', () => {
-    expect(() => resolveAcpAgentConfig(['--'])).toThrow('Missing command after "--". Usage: happy acp -- <command> [args]');
+    expect(() => resolveAcpAgentConfig(['--'])).toThrow('Missing command after "--". Usage: easycoder acp -- <command> [args]');
   });
 });

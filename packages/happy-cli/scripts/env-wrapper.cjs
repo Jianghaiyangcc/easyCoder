@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Cross-platform environment wrapper for happy CLI
- * Sets HAPPY_HOME_DIR and provides visual feedback
+ * Cross-platform environment wrapper for easycoder CLI
+ * Sets EASYCODER_HOME_DIR and provides visual feedback
  *
  * Usage: node scripts/env-wrapper.js <variant> <command> [...args]
  *
  * Variants:
- *   - stable: Production-ready version using ~/.happy/
- *   - dev: Development version using ~/.happy-dev/
+ *   - stable: Production-ready version using ~/.easycoder/
+ *   - dev: Development version using ~/.easycoder-dev/
  *
  * Examples:
  *   node scripts/env-wrapper.js stable daemon start
@@ -21,16 +21,16 @@ const fs = require('fs');
 
 const VARIANTS = {
   stable: {
-    homeDir: path.join(os.homedir(), '.happy'),
+    homeDir: path.join(os.homedir(), '.easycoder'),
     color: '\x1b[32m', // Green
     label: '✅ STABLE',
-    serverUrl: process.env.HAPPY_SERVER_URL || 'https://api.cluster-fluster.com'
+    serverUrl: process.env.EASYCODER_SERVER_URL || 'https://api.cluster-fluster.com'
   },
   dev: {
-    homeDir: path.join(os.homedir(), '.happy-dev'),
+    homeDir: path.join(os.homedir(), '.easycoder-dev'),
     color: '\x1b[33m', // Yellow
     label: '🔧 DEV',
-    serverUrl: process.env.HAPPY_SERVER_URL || 'https://api.cluster-fluster.com'
+    serverUrl: process.env.EASYCODER_SERVER_URL || 'https://api.cluster-fluster.com'
   }
 };
 
@@ -42,8 +42,8 @@ if (!variant || !VARIANTS[variant]) {
   console.error('Usage: node scripts/env-wrapper.js <stable|dev> <command> [...args]');
   console.error('');
   console.error('Variants:');
-  console.error('  stable - Production-ready version (data: ~/.happy/)');
-  console.error('  dev    - Development version (data: ~/.happy-dev/)');
+  console.error('  stable - Production-ready version (data: ~/.easycoder/)');
+  console.error('  dev    - Development version (data: ~/.easycoder-dev/)');
   console.error('');
   console.error('Examples:');
   console.error('  node scripts/env-wrapper.js stable daemon start');
@@ -59,17 +59,17 @@ if (!fs.existsSync(config.homeDir)) {
 }
 
 // Visual feedback
-console.log(`${config.color}${config.label}\x1b[0m Happy CLI (data: ${config.homeDir})`);
+console.log(`${config.color}${config.label}\x1b[0m EasyCoder CLI (data: ${config.homeDir})`);
 
 // Set environment and execute command
 const env = {
   ...process.env,
-  HAPPY_HOME_DIR: config.homeDir,
-  HAPPY_SERVER_URL: config.serverUrl,
-  HAPPY_VARIANT: variant, // For internal validation
+  EASYCODER_HOME_DIR: config.homeDir,
+  EASYCODER_SERVER_URL: config.serverUrl,
+  EASYCODER_VARIANT: variant, // For internal validation
 };
 
-const binPath = path.join(__dirname, '..', 'bin', 'happy.mjs');
+const binPath = path.join(__dirname, '..', 'bin', 'easycoder.mjs');
 const proc = spawn('node', [binPath, command, ...args], {
   env,
   stdio: 'inherit',

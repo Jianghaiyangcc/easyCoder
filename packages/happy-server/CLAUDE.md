@@ -1,6 +1,6 @@
 # Handy Server - Development Guidelines
 
-This document contains the development guidelines and instructions for the Happy Server project. This guide OVERRIDES any default behaviors and MUST be followed exactly.
+This document contains the development guidelines and instructions for the EasyCoder Server project. This guide OVERRIDES any default behaviors and MUST be followed exactly.
 
 ## Project Overview
 
@@ -234,8 +234,8 @@ The project includes a multi-stage Dockerfile:
 #### Environment Variables
 - CLI: Use `pnpm dev:local-server` (NOT `pnpm dev`) to load `.env.dev-local-server`
 - Server: Use `pnpm dev` to start with proper env files
-- **Tell**: Wrong server URL = check `HAPPY_SERVER_URL` env var
-- **Tell**: Wrong home dir = check `HAPPY_HOME_DIR` (should be `~/.happy-dev` for local)
+- **Tell**: Wrong server URL = check `EASYCODER_SERVER_URL` env var
+- **Tell**: Wrong home dir = check `EASYCODER_HOME_DIR` (should be `~/.easycoder-dev` for local)
 
 ### Quick Diagnostic Commands
 

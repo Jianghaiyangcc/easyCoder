@@ -23,8 +23,8 @@ pnpm-lock.yaml
 .claude/settings.local.json
 
 # Local installation and data directories
-.happy/
-.happy-dev/
+.easycoder/
+.easycoder-dev/
 
 **/*.log
 .release-notes-temp.md

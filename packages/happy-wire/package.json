@@ -1,7 +1,7 @@
 {
   "name": "@slopus/happy-wire",
   "version": "0.1.0",
-  "description": "Shared message wire types and Zod schemas for Happy clients and services",
+  "description": "Shared message wire types and Zod schemas for EasyCoder clients and services",
   "author": "Kirill Dubovitskiy",
   "license": "MIT",
   "type": "module",

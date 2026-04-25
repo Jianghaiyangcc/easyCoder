@@ -8,8 +8,8 @@ export type Config = {
 };
 
 export function loadConfig(): Config {
-    const serverUrl = (process.env.HAPPY_SERVER_URL ?? 'https://codeapi.daima.club').replace(/\/+$/, '');
-    const homeDir = process.env.HAPPY_HOME_DIR ?? join(homedir(), '.happy');
+    const serverUrl = (process.env.EASYCODER_SERVER_URL ?? 'https://codeapi.daima.club').replace(/\/+$/, '');
+    const homeDir = process.env.EASYCODER_HOME_DIR ?? join(homedir(), '.easycoder');
     const credentialPath = join(homeDir, 'agent.key');
     return { serverUrl, homeDir, credentialPath };
 }

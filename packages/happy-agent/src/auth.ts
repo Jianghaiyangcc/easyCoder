@@ -25,7 +25,7 @@ export async function authLogin(config: Config): Promise<void> {
         await axios.post(`${config.serverUrl}/v1/auth/account/request`, {
             publicKey: publicKeyBase64,
         }, {
-            headers: { 'X-Happy-Client': 'cli-control-plane/0.1.0' },
+            headers: { 'X-EasyCoder-Client': 'cli-control-plane/0.1.0' },
         });
     } catch (err) {
         if (err instanceof AxiosError) {
@@ -35,13 +35,13 @@ export async function authLogin(config: Config): Promise<void> {
     }
 
     // 3. Generate and display QR code
-    const qrData = `happy:///account?${encodeBase64Url(keypair.publicKey)}`;
+    const qrData = `easycoder:///account?${encodeBase64Url(keypair.publicKey)}`;
     console.log('');
     qrcode.generate(qrData, { small: true }, (code: string) => {
         console.log(code);
     });
     console.log('## Authentication');
-    console.log('- Action: Scan this QR code with the Happy app');
+    console.log('- Action: Scan this QR code with the EasyCoder app');
     console.log('- Path: Settings -> Account -> Link New Device');
     console.log(`- Public Key: \`${publicKeyBase64}\``);
     console.log(`- URL: \`${qrData}\``);
@@ -57,7 +57,7 @@ export async function authLogin(config: Config): Promise<void> {
             const resp = await axios.post(`${config.serverUrl}/v1/auth/account/request`, {
                 publicKey: publicKeyBase64,
             }, {
-                headers: { 'X-Happy-Client': 'cli-control-plane/0.1.0' },
+                headers: { 'X-EasyCoder-Client': 'cli-control-plane/0.1.0' },
             });
             result = resp.data as AuthRequestResponse;
         } catch (err) {
@@ -102,7 +102,7 @@ export async function authStatus(config: Config): Promise<void> {
         console.log(`- Public Key: \`${encodeBase64(creds.contentKeyPair.publicKey)}\``);
     } else {
         console.log('- Status: Not authenticated');
-        console.log('- Action: Run `happy-agent auth login` to authenticate.');
+        console.log('- Action: Run `easycoder-agent auth login` to authenticate.');
     }
 }
 

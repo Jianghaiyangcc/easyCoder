@@ -4,14 +4,14 @@
  * Covers:
  *   - clarification + multi-turn context via resume
  *   - real model switching across resumed turns
- *   - Happy MCP tool usage (`mcp__happy__change_title`)
+ *   - EasyCoder MCP tool usage (`mcp__happy__change_title`)
  *   - native Claude tool usage against the copied fixture project
  *   - real workspace-boundary behavior against `../sibling-dir`
  *   - permission denial and interrupt handling
  *
  * Notes:
  *   - This is the real current Claude surface we own directly.
- *   - It does not exercise Happy's separate local sandbox wrapper; instead it
+ *   - It does not exercise EasyCoder's separate local sandbox wrapper; instead it
  *     asserts the real safety controls available here: tool allow/deny and
  *     interrupting pending tool requests.
  */
@@ -203,7 +203,7 @@ class ClaudeQueryDriver {
             cwd: integrationEnv.projectPath,
             disallowedTools: options.disallowedTools,
             mcpServers: {
-                happy: {
+                easycoder: {
                     type: 'http',
                     url: this.happyServer.url,
                 },
@@ -351,7 +351,7 @@ describe.skipIf(!claudeAvailable)('Claude Integration (SDK/query)', { timeout: 1
                 'The sibling file must contain exactly these two lines:',
                 'choice=OPTION_B',
                 'token=ember-orbit-17',
-                'Then update the happy title so it mentions OPTION_B and reply with only DONE.',
+                'Then update the easycoder title so it mentions OPTION_B and reply with only DONE.',
             ].join('\n'),
             resume: sessionIdFrom(clarificationMessages),
         });

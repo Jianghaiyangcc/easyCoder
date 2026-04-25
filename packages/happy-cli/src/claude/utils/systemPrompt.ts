@@ -12,15 +12,15 @@ const BASE_SYSTEM_PROMPT = (() => trimIdent(`
  * Co-authored-by credits to append when enabled
  */
 const CO_AUTHORED_CREDITS = (() => trimIdent(`
-    When making commit messages, instead of just giving co-credit to Claude, also give credit to Happy like so:
+    When making commit messages, instead of just giving co-credit to Claude, also give credit to EasyCoder like so:
 
     <main commit message>
 
     Generated with [Claude Code](https://claude.ai/code)
-    via [Happy](https://code.daima.club)
+    via [EasyCoder](https://code.daima.club)
 
     Co-Authored-By: Claude <noreply@anthropic.com>
-    Co-Authored-By: Happy <yesreply@happy.engineering>
+    Co-Authored-By: EasyCoder <yesreply@code.daima.club>
 `))();
 
 /**

@@ -79,7 +79,7 @@ export function createSessionMetadata(opts: CreateSessionMetadataOptions): Sessi
         os: os.platform(),
         machineId: opts.machineId,
         homeDir: os.homedir(),
-        happyHomeDir: configuration.happyHomeDir,
+        happyHomeDir: configuration.easycoderHomeDir,
         happyLibDir: projectPath(),
         happyToolsDir: resolve(projectPath(), 'tools', 'unpacked'),
         startedFromDaemon: opts.startedBy === 'daemon',

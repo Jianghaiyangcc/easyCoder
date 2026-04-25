@@ -260,7 +260,7 @@ export default React.memo(() => {
             await loadPushSettings();
 
             if (result.openedSettings) {
-                Modal.alert('Open Settings', 'The system will not show the permission prompt again, so Happy opened Settings instead.');
+                Modal.alert('Open Settings', 'The system will not show the permission prompt again, so EasyCoder opened Settings instead.');
                 return;
             }
 

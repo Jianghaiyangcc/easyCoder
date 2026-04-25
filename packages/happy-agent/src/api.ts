@@ -180,7 +180,7 @@ function handleApiError(err: unknown, context: string): never {
     if (err instanceof AxiosError) {
         const status = err.response?.status;
         if (status === 401) {
-            throw new Error('Authentication expired. Run `happy-agent auth login` to re-authenticate.');
+            throw new Error('Authentication expired. Run `easycoder-agent auth login` to re-authenticate.');
         }
         if (status === 403) {
             throw new Error(`Forbidden: ${context}. Check your account permissions.`);
@@ -203,7 +203,7 @@ function handleApiError(err: unknown, context: string): never {
 function authHeaders(creds: Credentials): Record<string, string> {
     return {
         Authorization: `Bearer ${creds.token}`,
-        'X-Happy-Client': 'cli-control-plane/0.1.0',
+        'X-EasyCoder-Client': 'cli-control-plane/0.1.0',
     };
 }
 

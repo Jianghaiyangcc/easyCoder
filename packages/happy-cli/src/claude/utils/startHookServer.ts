@@ -14,7 +14,7 @@
  *     │                                         
  *     ├─► startHookServer() ──► HTTP server on random port (e.g., 52290)
  *     │                                         
- *     ├─► generateHookSettingsFile(port) ──► ~/.happy/tmp/hooks/session-hook-<pid>.json
+ *     ├─► generateHookSettingsFile(port) ──► ~/.easycoder/tmp/hooks/session-hook-<pid>.json
  *     │   (contains SessionStart hook pointing to our server)
  *     │                                         
  *     └─► loop() ──► claudeLocal/claudeRemote
@@ -44,17 +44,17 @@
  * ```
  * 
  * ### Triggered By
- * - `happy` (fresh start) - new session created
- * - `happy --continue` - continues last session (may fork)
- * - `happy --resume` - interactive picker, then resume
- * - `happy --resume <id>` - resume specific session
+ * - `easycoder` (fresh start) - new session created
+ * - `easycoder --continue` - continues last session (may fork)
+ * - `easycoder --resume` - interactive picker, then resume
+ * - `easycoder --resume <id>` - resume specific session
  * - `/compact` command - compacts and forks session
  * - Double-escape fork - user forks conversation in CLI
  * 
  * ### Why Not Use File Watching?
- * File watching has race conditions when multiple Happy processes run.
+ * File watching has race conditions when multiple EasyCoder processes run.
  * With hooks, Claude directly tells THIS specific process about its session,
- * ensuring 1:1 mapping between Happy process and Claude session.
+ * ensuring 1:1 mapping between EasyCoder process and Claude session.
  */
 
 import { createServer, IncomingMessage, ServerResponse, Server } from 'node:http';

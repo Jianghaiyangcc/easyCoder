@@ -44,7 +44,7 @@ export class ApiClient {
       encryptionVariant = 'dataKey';
 
       // Derive and encrypt data encryption key
-      // const contentDataKey = await deriveKey(this.secret, 'Happy EnCoder', ['content']);
+      // const contentDataKey = await deriveKey(this.secret, 'EasyCoder EnCoder', ['content']);
       // const publicKey = libsodiumPublicKeyFromSecretKey(contentDataKey);
       let encryptedDataKey = libsodiumEncryptForPublicKey(encryptionKey, this.credential.encryption.publicKey);
       dataEncryptionKey = new Uint8Array(encryptedDataKey.length + 1);
@@ -69,7 +69,7 @@ export class ApiClient {
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`
+            'X-EasyCoder-Client': `cli-coding-session/${configuration.currentCliVersion}`
           },
           timeout: 60000 // 1 minute timeout for very bad network connections
         }
@@ -190,7 +190,7 @@ export class ApiClient {
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`
+            'X-EasyCoder-Client': `cli-coding-session/${configuration.currentCliVersion}`
           },
           timeout: 60000 // 1 minute timeout for very bad network connections
         }
@@ -240,7 +240,7 @@ export class ApiClient {
             `   → This usually happens after re-authenticating with a different account`
           ));
           console.log(chalk.yellow(
-            `   → Run 'happy doctor clean' to reset local state and generate a new machine ID`
+            `   → Run 'easycoder doctor clean' to reset local state and generate a new machine ID`
           ));
           console.log(chalk.yellow(
             `   → Open a GitHub issue if this problem persists`
@@ -302,7 +302,7 @@ export class ApiClient {
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`
+            'X-EasyCoder-Client': `cli-coding-session/${configuration.currentCliVersion}`
           },
           timeout: 5000
         }
@@ -331,7 +331,7 @@ export class ApiClient {
           headers: {
             'Authorization': `Bearer ${this.credential.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': `cli-coding-session/${configuration.currentCliVersion}`
+            'X-EasyCoder-Client': `cli-coding-session/${configuration.currentCliVersion}`
           },
           timeout: 5000
         }

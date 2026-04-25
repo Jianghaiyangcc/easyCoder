@@ -20,4 +20,4 @@ Reviewed on 2026-03-20.
 ## Notes
 
 - This is the best typed approval and sandbox protocol surface in the current comparison set.
-- The app-server README is unusually useful and should be revisited as Happy's own protocol evolves.
+- The app-server README is unusually useful and should be revisited as EasyCoder's own protocol evolves.

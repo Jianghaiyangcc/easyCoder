@@ -5,7 +5,7 @@ import { TokenStorage } from '@/auth/tokenStorage';
 import { Encryption } from './encryption/encryption';
 import { storage } from './storage';
 
-export function getHappyClientId(): string {
+export function getEasyCoderClientId(): string {
     let platform: string = Platform.OS; // 'ios' | 'android' | 'web'
     if (platform === 'web' && typeof window !== 'undefined' && '__TAURI__' in window) {
         platform = 'desktop';
@@ -72,7 +72,7 @@ class ApiSocket {
             auth: {
                 token: this.config.token,
                 clientType: 'user-scoped' as const,
-                happyClient: getHappyClientId()
+                easycoderClient: getEasyCoderClientId()
             },
             transports: ['websocket'],
             reconnection: true,
@@ -190,7 +190,7 @@ class ApiSocket {
         const url = `${this.config.endpoint}${path}`;
         const headers = {
             'Authorization': `Bearer ${credentials.token}`,
-            'X-Happy-Client': getHappyClientId(),
+            'X-EasyCoder-Client': getEasyCoderClientId(),
             ...options?.headers
         };
 

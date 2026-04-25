@@ -1,5 +1,5 @@
 /**
- * WebSocket client for machine/daemon communication with Happy server
+ * WebSocket client for machine/daemon communication with EasyCoder server
  * Similar to ApiSessionClient but for machine-scoped connections
  */
 
@@ -157,7 +157,7 @@ export class ApiMachineClient {
         this.resumeSessionHandler = resumeSession ?? null;
 
         // Register spawn session handler
-        this.rpcHandlerManager.registerHandler('spawn-happy-session', async (params: any) => {
+        this.rpcHandlerManager.registerHandler('spawn-easycoder-session', async (params: any) => {
             const { directory, sessionId, machineId, approvedNewDirectoryCreation, agent, environmentVariables, token } = params || {};
             logger.debug(`[API MACHINE] Spawning session with params: ${JSON.stringify(params)}`);
 
@@ -215,7 +215,7 @@ export class ApiMachineClient {
     }
 
     private syncResumeSessionRpcRegistration(rpcAvailable: boolean): void {
-        const method = 'resume-happy-session';
+        const method = 'resume-easycoder-session';
 
         if (rpcAvailable && this.resumeSessionHandler) {
             if (!this.rpcHandlerManager.hasHandler(method)) {
@@ -317,7 +317,7 @@ export class ApiMachineClient {
                 token: this.token,
                 clientType: 'machine-scoped' as const,
                 machineId: this.machine.id,
-                happyClient: `cli-daemon/${configuration.currentCliVersion}`
+                easycoderClient: `cli-daemon/${configuration.currentCliVersion}`
             },
             path: '/v1/updates',
             reconnection: false,

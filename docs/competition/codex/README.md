@@ -15,8 +15,8 @@ Codex is the strongest backend protocol reference in this set.
 
 ## Current take
 
-- If Happy wants a server-side session protocol, Codex is the best reference.
-- If Happy wants a UI/session transcript shape, OpenCode still feels stronger.
+- If EasyCoder wants a server-side session protocol, Codex is the best reference.
+- If EasyCoder wants a UI/session transcript shape, OpenCode still feels stronger.
 - The best outcome may be OpenCode-like transcript state with Codex-like approval and runtime semantics.
 
 ## Important repo files

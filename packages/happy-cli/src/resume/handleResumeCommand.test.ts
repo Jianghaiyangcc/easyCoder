@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildResumeLaunch, formatResumeHelp, parseResumeCommandArgs } from './handleResumeCommand';
 
 describe('parseResumeCommandArgs', () => {
-    it('parses the happy session id', () => {
+    it('parses the easycoder session id', () => {
         expect(parseResumeCommandArgs(['cmmij8olq00dp5jcxr3wtbpau'])).toEqual({
             showHelp: false,
             sessionId: 'cmmij8olq00dp5jcxr3wtbpau',
@@ -19,7 +19,7 @@ describe('parseResumeCommandArgs', () => {
 
     it('rejects missing session ids', () => {
         expect(() => parseResumeCommandArgs([])).toThrow(
-            'Happy session ID is required: happy resume <session-id>',
+            'EasyCoder session ID is required: easycoder resume <session-id>',
         );
     });
 });
@@ -35,7 +35,7 @@ describe('buildResumeLaunch', () => {
                 codexThreadId: '019ccca5-726b-7c61-b914-16de27dfab6e',
                 host: 'localhost',
                 homeDir: '/tmp',
-                happyHomeDir: '/tmp/.happy',
+                happyHomeDir: '/tmp/.easycoder',
                 happyLibDir: '/tmp/happy',
                 happyToolsDir: '/tmp/happy/tools',
             },
@@ -55,7 +55,7 @@ describe('buildResumeLaunch', () => {
                 claudeSessionId: '93a9705e-bc6a-406d-8dce-8acc014dedbd',
                 host: 'localhost',
                 homeDir: '/tmp',
-                happyHomeDir: '/tmp/.happy',
+                happyHomeDir: '/tmp/.easycoder',
                 happyLibDir: '/tmp/happy',
                 happyToolsDir: '/tmp/happy/tools',
             },
@@ -74,16 +74,16 @@ describe('buildResumeLaunch', () => {
                 flavor: 'gemini',
                 host: 'localhost',
                 homeDir: '/tmp',
-                happyHomeDir: '/tmp/.happy',
+                happyHomeDir: '/tmp/.easycoder',
                 happyLibDir: '/tmp/happy',
                 happyToolsDir: '/tmp/happy/tools',
             },
-        })).toThrow('Happy session session-3 uses unsupported flavor "gemini".');
+        })).toThrow('EasyCoder session session-3 uses unsupported flavor "gemini".');
     });
 });
 
 describe('formatResumeHelp', () => {
     it('mentions the session id command shape', () => {
-        expect(formatResumeHelp()).toContain('happy resume <happy-session-id>');
+        expect(formatResumeHelp()).toContain('easycoder resume <session-id>');
     });
 });

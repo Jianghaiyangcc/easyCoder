@@ -37,7 +37,7 @@ describe('ensureDaemonRunning', () => {
 
     expect(mocks.mockSpawnHappyCLI).not.toHaveBeenCalled()
     expect(mocks.mockLoggerDebug).toHaveBeenCalledWith(
-      'Ensuring Happy background service is running & matches our version...',
+      'Ensuring EasyCoder background service is running & matches our version...',
     )
   })
 
@@ -56,6 +56,6 @@ describe('ensureDaemonRunning', () => {
       env: process.env,
     })
     expect(mockUnref).toHaveBeenCalled()
-    expect(mocks.mockLoggerDebug).toHaveBeenCalledWith('Starting Happy background service...')
+    expect(mocks.mockLoggerDebug).toHaveBeenCalledWith('Starting EasyCoder background service...')
   })
 })

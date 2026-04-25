@@ -114,8 +114,8 @@ export function startSocket(app: Fastify) {
         socket.data.clientType = clientType;
         socket.data.sessionId = sessionId;
         socket.data.machineId = machineId;
-        socket.data.happyClient = socket.handshake.auth.happyClient as string
-            || socket.handshake.headers['x-happy-client'] as string
+        socket.data.easycoderClient = socket.handshake.auth.easycoderClient as string
+            || socket.handshake.headers['x-easycoder-client'] as string
             || undefined;
         next();
     });

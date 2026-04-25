@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import type { SandboxConfig } from '@/persistence';
 import { initializeSandbox, wrapCommand } from './manager';
 
-const RUN_NETWORK_INTEGRATION = process.env.HAPPY_RUN_SANDBOX_NETWORK_TESTS === '1';
+const RUN_NETWORK_INTEGRATION = process.env.EASYCODER_RUN_SANDBOX_NETWORK_TESTS === '1';
 
 function hasCommand(command: string): boolean {
     const result = spawnSync('sh', ['-lc', `command -v ${command}`], {

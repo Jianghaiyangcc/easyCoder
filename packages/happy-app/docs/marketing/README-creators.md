@@ -41,7 +41,7 @@
 
 - Clearly say "码不停蹄" in the video or caption
 - Mention it's free and open source
-- Include link to github.com/slopus/happy
+- Include link to github.com/Jianghaiyangcc/easyCoder
 - Show actual usage (QR code connection, mobile control, push notifications)
 - Emphasize running on YOUR hardware, not cloud servers
 - Compare to paid alternatives ($50/month or $600/year competitors)

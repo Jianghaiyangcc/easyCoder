@@ -9,7 +9,7 @@ export type VoiceUpsellVariant =
 
 export type VoiceUpsellVariantSource = 'override' | 'posthog' | 'default';
 
-export type VoiceGatingMode = 'direct-byo-agent' | 'happy-server';
+export type VoiceGatingMode = 'direct-byo-agent' | 'easycoder-server';
 
 type PostHogFeatureFlagOverrideClient = {
     featureFlags?: {
@@ -76,7 +76,7 @@ export function getVoiceExperimentStatus(options: {
     const rawVariant = tracking?.getFeatureFlag(VOICE_UPSELL_FLAG_KEY);
     const gatingMode: VoiceGatingMode = options.voiceBypassToken && !!options.voiceCustomAgentId
         ? 'direct-byo-agent'
-        : 'happy-server';
+        : 'easycoder-server';
     const hasOverride = !!options.voiceUpsellOverrideEnabled && !!options.voiceUpsellOverride;
 
     return {

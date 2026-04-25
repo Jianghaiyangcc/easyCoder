@@ -96,7 +96,7 @@ export class PushNotificationClient {
                         headers: {
                             'Authorization': `Bearer ${this.token}`,
                             'Content-Type': 'application/json',
-                            'X-Happy-Client': `cli-daemon/${configuration.currentCliVersion}`
+                            'X-EasyCoder-Client': `cli-daemon/${configuration.currentCliVersion}`
                         }
                     }
                 )

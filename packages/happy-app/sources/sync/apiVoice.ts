@@ -10,7 +10,7 @@ import {
 } from '@slopus/happy-wire';
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { getServerUrl } from './serverConfig';
-import { getHappyClientId } from './apiSocket';
+import { getEasyCoderClientId } from './apiSocket';
 import { config } from '@/config';
 
 export type { VoiceConversationResponse, VoiceUsageResponse, BailianAsrResponse, BailianTtsResponse };
@@ -32,7 +32,7 @@ export async function fetchVoiceCredentials(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': getHappyClientId(),
+            'X-EasyCoder-Client': getEasyCoderClientId(),
         },
         body: JSON.stringify({
             agentId
@@ -55,7 +55,7 @@ export async function fetchVoiceUsage(
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
-            'X-Happy-Client': getHappyClientId(),
+            'X-EasyCoder-Client': getEasyCoderClientId(),
         },
     });
 
@@ -117,7 +117,7 @@ export async function transcribeBailianAudio(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': getHappyClientId(),
+            'X-EasyCoder-Client': getEasyCoderClientId(),
         },
         body: JSON.stringify(sanitizedInput),
     });
@@ -140,7 +140,7 @@ export async function fetchBailianTts(
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
             'Content-Type': 'application/json',
-            'X-Happy-Client': getHappyClientId(),
+            'X-EasyCoder-Client': getEasyCoderClientId(),
         },
         body: JSON.stringify(input),
     });

@@ -13,7 +13,7 @@ export const WORKTREE_PATH_MARKER = `/${WORKTREE_DIR}/`;
 // --- Name generation ---
 
 const adjectives = [
-    'clever', 'happy', 'swift', 'bright', 'calm',
+    'clever', 'easycoder', 'swift', 'bright', 'calm',
     'bold', 'quiet', 'brave', 'wise', 'eager',
     'gentle', 'quick', 'sharp', 'smooth', 'fresh'
 ];

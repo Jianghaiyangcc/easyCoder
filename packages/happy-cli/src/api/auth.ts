@@ -25,7 +25,7 @@ export async function authGetToken(secret: Uint8Array): Promise<string> {
     signature: encodeBase64(signature)
   }, {
     headers: {
-      'X-Happy-Client': `cli/${configuration.currentCliVersion}`
+      'X-EasyCoder-Client': `cli/${configuration.currentCliVersion}`
     }
   });
 

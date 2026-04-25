@@ -24,10 +24,10 @@ export function parseResumeCommandArgs(args: string[]): { showHelp: boolean; ses
     }
 
     if (args.length === 0) {
-        throw new Error('Happy session ID is required: happy resume <session-id>');
+        throw new Error('EasyCoder session ID is required: easycoder resume <session-id>');
     }
     if (args.length > 1) {
-        throw new Error(`Unexpected arguments for happy resume: ${args.slice(1).join(' ')}`);
+        throw new Error(`Unexpected arguments for easycoder resume: ${args.slice(1).join(' ')}`);
     }
 
     return {
@@ -52,7 +52,7 @@ export function buildResumeLaunch(session: ResumableHappySession, options: Resum
 
     if (flavor === 'codex') {
         if (!metadata.codexThreadId) {
-            throw new Error(`Happy session ${session.id} is missing its Codex thread ID.`);
+            throw new Error(`EasyCoder session ${session.id} is missing its Codex thread ID.`);
         }
         const args = ['codex', '--resume', metadata.codexThreadId];
         if (options.startedBy) {
@@ -66,11 +66,11 @@ export function buildResumeLaunch(session: ResumableHappySession, options: Resum
 
     if (flavor === 'claude') {
         if (!metadata.claudeSessionId) {
-            throw new Error(`Happy session ${session.id} is missing its Claude session ID.`);
+            throw new Error(`EasyCoder session ${session.id} is missing its Claude session ID.`);
         }
         const args = ['claude'];
         if (options.claudeStartingMode) {
-            args.push('--happy-starting-mode', options.claudeStartingMode);
+            args.push('--easycoder-starting-mode', options.claudeStartingMode);
         }
         if (options.startedBy) {
             args.push('--started-by', options.startedBy);
@@ -82,19 +82,19 @@ export function buildResumeLaunch(session: ResumableHappySession, options: Resum
         };
     }
 
-    throw new Error(`Happy session ${session.id} uses unsupported flavor "${metadata.flavor ?? 'unknown'}".`);
+    throw new Error(`EasyCoder session ${session.id} uses unsupported flavor "${metadata.flavor ?? 'unknown'}".`);
 }
 
 export function formatResumeHelp(): string {
     return [
-        'happy resume - Resume a previous Happy session',
+        'easycoder resume - Resume a previous EasyCoder session',
         '',
         'Usage:',
-        '  happy resume <happy-session-id>',
+        '  easycoder resume <session-id>',
         '',
         'Examples:',
-        '  happy resume cmmij8olq00dp5jcxr3wtbpau',
-        '  happy resume cmmij8',
+        '  easycoder resume cmmij8olq00dp5jcxr3wtbpau',
+        '  easycoder resume cmmij8',
         '',
         'This reuses the saved worktree/path and resumes the underlying agent session',
         'when the backend supports it.',

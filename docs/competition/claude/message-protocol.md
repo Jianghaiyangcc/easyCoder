@@ -35,7 +35,7 @@ The Claude ACP adapter maps Claude Code behavior into ACP.
 - additional workspace scope is passed through `_meta.additionalRoots`
 - session create, load, resume, replay, and fork are implemented in the adapter layer
 
-This is important for Happy because it shows where clean protocol stops and provider-specific behavior begins.
+This is important for EasyCoder because it shows where clean protocol stops and provider-specific behavior begins.
 
 Primary source files:
 
@@ -68,7 +68,7 @@ Claude is strongest here at the product level, but the state lives in several pl
 - local task queue state lives under `~/.claude/tasks/`
 - subagent conversation chains live under `~/.claude/projects/.../subagents/`
 
-The main lesson for Happy is not to copy the hidden-file layout. The lesson is to
+The main lesson for EasyCoder is not to copy the hidden-file layout. The lesson is to
 keep agent identity, team membership, and task lifecycle explicit.
 
 Primary source files:
@@ -88,7 +88,7 @@ Claude treats this as real state, not a prompt-only convention.
 - plan mode is a real runtime mode, not just different wording
 - custom agents can carry their own permission mode
 
-This is a strong pattern for Happy: mode and permission state should be first-class and inspectable.
+This is a strong pattern for EasyCoder: mode and permission state should be first-class and inspectable.
 
 Primary source files:
 
@@ -123,7 +123,7 @@ Claude clearly treats session lifecycle as a product priority.
 - sessions support naming and named resume
 - local per-session state is often keyed by `session_id`
 
-This is a reminder for Happy that resume correctness is not a small detail; it is a protocol feature.
+This is a reminder for EasyCoder that resume correctness is not a small detail; it is a protocol feature.
 
 ## Remote and sync implications
 
@@ -134,9 +134,9 @@ Claude is the weakest clean reference here.
 - MCP networking is well-documented
 - but the richest team and subagent state still lives in local files under `~/.claude/`
 
-So Claude is useful as a workflow reference, but not the best single source for Happy's own sync protocol.
+So Claude is useful as a workflow reference, but not the best single source for EasyCoder's own sync protocol.
 
-## What Happy should steal
+## What EasyCoder should steal
 
 - first-class mode and permission state
 - typed event interception around tools and lifecycle

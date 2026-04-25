@@ -6,7 +6,7 @@ import { shutdownSignal } from '@/utils/shutdown';
 import { Socket } from 'socket.io';
 
 // Global default labels — applied to ALL metrics at scrape time
-register.setDefaultLabels({ app: 'happy-server' });
+register.setDefaultLabels({ app: 'easycoder-server' });
 
 // Expected client_type values (trust whatever the client sends):
 // cli-coding-session, cli-daemon, cli-control-plane, ios, android, web, desktop
@@ -27,7 +27,7 @@ function parseClientLabels(raw: string | undefined | null): ClientLabels {
  * Spread into any metric .inc() / .observe() call.
  */
 export function getMetricsLabelsFromSocket(socket: Socket): ClientLabels {
-    return parseClientLabels(socket.data.happyClient as string);
+    return parseClientLabels(socket.data.easycoderClient as string);
 }
 
 /**
@@ -35,7 +35,7 @@ export function getMetricsLabelsFromSocket(socket: Socket): ClientLabels {
  * Spread into any metric .inc() / .observe() call.
  */
 export function getMetricsLabelsFromRequest(request: { headers: Record<string, string | string[] | undefined> }): ClientLabels {
-    return parseClientLabels(request.headers['x-happy-client'] as string);
+    return parseClientLabels(request.headers['x-easycoder-client'] as string);
 }
 
 // Application metrics

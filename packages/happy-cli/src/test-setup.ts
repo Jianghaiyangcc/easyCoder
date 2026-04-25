@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process'
 
 export async function setup() {
     process.env.VITEST_POOL_TIMEOUT = '60000'
-    process.env.HAPPY_RUN_SANDBOX_NETWORK_TESTS = '1'
+    process.env.EASYCODER_RUN_SANDBOX_NETWORK_TESTS = '1'
 
     const buildResult = spawnSync('pnpm', ['build'], { stdio: 'pipe' })
     if (buildResult.stderr && buildResult.stderr.length > 0) {

@@ -5,12 +5,12 @@ import { homedir } from 'node:os';
 
 const PORT = parseInt(process.env.PORT || '8787');
 
-// Resolve happy home dir — same pattern as happy-cli/src/configuration.ts
+// Resolve easycoder home dir — same pattern as happy-cli/src/configuration.ts
 let happyHome: string;
-if (process.env.HAPPY_HOME_DIR) {
-    happyHome = process.env.HAPPY_HOME_DIR.replace(/^~/, homedir());
+if (process.env.EASYCODER_HOME_DIR) {
+    happyHome = process.env.EASYCODER_HOME_DIR.replace(/^~/, homedir());
 } else {
-    happyHome = join(homedir(), '.happy');
+    happyHome = join(homedir(), '.easycoder');
 }
 
 const logsDir = join(happyHome, 'app-logs');

@@ -29,8 +29,8 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              value: happy
+              value: easycoder
             - name: POSTGRES_PASSWORD
-              value: happy
+              value: easycoder
             - name: POSTGRES_DB
-              value: happy
+              value: easycoder

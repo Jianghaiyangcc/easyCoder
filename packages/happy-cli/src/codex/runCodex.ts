@@ -329,7 +329,7 @@ export async function runCodex(opts: {
                 logger.debug('[Codex] Error disconnecting Codex during termination', e);
             }
 
-            // Stop Happy MCP server
+            // Stop EasyCoder MCP server
             happyServer.stop();
 
             logger.debug('[Codex] Session termination complete, exiting');
@@ -517,15 +517,15 @@ export async function runCodex(opts: {
         }
     });
 
-    // Start Happy MCP server (HTTP) and prepare STDIO bridge config for Codex
+    // Start EasyCoder MCP server (HTTP) and prepare STDIO bridge config for Codex
     const happyServer = await startHappyServer(session);
     // Launch the bridge via `node <path>` (rather than relying on the .mjs shebang)
     // so it works on Windows, where Windows can't execute shebang scripts directly.
     // codex would otherwise fail to start the MCP server, the change_title tool would
     // not be visible to the model, and the model would improvise with shell echoes.
-    const bridgeEntrypoint = join(projectPath(), 'bin', 'happy-mcp.mjs');
+    const bridgeEntrypoint = join(projectPath(), 'bin', 'easycoder-mcp.mjs');
     const mcpServers = {
-        happy: {
+        easycoder: {
             command: process.execPath,
             args: ['--no-warnings', '--no-deprecation', bridgeEntrypoint, '--url', happyServer.url]
         }
@@ -667,7 +667,7 @@ export async function runCodex(opts: {
         logger.debug('[codex]: client.disconnect begin');
         await client.disconnect();
         logger.debug('[codex]: client.disconnect done');
-        // Stop Happy MCP server
+        // Stop EasyCoder MCP server
         logger.debug('[codex]: happyServer.stop');
         happyServer.stop();
 

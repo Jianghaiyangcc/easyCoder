@@ -185,7 +185,7 @@ export default function InputStylesDemo() {
                                 <MaterialIcons name="gif" size={24} color="#b9bbbe" />
                             </Pressable>
                             <Pressable style={{ marginLeft: 12 }}>
-                                <Ionicons name="happy" size={24} color="#b9bbbe" />
+                                <Ionicons name="easycoder" size={24} color="#b9bbbe" />
                             </Pressable>
                         </View>
                     </View>

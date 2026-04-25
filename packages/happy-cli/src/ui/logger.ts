@@ -54,8 +54,8 @@ class Logger {
   ) {
     // Remote logging enabled only when explicitly set with server URL
     if (process.env.DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING 
-      && process.env.HAPPY_SERVER_URL) {
-      this.dangerouslyUnencryptedServerLoggingUrl = process.env.HAPPY_SERVER_URL
+      && process.env.EASYCODER_SERVER_URL) {
+      this.dangerouslyUnencryptedServerLoggingUrl = process.env.EASYCODER_SERVER_URL
       console.log(chalk.yellow('[REMOTE LOGGING] Sending logs to server for AI debugging'))
     }
   }

@@ -51,12 +51,12 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     const sessionTag = randomUUID();
 
     // Log environment info at startup
-    logger.debugLargeJson('[START] Happy process started', getEnvironmentInfo());
+    logger.debugLargeJson('[START] EasyCoder process started', getEnvironmentInfo());
     logger.debug(`[START] Options: startedBy=${options.startedBy}, startingMode=${options.startingMode}`);
 
     // Validate daemon spawn requirements - fail fast on invalid config
     if (options.startedBy === 'daemon' && options.startingMode === 'local') {
-        throw new Error('Daemon-spawned sessions cannot use local/interactive mode. Use --happy-starting-mode remote or spawn sessions directly from terminal.');
+        throw new Error('Daemon-spawned sessions cannot use local/interactive mode. Use --easycoder-starting-mode remote or spawn sessions directly from terminal.');
     }
 
     // Set backend for offline warnings (before any API calls)
@@ -101,7 +101,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
         os: os.platform(),
         machineId: machineId,
         homeDir: os.homedir(),
-        happyHomeDir: configuration.happyHomeDir,
+        happyHomeDir: configuration.easycoderHomeDir,
         happyLibDir: projectPath(),
         happyToolsDir: resolve(projectPath(), 'tools', 'unpacked'),
         startedFromDaemon: options.startedBy === 'daemon',
@@ -181,9 +181,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     // Create realtime session
     const session = api.sessionSyncClient(response);
 
-    // Start Happy MCP server
+    // Start EasyCoder MCP server
     const happyServer = await startHappyServer(session);
-    logger.debug(`[START] Happy MCP server started at ${happyServer.url}`);
+    logger.debug(`[START] EasyCoder MCP server started at ${happyServer.url}`);
 
     // Variable to track current session instance (updated via onSessionReady callback)
     // Used by hook server to notify Session when Claude changes session ID
@@ -392,7 +392,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
                 await session.close();
             }
 
-            // Stop Happy MCP server
+            // Stop EasyCoder MCP server
             happyServer.stop();
 
             // Stop Hook server and cleanup settings file
@@ -445,7 +445,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
             currentSession = sessionInstance;
         },
         mcpServers: {
-            'happy': {
+            'easycoder': {
                 type: 'http' as const,
                 url: happyServer.url,
             }
@@ -473,9 +473,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     logger.debug('Closing session...');
     await session.close();
 
-    // Stop Happy MCP server
+    // Stop EasyCoder MCP server
     happyServer.stop();
-    logger.debug('Stopped Happy MCP server');
+    logger.debug('Stopped EasyCoder MCP server');
 
     // Stop Hook server and cleanup settings file
     hookServer.stop();

@@ -9,7 +9,7 @@ const DEFAULT_SERVER_URL = 'https://codeapi.daima.club';
 
 export function getServerUrl(): string {
     return serverConfigStorage.getString(SERVER_KEY) || 
-           process.env.EXPO_PUBLIC_HAPPY_SERVER_URL || 
+           process.env.EXPO_PUBLIC_EASYCODER_SERVER_URL || 
            DEFAULT_SERVER_URL;
 }
 

@@ -55,7 +55,7 @@ function deriveKey(master: Uint8Array, usage: string, path: string[]): Uint8Arra
 }
 
 function deriveContentKeyPair(secret: Uint8Array): { publicKey: Uint8Array; secretKey: Uint8Array } {
-    const seed = deriveKey(secret, 'Happy EnCoder', ['content']);
+    const seed = deriveKey(secret, 'EasyCoder EnCoder', ['content']);
     const hashedSeed = new Uint8Array(createHash('sha512').update(seed).digest());
     const secretKey = hashedSeed.slice(0, 32);
     const keyPair = tweetnacl.box.keyPair.fromSecretKey(secretKey);
@@ -65,12 +65,12 @@ function deriveContentKeyPair(secret: Uint8Array): { publicKey: Uint8Array; secr
     };
 }
 
-export function getLocalHappyAgentCredentialPath(happyHomeDir: string = configuration.happyHomeDir): string {
+export function getLocalHappyAgentCredentialPath(happyHomeDir: string = configuration.easycoderHomeDir): string {
     return join(happyHomeDir, 'agent.key');
 }
 
 export function readLocalHappyAgentCredentials(
-    happyHomeDir: string = configuration.happyHomeDir,
+    happyHomeDir: string = configuration.easycoderHomeDir,
 ): LocalHappyAgentCredentials | null {
     const credentialPath = getLocalHappyAgentCredentialPath(happyHomeDir);
     if (!existsSync(credentialPath)) {
@@ -90,11 +90,11 @@ export function readLocalHappyAgentCredentials(
     }
 }
 
-export function hasLocalHappyAgentAuth(happyHomeDir: string = configuration.happyHomeDir): boolean {
+export function hasLocalHappyAgentAuth(happyHomeDir: string = configuration.easycoderHomeDir): boolean {
     return readLocalHappyAgentCredentials(happyHomeDir) !== null;
 }
 
-export function detectResumeSupport(happyHomeDir: string = configuration.happyHomeDir): ResumeSupport {
+export function detectResumeSupport(happyHomeDir: string = configuration.easycoderHomeDir): ResumeSupport {
     const happyAgentAuthenticated = hasLocalHappyAgentAuth(happyHomeDir);
     return {
         rpcAvailable: happyAgentAuthenticated,

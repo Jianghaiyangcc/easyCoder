@@ -269,7 +269,7 @@ describe('startOfflineReconnection', () => {
 
             expect(attemptCount).toBe(1);
             expect(onNotify).toHaveBeenCalledWith(
-                '❌ Authentication failed. Please re-authenticate with `happy auth`.'
+                '❌ Authentication failed. Please re-authenticate with `easycoder auth`.'
             );
             expect(onReconnected).not.toHaveBeenCalled();
 
@@ -522,7 +522,7 @@ describe('printOfflineWarning', () => {
 
         // New unified format via connectionState.fail()
         expect(consoleSpy).toHaveBeenCalledWith(
-            expect.stringContaining('⚠️  Happy server unreachable, offline mode with auto-reconnect enabled')
+            expect.stringContaining('⚠️  EasyCoder server unreachable, offline mode with auto-reconnect enabled')
         );
         expect(consoleSpy).toHaveBeenCalledWith(
             expect.stringContaining('Server connection failed')

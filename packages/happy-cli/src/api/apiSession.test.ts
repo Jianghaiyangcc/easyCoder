@@ -79,9 +79,9 @@ function makeSession() {
             path: '/tmp',
             host: 'localhost',
             homeDir: '/home/user',
-            happyHomeDir: '/home/user/.happy',
-            happyLibDir: '/home/user/.happy/lib',
-            happyToolsDir: '/home/user/.happy/tools'
+            happyHomeDir: '/home/user/.easycoder',
+            happyLibDir: '/home/user/.easycoder/lib',
+            happyToolsDir: '/home/user/.easycoder/tools'
         },
         metadataVersion: 0,
         agentState: null,

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * CLI entry point for happy command
+ * CLI entry point for easycoder command
  * 
  * Simple argument parsing without any CLI framework dependencies
  */
@@ -40,7 +40,7 @@ import { handleCodexCommand } from './commands/codexCommand'
 
   // If --version is passed - do not log, its likely daemon inquiring about our version
   if (!args.includes('--version')) {
-    logger.debug('Starting happy CLI with args: ', process.argv)
+    logger.debug('Starting easycoder CLI with args: ', process.argv)
   }
 
   // Check if first argument is a subcommand
@@ -128,7 +128,7 @@ import { handleCodexCommand } from './commands/codexCommand'
     // Handle gemini subcommands
     const geminiSubcommand = args[1];
     
-    // Handle "happy gemini model set <model>" command
+    // Handle "easycoder gemini model set <model>" command
     if (geminiSubcommand === 'model' && args[2] === 'set' && args[3]) {
       const modelName = args[3];
       const validModels = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
@@ -178,7 +178,7 @@ import { handleCodexCommand } from './commands/codexCommand'
       }
     }
     
-    // Handle "happy gemini model get" command
+    // Handle "easycoder gemini model get" command
     if (geminiSubcommand === 'model' && args[2] === 'get') {
       try {
         const { existsSync, readFileSync } = require('fs');
@@ -217,7 +217,7 @@ import { handleCodexCommand } from './commands/codexCommand'
       }
     }
     
-    // Handle "happy gemini project set <project-id>" command
+    // Handle "easycoder gemini project set <project-id>" command
     if (geminiSubcommand === 'project' && args[2] === 'set' && args[3]) {
       const projectId = args[3];
       
@@ -226,7 +226,7 @@ import { handleCodexCommand } from './commands/codexCommand'
         const { readCredentials } = await import('@/persistence');
         const { ApiClient } = await import('@/api/api');
         
-        // Try to get current user email from Happy cloud token
+        // Try to get current user email from EasyCoder cloud token
         let userEmail: string | undefined = undefined;
         try {
           const credentials = await readCredentials();
@@ -258,7 +258,7 @@ import { handleCodexCommand } from './commands/codexCommand'
       }
     }
     
-    // Handle "happy gemini project get" command
+    // Handle "easycoder gemini project get" command
     if (geminiSubcommand === 'project' && args[2] === 'get') {
       try {
         const { readGeminiLocalConfig } = await import('@/gemini/utils/config');
@@ -277,7 +277,7 @@ import { handleCodexCommand } from './commands/codexCommand'
           console.log('No Google Cloud Project configured.');
           console.log('');
           console.log('If you see "Authentication required" error, you may need to set a project:');
-          console.log('  happy gemini project set <your-project-id>');
+          console.log('  easycoder gemini project set <your-project-id>');
           console.log('');
           console.log('This is required for Google Workspace accounts.');
           console.log('Guide: https://goo.gle/gemini-cli-auth-docs#workspace-gca');
@@ -289,9 +289,9 @@ import { handleCodexCommand } from './commands/codexCommand'
       }
     }
     
-    // Handle "happy gemini project" (no subcommand) - show help
+    // Handle "easycoder gemini project" (no subcommand) - show help
     if (geminiSubcommand === 'project' && !args[2]) {
-      console.log('Usage: happy gemini project <command>');
+      console.log('Usage: easycoder gemini project <command>');
       console.log('');
       console.log('Commands:');
       console.log('  set <project-id>   Set Google Cloud Project ID');
@@ -343,13 +343,13 @@ import { handleCodexCommand } from './commands/codexCommand'
           startedBy = args[++i] as 'daemon' | 'terminal';
           continue;
         }
-        if (!customCommandMode && args[i] === '--happy-starting-mode') {
-          // Happy internal flag for first-party agents only; ACP providers should not receive it.
+        if (!customCommandMode && args[i] === '--easycoder-starting-mode') {
+          // EasyCoder internal flag for first-party agents only; ACP providers should not receive it.
           i++;
           continue;
         }
-        if (!customCommandMode && args[i].startsWith('--happy-starting-mode=')) {
-          // Happy internal flag for first-party agents only; ACP providers should not receive it.
+        if (!customCommandMode && args[i].startsWith('--easycoder-starting-mode=')) {
+          // EasyCoder internal flag for first-party agents only; ACP providers should not receive it.
           continue;
         }
         if (!customCommandMode && args[i] === '--verbose') {
@@ -426,7 +426,7 @@ import { handleCodexCommand } from './commands/codexCommand'
     return;
   } else if (subcommand === 'logout') {
     // Keep for backward compatibility - redirect to auth logout
-    console.log(chalk.yellow('Note: "happy logout" is deprecated. Use "happy auth logout" instead.\n'));
+    console.log(chalk.yellow('Note: "easycoder logout" is deprecated. Use "easycoder auth logout" instead.\n'));
     try {
       await handleAuthCommand(['logout']);
     } catch (error) {
@@ -543,20 +543,20 @@ import { handleCodexCommand } from './commands/codexCommand'
       }
     } else {
       console.log(`
-${chalk.bold('happy daemon')} - Daemon management
+${chalk.bold('easycoder daemon')} - Daemon management
 
 ${chalk.bold('Usage:')}
-  happy daemon start              Start the daemon (detached)
-  happy daemon stop               Stop the daemon (sessions stay alive)
-  happy daemon status             Show daemon status
-  happy daemon list               List active sessions
+  easycoder daemon start              Start the daemon (detached)
+  easycoder daemon stop               Stop the daemon (sessions stay alive)
+  easycoder daemon status             Show daemon status
+  easycoder daemon list               List active sessions
 
-  If you want to kill all happy related processes run 
-  ${chalk.cyan('happy doctor clean')}
+  If you want to kill all easycoder related processes run 
+  ${chalk.cyan('easycoder doctor clean')}
 
 ${chalk.bold('Note:')} The daemon runs in the background and manages Claude sessions.
 
-${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor clean')}
+${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('easycoder doctor clean')}
 `)
     }
     return;
@@ -589,7 +589,7 @@ ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor c
         showVersion = true
         // Also pass through to claude (will show after our version)
         unknownArgs.push(arg)
-      } else if (arg === '--happy-starting-mode') {
+      } else if (arg === '--easycoder-starting-mode') {
         options.startingMode = z.enum(['local', 'remote']).parse(args[++i])
       } else if (arg === '--yolo') {
         // Shortcut for --dangerously-skip-permissions
@@ -621,11 +621,11 @@ ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor c
         // We'll add --chrome to claudeArgs after resolving settings default
       } else if (arg === '--no-chrome') {
         chromeOverride = false
-        // Happy-specific flag to disable chrome even if default is on
+        // EasyCoder-specific flag to disable chrome even if default is on
       } else if (arg === '--settings') {
-        // Intercept --settings flag - Happy uses this internally for session hooks
+        // Intercept --settings flag - EasyCoder uses this internally for session hooks
         const settingsValue = args[++i] // consume the value
-        console.warn(chalk.yellow(`⚠️  Warning: --settings is used internally by Happy for session tracking.`))
+        console.warn(chalk.yellow(`⚠️  Warning: --settings is used internally by EasyCoder for session tracking.`))
         console.warn(chalk.yellow(`   Your settings file "${settingsValue}" will be ignored.`))
         console.warn(chalk.yellow(`   To configure Claude, edit ~/.claude/settings.json instead.`))
         // Don't pass through to claudeArgs
@@ -654,45 +654,45 @@ ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happy doctor c
     // Show help
     if (showHelp) {
       console.log(`
-${chalk.bold('happy')} - Code Never Stops CLI
+${chalk.bold('easycoder')} - Code Never Stops CLI
 
 ${chalk.bold('Usage:')}
-  happy [options]         Start Claude with mobile control
-  happy auth              Manage authentication
-  happy resume            Resume a previous session by session ID
-  happy codex             Start Codex mode
-  happy gemini            Start Gemini mode (ACP)
-  happy acp               Start a generic ACP-compatible agent
-  happy connect           Connect AI vendor API keys
-  happy sandbox           Configure and manage OS-level sandboxing
-  happy notify            Send push notification
-  happy daemon            Manage background service that allows
+  easycoder [options]         Start Claude with mobile control
+  easycoder auth              Manage authentication
+  easycoder resume            Resume a previous session by session ID
+  easycoder codex             Start Codex mode
+  easycoder gemini            Start Gemini mode (ACP)
+  easycoder acp               Start a generic ACP-compatible agent
+  easycoder connect           Connect AI vendor API keys
+  easycoder sandbox           Configure and manage OS-level sandboxing
+  easycoder notify            Send push notification
+  easycoder daemon            Manage background service that allows
                             to spawn new sessions away from your computer
-  happy doctor            System diagnostics & troubleshooting
+  easycoder doctor            System diagnostics & troubleshooting
 
 ${chalk.bold('Examples:')}
-  happy                    Start session
-  happy resume cmmij8      Resume a previous session by session ID
-  happy --yolo             Start with bypassing permissions
-                            happy sugar for --dangerously-skip-permissions
-  happy --chrome           Enable Chrome browser access for this session
-  happy --no-chrome        Disable Chrome even if default is on
-  happy --no-sandbox       Disable sandbox for this session
-  happy --js-runtime bun   Use bun instead of node to spawn Claude Code
-  happy --claude-env ANTHROPIC_BASE_URL=http://127.0.0.1:3456
+  easycoder                    Start session
+  easycoder resume cmmij8      Resume a previous session by session ID
+  easycoder --yolo             Start with bypassing permissions
+                            easycoder sugar for --dangerously-skip-permissions
+  easycoder --chrome           Enable Chrome browser access for this session
+  easycoder --no-chrome        Disable Chrome even if default is on
+  easycoder --no-sandbox       Disable sandbox for this session
+  easycoder --js-runtime bun   Use bun instead of node to spawn Claude Code
+  easycoder --claude-env ANTHROPIC_BASE_URL=http://127.0.0.1:3456
                            Use a custom API endpoint (e.g., claude-code-router)
-  happy acp gemini         Start Gemini via generic ACP runner
-  happy acp -- opencode --acp
+  easycoder acp gemini         Start Gemini via generic ACP runner
+  easycoder acp -- opencode --acp
                            Start a custom ACP command
-  happy acp opencode --verbose
+  easycoder acp opencode --verbose
                            Print raw ACP backend/envelope events
-  happy auth login --force Authenticate
-  happy doctor             Run diagnostics
+  easycoder auth login --force Authenticate
+  easycoder doctor             Run diagnostics
 
 ${chalk.bold('Code Never Stops supports ALL Claude options!')}
-  Use any claude flag with happy as you would with claude. Our favorite:
+  Use any claude flag with easycoder as you would with claude. Our favorite:
 
-  happy --resume
+  easycoder --resume
 
 ${chalk.gray('─'.repeat(60))}
 ${chalk.bold.cyan('Claude Code Options (from `claude --help`):')}
@@ -712,7 +712,7 @@ ${chalk.bold.cyan('Claude Code Options (from `claude --help`):')}
 
     // Show version
     if (showVersion) {
-      console.log(`happy version: ${packageJson.version}`)
+      console.log(`easycoder version: ${packageJson.version}`)
       // Don't exit - continue to pass --version to Claude Code
     }
 
@@ -762,34 +762,34 @@ async function handleNotifyCommand(args: string[]): Promise<void> {
 
   if (showHelp) {
     console.log(`
-${chalk.bold('happy notify')} - Send notification
+${chalk.bold('easycoder notify')} - Send notification
 
 ${chalk.bold('Usage:')}
-  happy notify -p <message> [-t <title>]    Send notification with custom message and optional title
-  happy notify -h, --help                   Show this help
+  easycoder notify -p <message> [-t <title>]    Send notification with custom message and optional title
+  easycoder notify -h, --help                   Show this help
 
 ${chalk.bold('Options:')}
   -p <message>    Notification message (required)
   -t <title>      Notification title (optional, defaults to "Code Never Stops")
 
 ${chalk.bold('Examples:')}
-  happy notify -p "Deployment complete!"
-  happy notify -p "System update complete" -t "Server Status"
-  happy notify -t "Alert" -p "Database connection restored"
+  easycoder notify -p "Deployment complete!"
+  easycoder notify -p "System update complete" -t "Server Status"
+  easycoder notify -t "Alert" -p "Database connection restored"
 `)
     return
   }
 
   if (!message) {
     console.error(chalk.red('Error: Message is required. Use -p "your message" to specify the notification text.'))
-    console.log(chalk.gray('Run "happy notify --help" for usage information.'))
+    console.log(chalk.gray('Run "easycoder notify --help" for usage information.'))
     process.exit(1)
   }
 
   // Load credentials
   let credentials = await readCredentials()
   if (!credentials) {
-    console.error(chalk.red('Error: Not authenticated. Please run "happy auth login" first.'))
+    console.error(chalk.red('Error: Not authenticated. Please run "easycoder auth login" first.'))
     process.exit(1)
   }
 

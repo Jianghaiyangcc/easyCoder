@@ -10,13 +10,13 @@ description: >
 
 # Release
 
-You are the release operator for the Happy monorepo. When invoked, walk the user through releasing the component they choose.
+You are the release operator for the EasyCoder monorepo. When invoked, walk the user through releasing the component they choose.
 
 ## Step 1: Pick a target
 
 Ask which component to release:
 
-- **CLI** — npm package `happy`
+- **CLI** — npm package `easycoder`
 - **Mobile** — Expo/EAS builds for iOS + Android
 - **Web** — Docker image + K8s deploy via TeamCity
 - **Server** — Docker image + K8s deploy via TeamCity
@@ -29,7 +29,7 @@ Present these as options. Wait for the user to pick.
 ## CLI Release
 
     Package:     packages/happy-cli
-    npm name:    happy
+    npm name:    easycoder
     Registry:    https://registry.npmjs.org
     Git tags:    cli-{version}
 
@@ -37,12 +37,12 @@ Tag namespace note:
 - CLI releases use `cli-X.Y.Z`
 - Native releases use `native-<runtime-version>`
 - OTA releases use `ota-<ota-version>`
-- Do not use a bare `vX.Y.Z` tag for Happy releases because multiple release streams coexist in this repo
+- Do not use a bare `vX.Y.Z` tag for EasyCoder releases because multiple release streams coexist in this repo
 
 ### Step 2: Gather state
 
 Run these in parallel:
-1. `npm view happy dist-tags` — see current latest + beta
+1. `npm view easycoder dist-tags` — see current latest + beta
 2. `cat packages/happy-cli/package.json | grep version` — local version
 3. `git status --short` — check for dirty state
 4. `git branch --show-current` — confirm branch
@@ -71,13 +71,13 @@ Present as options. Wait for confirmation.
 
 Edit `packages/happy-cli/package.json` directly — do NOT use `npm version` (it chokes on pnpm workspace protocol).
 
-IMPORTANT: do this **before** build/test for the CLI. The build imports `package.json` and bakes the version into the generated bundle. If you build first and bump later, `happy --version` can still report the old prerelease version even though npm metadata shows the new one.
+IMPORTANT: do this **before** build/test for the CLI. The build imports `package.json` and bakes the version into the generated bundle. If you build first and bump later, `easycoder --version` can still report the old prerelease version even though npm metadata shows the new one.
 
 ### Step 5: Build
 
 ```bash
 cd packages/happy-cli
-pnpm --filter happy run build
+pnpm --filter easycoder run build
 ```
 
 Report success/failure. Stop on failure.
@@ -86,7 +86,7 @@ Report success/failure. Stop on failure.
 
 ```bash
 cd packages/happy-cli
-pnpm --filter happy exec vitest run --project unit
+pnpm --filter easycoder exec vitest run --project unit
 ```
 
 Integration tests are slow and flaky — skip them for releases. Unit tests are the gate.
@@ -107,7 +107,7 @@ pnpm publish --tag {channel} --no-git-checks --ignore-scripts
 ### Step 8: Verify
 
 ```bash
-npm view happy dist-tags
+npm view easycoder dist-tags
 ```
 
 Confirm the new version appears under the correct tag.
@@ -142,13 +142,13 @@ gh release create cli-X.Y.Z --generate-notes --title "cli-X.Y.Z"
 ### Step 11: Install + verify locally
 
 ```bash
-npm i -g happy@{channel}
-happy --version
-happy daemon status
+npm i -g easycoder@{channel}
+easycoder --version
+easycoder daemon status
 ```
 
 Report the installed version and daemon status.
-The smoke check must confirm that `happy --version` matches the published version, not just npm metadata. If it reports the old version, rebuild after the version bump and cut a corrective patch release.
+The smoke check must confirm that `easycoder --version` matches the published version, not just npm metadata. If it reports the old version, rebuild after the version bump and cut a corrective patch release.
 
 ---
 
@@ -240,7 +240,7 @@ Guide the user to trigger the TeamCity build.
 
 ## Docs Release
 
-    Site:    happy.engineering (GitHub Pages)
+    Site:    easycoder.engineering (GitHub Pages)
     Repo:    github.com/slopus/slopus.github.io
 
 Separate repo, not part of this monorepo. Guide the user to push to that repo.

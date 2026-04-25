@@ -2,7 +2,7 @@
  * Doctor command implementation
  * 
  * Provides comprehensive diagnostics and troubleshooting information
- * for happy CLI including configuration, daemon status, logs, and links
+ * for easycoder CLI including configuration, daemon status, logs, and links
  */
 
 import chalk from 'chalk'
@@ -22,16 +22,16 @@ import packageJson from '../../package.json'
 export function getEnvironmentInfo(): Record<string, any> {
     return {
         PWD: process.env.PWD,
-        HAPPY_HOME_DIR: process.env.HAPPY_HOME_DIR,
-        HAPPY_VARIANT: process.env.HAPPY_VARIANT,
-        HAPPY_SERVER_URL: process.env.HAPPY_SERVER_URL,
-        HAPPY_PROJECT_ROOT: process.env.HAPPY_PROJECT_ROOT,
+        EASYCODER_HOME_DIR: process.env.EASYCODER_HOME_DIR,
+        EASYCODER_VARIANT: process.env.EASYCODER_VARIANT,
+        EASYCODER_SERVER_URL: process.env.EASYCODER_SERVER_URL,
+        EASYCODER_PROJECT_ROOT: process.env.EASYCODER_PROJECT_ROOT,
         DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING: process.env.DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING,
         NODE_ENV: process.env.NODE_ENV,
         DEBUG: process.env.DEBUG,
         workingDirectory: process.cwd(),
         processArgv: process.argv,
-        happyDir: configuration?.happyHomeDir,
+        happyDir: configuration?.easycoderHomeDir,
         serverUrl: configuration?.serverUrl,
         logsDir: configuration?.logsDir,
         processPid: process.pid,
@@ -65,7 +65,7 @@ function getLogFiles(logDir: string): { file: string, path: string, modified: Da
 }
 
 /**
- * Slim daemon status output for `happy daemon status`
+ * Slim daemon status output for `easycoder daemon status`
  */
 export async function runDoctorDaemon(): Promise<void> {
     console.log(chalk.bold('\n🤖 Daemon Status'));
@@ -94,7 +94,7 @@ export async function runDoctorDaemon(): Promise<void> {
         console.log(chalk.red('❌ Error checking daemon status'));
     }
 
-    console.log(chalk.gray('\nRun `happy doctor` for full diagnostics.\n'));
+    console.log(chalk.gray('\nRun `easycoder doctor` for full diagnostics.\n'));
 }
 
 /**
@@ -105,7 +105,7 @@ export async function runDoctorCommand(): Promise<void> {
 
     // ── Verbose sections first (scroll off the top) ──
 
-    // All Happy processes
+    // All EasyCoder processes
     try {
         const allProcesses = await findAllHappyProcesses();
         if (allProcesses.length > 0) {
@@ -144,10 +144,10 @@ export async function runDoctorCommand(): Promise<void> {
 
             if (allProcesses.length > 1) {
                 console.log(chalk.bold('\n💡 Process Management'));
-                console.log(chalk.gray('To clean up runaway processes: happy doctor clean'));
+                console.log(chalk.gray('To clean up runaway processes: easycoder doctor clean'));
             }
         } else {
-            console.log(chalk.red('❌ No happy processes found'));
+            console.log(chalk.red('❌ No easycoder processes found'));
         }
     } catch (error) {
         console.log(chalk.red('❌ Error listing processes'));
@@ -192,7 +192,7 @@ export async function runDoctorCommand(): Promise<void> {
     // Daemon spawn diagnostics
     console.log(chalk.bold('\n🔧 Daemon Spawn Diagnostics'));
     const projectRoot = projectPath();
-    const wrapperPath = join(projectRoot, 'bin', 'happy.mjs');
+    const wrapperPath = join(projectRoot, 'bin', 'easycoder.mjs');
     const cliEntrypoint = join(projectRoot, 'dist', 'index.mjs');
     console.log(`Project Root: ${chalk.blue(projectRoot)}`);
     console.log(`Wrapper Script: ${chalk.blue(wrapperPath)}`);
@@ -203,8 +203,8 @@ export async function runDoctorCommand(): Promise<void> {
     // Environment variables
     console.log(chalk.bold('\n🌍 Environment Variables'));
     const env = getEnvironmentInfo();
-    console.log(`HAPPY_HOME_DIR: ${env.HAPPY_HOME_DIR ? chalk.green(env.HAPPY_HOME_DIR) : chalk.gray('not set')}`);
-    console.log(`HAPPY_SERVER_URL: ${env.HAPPY_SERVER_URL ? chalk.green(env.HAPPY_SERVER_URL) : chalk.gray('not set')}`);
+    console.log(`EASYCODER_HOME_DIR: ${env.EASYCODER_HOME_DIR ? chalk.green(env.EASYCODER_HOME_DIR) : chalk.gray('not set')}`);
+    console.log(`EASYCODER_SERVER_URL: ${env.EASYCODER_SERVER_URL ? chalk.green(env.EASYCODER_SERVER_URL) : chalk.gray('not set')}`);
     console.log(`DANGEROUSLY_LOG_TO_SERVER: ${env.DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING ? chalk.yellow('ENABLED') : chalk.gray('not set')}`);
     console.log(`DEBUG: ${env.DEBUG ? chalk.green(env.DEBUG) : chalk.gray('not set')}`);
     console.log(`NODE_ENV: ${env.NODE_ENV ? chalk.green(env.NODE_ENV) : chalk.gray('not set')}`);
@@ -234,7 +234,7 @@ export async function runDoctorCommand(): Promise<void> {
 
     // Configuration
     console.log(chalk.bold('\n⚙️  Configuration'));
-    console.log(`CLI Home: ${chalk.blue(configuration.happyHomeDir)}`);
+    console.log(`CLI Home: ${chalk.blue(configuration.easycoderHomeDir)}`);
     console.log(`Server URL: ${chalk.blue(configuration.serverUrl)}`);
     console.log(`Logs Dir: ${chalk.blue(configuration.logsDir)}`);
 

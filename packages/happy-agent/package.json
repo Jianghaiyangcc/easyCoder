@@ -9,7 +9,7 @@
   "bugs": "https://github.com/Jianghaiyangcc/easyCoder/issues",
   "repository": "https://github.com/Jianghaiyangcc/easyCoder",
   "bin": {
-    "happy-agent": "./bin/happy-agent.mjs"
+    "easycoder-agent": "./bin/easycoder-agent.mjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

@@ -199,7 +199,7 @@ describe.skipIf(!gatewayAvailable)('OpenClawSocket - live gateway', () => {
     });
 
     // Send a simple message
-    const result = await socket.sendMessage(sessionKey, 'Say exactly: "hello from happy test". Nothing else.');
+    const result = await socket.sendMessage(sessionKey, 'Say exactly: "hello from easycoder test". Nothing else.');
     expect(result.runId).toBeTruthy();
     console.log(`[test] Sent message, runId: ${result.runId}`);
 

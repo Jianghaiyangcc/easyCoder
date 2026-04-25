@@ -2,8 +2,8 @@
  * Gemini CLI Entry Point
  * 
  * This module provides the main entry point for running the Gemini agent
- * through Happy CLI. It manages the agent lifecycle, session state, and
- * communication with the Happy server and mobile app.
+ * through EasyCoder CLI. It manages the agent lifecycle, session state, and
+ * communication with the EasyCoder server and mobile app.
  */
 
 import { render } from 'ink';
@@ -90,7 +90,7 @@ export async function runGemini(opts: {
   });
 
   //
-  // Fetch Gemini cloud token (from 'happy connect gemini')
+  // Fetch Gemini cloud token (from 'easycoder connect gemini')
   //
   let cloudToken: string | undefined = undefined;
   let currentUserEmail: string | undefined = undefined;
@@ -98,7 +98,7 @@ export async function runGemini(opts: {
     const vendorToken = await api.getVendorToken('gemini');
     if (vendorToken?.oauth?.access_token) {
       cloudToken = vendorToken.oauth.access_token;
-      logger.debug('[Gemini] Using OAuth token from Happy cloud');
+      logger.debug('[Gemini] Using OAuth token from EasyCoder cloud');
       
       // Extract email from id_token for per-account project matching
       if (vendorToken.oauth.id_token) {
@@ -135,7 +135,7 @@ export async function runGemini(opts: {
   // Handle server unreachable case - create offline stub with hot reconnection
   let session: ApiSessionClient;
   // Permission handler declared here so it can be updated in onSessionSwap callback
-  // (assigned later after Happy server setup)
+  // (assigned later after EasyCoder server setup)
   let permissionHandler: GeminiPermissionHandler;
 
   // Session swap synchronization to prevent race conditions during message processing
@@ -492,13 +492,13 @@ export async function runGemini(opts: {
   }
 
   //
-  // Start Happy MCP server and create Gemini backend
+  // Start EasyCoder MCP server and create Gemini backend
   //
 
   const happyServer = await startHappyServer(session);
-  const bridgeCommand = join(projectPath(), 'bin', 'happy-mcp.mjs');
+  const bridgeCommand = join(projectPath(), 'bin', 'easycoder-mcp.mjs');
   const mcpServers = {
-    happy: {
+    easycoder: {
       command: bridgeCommand,
       args: ['--url', happyServer.url]
     }
@@ -635,8 +635,8 @@ export async function runGemini(opts: {
           // Check for authentication error and provide helpful message
           if (errorMessage.includes('Authentication required')) {
             errorMessage = `Authentication required.\n` +
-              `For Google Workspace accounts, run: happy gemini project set <project-id>\n` +
-              `Or use a different Google account: happy connect gemini\n` +
+              `For Google Workspace accounts, run: easycoder gemini project set <project-id>\n` +
+              `Or use a different Google account: easycoder connect gemini\n` +
               `Guide: https://goo.gle/gemini-cli-auth-docs#workspace-gca`;
           }
           
@@ -1201,8 +1201,8 @@ export async function runGemini(opts: {
                      errorDetails.includes('Authentication required') ||
                      errorCode === -32000) {
               errorMsg = `Authentication required. For Google Workspace accounts, you need to set a Google Cloud Project:\n` +
-                         `  happy gemini project set <your-project-id>\n` +
-                         `Or use a different Google account: happy connect gemini\n` +
+                         `  easycoder gemini project set <your-project-id>\n` +
+                         `Or use a different Google account: easycoder connect gemini\n` +
                          `Guide: https://goo.gle/gemini-cli-auth-docs#workspace-gca`;
             }
             // Check for empty error (command not found)

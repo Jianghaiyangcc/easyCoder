@@ -1,6 +1,6 @@
 {
   "git": {
-    "commitMessage": "Release happy-agent ${version}",
+    "commitMessage": "Release easycoder-agent ${version}",
     "tagName": "happy-agent-v${version}",
     "push": true,
     "requireCleanWorkingDir": true,

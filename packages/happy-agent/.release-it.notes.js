@@ -58,9 +58,9 @@ async function generateReleaseNotes() {
       process.exit(1);
     }
 
-    const prompt = `Please analyze these git commits and generate professional release notes for version ${toVersion} of the Happy Agent CLI tool (a remote agent control CLI).
+    const prompt = `Please analyze these git commits and generate professional release notes for version ${toVersion} of the EasyCoder Agent CLI tool (a remote agent control CLI).
 
-The release should cover commits since the latest stable happy-agent tag (happy-agent-vX.Y.Z): ${
+The release should cover commits since the latest stable easycoder-agent tag (happy-agent-vX.Y.Z): ${
       fromTag ?? "(none)"
     }.
 

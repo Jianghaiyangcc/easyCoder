@@ -1,7 +1,7 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
 import { backoff } from '@/utils/time';
 import { getServerUrl } from './serverConfig';
-import { getHappyClientId } from './apiSocket';
+import { getEasyCoderClientId } from './apiSocket';
 
 //
 // Types
@@ -77,7 +77,7 @@ export async function kvGet(
         const response = await fetch(`${API_ENDPOINT}/v1/kv/${encodeURIComponent(key)}`, {
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 
@@ -119,7 +119,7 @@ export async function kvList(
         const response = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             }
         });
 
@@ -155,7 +155,7 @@ export async function kvBulkGet(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             },
             body: JSON.stringify({ keys })
         });
@@ -194,7 +194,7 @@ export async function kvMutate(
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
                 'Content-Type': 'application/json',
-                'X-Happy-Client': getHappyClientId(),
+                'X-EasyCoder-Client': getEasyCoderClientId(),
             },
             body: JSON.stringify({ mutations })
         });

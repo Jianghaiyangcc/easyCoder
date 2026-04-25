@@ -11,9 +11,9 @@ function makeMetadata(overrides: Partial<Metadata> = {}): Metadata {
         path: '/Users/test/projects/happy',
         host: 'test-host',
         homeDir: '/Users/test',
-        happyHomeDir: '/Users/test/.happy',
-        happyLibDir: '/Users/test/.happy/lib',
-        happyToolsDir: '/Users/test/.happy/tools',
+        happyHomeDir: '/Users/test/.easycoder',
+        happyLibDir: '/Users/test/.easycoder/lib',
+        happyToolsDir: '/Users/test/.easycoder/tools',
         ...overrides,
     };
 }

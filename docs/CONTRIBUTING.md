@@ -1,6 +1,6 @@
-# Contributing to Happy
+# Contributing to EasyCoder
 
-Happy is built by engineers who use AI coding tools all day — and we built Happy so we could use them from anywhere. Contributions that make Happy better for that workflow are welcome.
+EasyCoder is built by engineers who use AI coding tools all day — and we built EasyCoder so we could use them from anywhere. Contributions that make EasyCoder better for that workflow are welcome.
 
 If you don't get a response on your PR or issue, tag **@bra1ndump**.
 
@@ -55,11 +55,11 @@ Every issue should start with a **one-paragraph summary** of the problem. Don't 
 
 ```bash
 git clone https://github.com/Jianghaiyangcc/easyCoder.git
-cd happy
+cd easycoder
 pnpm install
 ```
 
-### Happy App (Mobile + Web)
+### EasyCoder App (Mobile + Web)
 
 ```bash
 pnpm --filter happy-app start          # Expo dev server
@@ -73,9 +73,9 @@ The app has three build variants — all can be installed simultaneously on the 
 
 | Variant | Bundle ID | App Name | Use Case |
 |---------|-----------|----------|----------|
-| Development | `com.slopus.happy.dev` | Happy (dev) | Local development with hot reload |
-| Preview | `com.slopus.happy.preview` | Happy (preview) | Beta testing & OTA updates |
-| Production | `club.daima.code` | Happy | App Store release |
+| Development | `club.daima.code.dev` | EasyCoder (dev) | Local development with hot reload |
+| Preview | `club.daima.code.preview` | EasyCoder (preview) | Beta testing & OTA updates |
+| Production | `club.daima.code` | EasyCoder | App Store release |
 
 Swap `ios:dev` for `ios:preview` or `ios:production` (same for `android:`).
 
@@ -86,7 +86,7 @@ pnpm --filter happy-app tauri:dev      # Run with hot reload
 pnpm --filter happy-app tauri:build:dev
 ```
 
-### Happy CLI
+### EasyCoder CLI
 
 ```bash
 pnpm --filter happy build
@@ -94,17 +94,17 @@ pnpm --filter happy test
 pnpm --filter happy dev                # Run without building (uses tsx)
 ```
 
-#### Local `happy-dev` Command
+#### Local `easycoder-dev` Command
 
-To test your local build without overwriting the global `happy`:
+To test your local build without overwriting the global `easycoder`:
 
 ```bash
 cd packages/happy-cli
-pnpm link:dev       # Creates global happy-dev symlink
+pnpm link:dev       # Creates global easycoder-dev symlink
 pnpm unlink:dev     # Removes it
 ```
 
-Now `happy` runs the stable npm version, `happy-dev` runs your local build.
+Now `easycoder` runs the stable npm version, `easycoder-dev` runs your local build.
 
 #### Stable vs Dev Data Isolation
 
@@ -112,12 +112,12 @@ The CLI keeps stable and dev data completely separate:
 
 | | Stable | Development |
 |-|--------|-------------|
-| Data | `~/.happy/` | `~/.happy-dev/` |
+| Data | `~/.easycoder/` | `~/.easycoder-dev/` |
 | Start daemon | `npm run stable:daemon:start` | `npm run dev:daemon:start` |
 
 First time? Run `npm run setup:dev` to create the dev data directory.
 
-### Happy Server
+### EasyCoder Server
 
 ```bash
 pnpm --filter happy-server standalone:dev   # Local server (no Docker needed)
@@ -126,7 +126,7 @@ pnpm --filter happy-server standalone:dev   # Local server (no Docker needed)
 Runs on `localhost:3005` with embedded PGlite. To point the app at your local server:
 
 ```bash
-EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005 pnpm --filter happy-app start
+EXPO_PUBLIC_EASYCODER_SERVER_URL=http://localhost:3005 pnpm --filter happy-app start
 ```
 
 ## Project Structure
@@ -135,10 +135,10 @@ This is a monorepo with four packages:
 
 - **happy-app** — React Native + Expo mobile/web client
 - **happy-cli** — Node.js CLI that wraps Claude Code and Codex
-- **happy-agent** — Remote agent control
+- **easycoder-agent** — Remote agent control
 - **happy-server** — Backend for encrypted sync
 
-For architecture details, check the [docs/](.) folder or ask Happy itself — it knows how the project is set up.
+For architecture details, check the [docs/](.) folder or ask EasyCoder itself — it knows how the project is set up.
 
 ## Community
 

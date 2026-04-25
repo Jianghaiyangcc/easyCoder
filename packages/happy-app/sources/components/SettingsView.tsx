@@ -199,7 +199,7 @@ export const SettingsView = React.memo(function SettingsView() {
                                 t('modals.authenticateTerminal'),
                                 t('modals.pasteUrlFromTerminal'),
                                 {
-                                    placeholder: 'happy://terminal?...',
+                                    placeholder: 'easycoder://terminal?...',
                                     confirmText: t('common.authenticate')
                                 }
                             );
@@ -391,7 +391,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title={t('settings.github')}
                     icon={<Ionicons name="logo-github" size={29} color={theme.colors.text} />}
-                    detail="slopus/happy"
+                    detail="Jianghaiyangcc/easyCoder"
                     onPress={handleGitHub}
                 />
                 <Item

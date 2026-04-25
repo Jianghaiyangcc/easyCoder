@@ -523,8 +523,8 @@ async function rollingDeploy() {
 
 // === SCENARIO: ios-session-flow ===
 // Exact simulation of the iOS → server → daemon flow:
-// 1. Machine daemon connects + registers spawn-happy-session (fire-and-forget)
-// 2. "iOS" caller immediately calls spawn-happy-session via RPC
+// 1. Machine daemon connects + registers spawn-easycoder-session (fire-and-forget)
+// 2. "iOS" caller immediately calls spawn-easycoder-session via RPC
 // 3. "Daemon" responds by connecting a session-scoped socket
 // 4. Session socket registers session RPC methods (fire-and-forget)
 // 5. "iOS" caller immediately calls session RPC method
@@ -542,7 +542,7 @@ async function iosSessionFlow() {
         const token = await getToken();
         const machineId = `machine-${Date.now()}-${round}`;
         const sessionId = `session-${Date.now()}-${round}`;
-        const MACHINE_METHOD = `${machineId}:spawn-happy-session`;
+        const MACHINE_METHOD = `${machineId}:spawn-easycoder-session`;
         const SESSION_METHOD = `${sessionId}:bash`;
 
         // Step 1: Machine daemon connects and registers (fire-and-forget)
