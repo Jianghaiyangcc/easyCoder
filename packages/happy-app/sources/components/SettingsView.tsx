@@ -1,4 +1,4 @@
-import { View, ScrollView, Pressable, Platform, Linking } from 'react-native';
+import { View, ScrollView, Pressable, Platform, Linking, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import * as React from 'react';
 import { Text } from '@/components/StyledText';
@@ -54,6 +54,10 @@ export const SettingsView = React.memo(function SettingsView() {
     const displayName = getDisplayName(profile);
     const avatarUrl = getAvatarUrl(profile);
     const bio = getBio(profile);
+    const { width: windowWidth } = useWindowDimensions();
+    const cardWidth = Math.max(0, Math.min(windowWidth, layout.maxWidth) - 32);
+    const logoWidth = Math.min(cardWidth, Math.max(240, cardWidth * 0.72), 420);
+    const logoHeight = logoWidth * 0.3;
 
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
@@ -170,7 +174,7 @@ export const SettingsView = React.memo(function SettingsView() {
                             <Image
                                 source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
                                 contentFit="contain"
-                                style={{ width: 300, height: 90, marginBottom: 12 }}
+                                style={{ width: logoWidth, height: logoHeight, marginBottom: 12 }}
                             />
                         </>
                     )}
