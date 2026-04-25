@@ -24,7 +24,8 @@ export function useSessionStatus(session: Session): SessionStatus {
     const hasPermissions = (session.agentState?.requests && Object.keys(session.agentState.requests).length > 0 ? true : false);
 
     const vibingMessage = React.useMemo(() => {
-        return vibingMessages[Math.floor(Math.random() * vibingMessages.length)].toLowerCase() + '…';
+        const msg = vibingMessages[Math.floor(Math.random() * vibingMessages.length)];
+        return `${msg.en} ${msg.zh}…`;
     }, [isOnline, hasPermissions, session.thinking]);
 
     if (!isOnline) {
@@ -230,4 +231,35 @@ export function formatLastSeen(activeAt: number, isActive: boolean = false): str
     }
 }
 
-export const vibingMessages = ["Accomplishing", "Actioning", "Actualizing", "Baking", "Booping", "Brewing", "Calculating", "Cerebrating", "Channelling", "Churning", "Clauding", "Coalescing", "Cogitating", "Computing", "Combobulating", "Concocting", "Conjuring", "Considering", "Contemplating", "Cooking", "Crafting", "Creating", "Crunching", "Deciphering", "Deliberating", "Determining", "Discombobulating", "Divining", "Doing", "Effecting", "Elucidating", "Enchanting", "Envisioning", "Finagling", "Flibbertigibbeting", "Forging", "Forming", "Frolicking", "Generating", "Germinating", "Hatching", "Herding", "Honking", "Ideating", "Imagining", "Incubating", "Inferring", "Manifesting", "Marinating", "Meandering", "Moseying", "Mulling", "Mustering", "Musing", "Noodling", "Percolating", "Perusing", "Philosophising", "Pontificating", "Pondering", "Processing", "Puttering", "Puzzling", "Reticulating", "Ruminating", "Scheming", "Schlepping", "Shimmying", "Simmering", "Smooshing", "Spelunking", "Spinning", "Stewing", "Sussing", "Synthesizing", "Thinking", "Tinkering", "Transmuting", "Unfurling", "Unravelling", "Vibing", "Wandering", "Whirring", "Wibbling", "Wizarding", "Working", "Wrangling"];
+export const vibingMessages = [
+    { en: "Thinking", zh: "思考中" },
+    { en: "Processing", zh: "处理中" },
+    { en: "Working", zh: "工作中" },
+    { en: "Calculating", zh: "计算中" },
+    { en: "Analyzing", zh: "分析中" },
+    { en: "Considering", zh: "考虑中" },
+    { en: "Pondering", zh: "沉思中" },
+    { en: "Planning", zh: "计划中" },
+    { en: "Preparing", zh: "准备中" },
+    { en: "Creating", zh: "创建中" },
+    { en: "Generating", zh: "生成中" },
+    { en: "Building", zh: "构建中" },
+    { en: "Designing", zh: "设计中" },
+    { en: "Cooking", zh: "烹饪中" },
+    { en: "Brewing", zh: "酝酿中" },
+    { en: "Crafting", zh: "制作中" },
+    { en: "Forming", zh: "形成中" },
+    { en: "Making", zh: "制作中" },
+    { en: "Doing", zh: "行动中" },
+    { en: "Developing", zh: "开发中" },
+    { en: "Organizing", zh: "整理中" },
+    { en: "Arranging", zh: "安排中" },
+    { en: "Structuring", zh: "组织中" },
+    { en: "Evaluating", zh: "评估中" },
+    { en: "Investigating", zh: "调查中" },
+    { en: "Exploring", zh: "探索中" },
+    { en: "Discovering", zh: "发现中" },
+    { en: "Solving", zh: "解决中" },
+    { en: "Figuring", zh: "琢磨中" },
+    { en: "Determining", zh: "确定中" }
+];
