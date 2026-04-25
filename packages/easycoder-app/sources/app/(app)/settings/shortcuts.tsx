@@ -62,8 +62,8 @@ export default function QuickPhrasesSettingsScreen() {
         }
 
         const confirmed = await Modal.confirm(
-            t('quickPhrasesDelete'),
-            t('quickPhrasesDeleteConfirm'),
+            t('quickPhrases.delete'),
+            t('quickPhrases.deleteConfirm'),
             { confirmText: t('common.delete'), destructive: true }
         );
 
@@ -113,20 +113,20 @@ export default function QuickPhrasesSettingsScreen() {
         let hasError = false;
 
         if (!editorTitle.trim()) {
-            setTitleError(t('quickPhraseEditorTitleError'));
+            setTitleError(t('quickPhrases.editorTitleError'));
             hasError = true;
         } else if (editorTitle.length > 30) {
-            setTitleError(t('quickPhraseEditorTitleTooLong'));
+            setTitleError(t('quickPhrases.editorTitleTooLong'));
             hasError = true;
         } else {
             setTitleError('');
         }
 
         if (!editorContent.trim()) {
-            setContentError(t('quickPhraseEditorContentError'));
+            setContentError(t('quickPhrases.editorContentError'));
             hasError = true;
         } else if (editorContent.length > 1000) {
-            setContentError(t('quickPhraseEditorContentTooLong'));
+            setContentError(t('quickPhrases.editorContentTooLong'));
             hasError = true;
         } else {
             setContentError('');
@@ -177,7 +177,7 @@ export default function QuickPhrasesSettingsScreen() {
                         <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
                         <TextInput
                             style={styles.searchInput}
-                            placeholder={t('quickPhrasesSearchPlaceholder')}
+                            placeholder={t('quickPhrases.searchPlaceholder')}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             placeholderTextColor="#8E8E93"
@@ -186,8 +186,8 @@ export default function QuickPhrasesSettingsScreen() {
 
                     {builtInPhrases.length > 0 && (
                         <ItemGroup
-                            title={t('quickPhrasesBuiltIn')}
-                            footer={t('quickPhrasesBuiltInHelp')}
+                            title={t('quickPhrases.builtIn')}
+                            footer={t('quickPhrases.builtInHelp')}
                         >
                             {builtInPhrases.map((phrase) => (
                                 <View key={phrase.id} style={styles.phraseItem}>
@@ -267,7 +267,7 @@ export default function QuickPhrasesSettingsScreen() {
                         <View style={styles.emptyContainer}>
                             <Ionicons name="flash-outline" size={60} color="#C7C7CC" />
                             <Text style={styles.emptyText}>
-                                {t('quickPhrasesEmpty')}
+                                {t('quickPhrases.empty')}
                             </Text>
                         </View>
                     )}
@@ -280,7 +280,7 @@ export default function QuickPhrasesSettingsScreen() {
                         onPress={handleAdd}
                     >
                         <Ionicons name="add" size={24} color="#007AFF" />
-                        <Text style={styles.addButtonText}>{t('quickPhrasesAdd')}</Text>
+                        <Text style={styles.addButtonText}>{t('quickPhrases.add')}</Text>
                     </Pressable>
                 </View>
             </ItemList>
@@ -290,13 +290,13 @@ export default function QuickPhrasesSettingsScreen() {
                     <Pressable style={styles.modalBackdrop} onPress={() => setShowEditor(false)} />
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>
-                            {editingPhrase ? t('quickPhrasesEdit') : t('quickPhrasesAdd')}
+                            {editingPhrase ? t('quickPhrases.edit') : t('quickPhrases.add')}
                         </Text>
 
-                        <Text style={styles.label}>{t('quickPhraseEditorTitle')}</Text>
+                        <Text style={styles.label}>{t('quickPhrases.editorTitle')}</Text>
                         <TextInput
                             style={[styles.input, titleError && styles.inputError]}
-                            placeholder={t('quickPhraseEditorTitlePlaceholder')}
+                            placeholder={t('quickPhrases.editorTitlePlaceholder')}
                             value={editorTitle}
                             onChangeText={setEditorTitle}
                             placeholderTextColor="#8E8E93"
@@ -304,10 +304,10 @@ export default function QuickPhrasesSettingsScreen() {
                         />
                         {titleError ? <Text style={styles.errorText}>{titleError}</Text> : null}
 
-                        <Text style={styles.label}>{t('quickPhraseEditorContent')}</Text>
+                        <Text style={styles.label}>{t('quickPhrases.editorContent')}</Text>
                         <TextInput
                             style={[styles.textArea, contentError && styles.inputError]}
-                            placeholder={t('quickPhraseEditorContentPlaceholder')}
+                            placeholder={t('quickPhrases.editorContentPlaceholder')}
                             value={editorContent}
                             onChangeText={setEditorContent}
                             placeholderTextColor="#8E8E93"

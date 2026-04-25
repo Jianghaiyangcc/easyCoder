@@ -894,7 +894,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                                             {sortedQuickPhrases.length === 0 && (
                                                 <Text style={styles.quickPhraseEmpty}>
-                                                    {t('quickPhrasesEmpty')}
+                                                    {t('quickPhrases.empty')}
                                                 </Text>
                                             )}
                                         </ScrollView>
