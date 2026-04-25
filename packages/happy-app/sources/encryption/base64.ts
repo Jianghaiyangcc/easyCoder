@@ -23,8 +23,22 @@ export function decodeBase64(base64: string, encoding: 'base64' | 'base64url' = 
     return bytes;
 }
 
+const BASE64_ENCODE_CHUNK_SIZE = 32 * 1024;
+
 export function encodeBase64(buffer: Uint8Array, encoding: 'base64' | 'base64url' = 'base64'): string {
-    const binaryString = String.fromCharCode.apply(null, Array.from(buffer));
+    let binaryString = '';
+
+    for (let offset = 0; offset < buffer.length; offset += BASE64_ENCODE_CHUNK_SIZE) {
+        const chunk = buffer.subarray(offset, offset + BASE64_ENCODE_CHUNK_SIZE);
+        let chunkString = '';
+
+        for (let index = 0; index < chunk.length; index++) {
+            chunkString += String.fromCharCode(chunk[index]);
+        }
+
+        binaryString += chunkString;
+    }
+
     const base64 = btoa(binaryString);
     
     if (encoding === 'base64url') {

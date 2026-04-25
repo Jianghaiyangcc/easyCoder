@@ -15,6 +15,7 @@ interface DashscopeAsrResult {
 
 const DEFAULT_DASHSCOPE_ASR_BASE_URL = "https://dashscope.aliyuncs.com/api/v1";
 const DEFAULT_DASHSCOPE_ASR_MODEL = "qwen3-asr-flash";
+const DEFAULT_DASHSCOPE_ASR_MIME_TYPE = "audio/m4a";
 
 function normalizeDashscopeLanguage(language?: string): string | undefined {
     const normalized = language?.trim().toLowerCase();
@@ -36,6 +37,23 @@ function normalizeDashscopeLanguage(language?: string): string | undefined {
     }
 
     return undefined;
+}
+
+function normalizeDashscopeMimeType(mimeType?: string): string {
+    const normalized = mimeType?.trim().toLowerCase();
+    if (!normalized) {
+        return DEFAULT_DASHSCOPE_ASR_MIME_TYPE;
+    }
+
+    const baseMimeType = normalized.split(';')[0]?.trim() || normalized;
+    if (baseMimeType === "audio/x-m4a") {
+        return "audio/m4a";
+    }
+    if (baseMimeType === "audio/x-wav") {
+        return "audio/wav";
+    }
+
+    return baseMimeType;
 }
 
 function resolveTranscript(payload: unknown): string {
@@ -97,6 +115,7 @@ export async function transcribeDashscopeAudio(input: DashscopeAsrInput): Promis
     const resolvedModel = input.model || process.env.DASHSCOPE_ASR_MODEL || DEFAULT_DASHSCOPE_ASR_MODEL;
     const resolvedBaseUrl = input.baseUrl || process.env.DASHSCOPE_API_BASE_URL || DEFAULT_DASHSCOPE_ASR_BASE_URL;
     const normalizedLanguage = normalizeDashscopeLanguage(input.language);
+    const normalizedMimeType = normalizeDashscopeMimeType(input.mimeType);
 
     const requestBody = {
         model: resolvedModel,
@@ -106,7 +125,7 @@ export async function transcribeDashscopeAudio(input: DashscopeAsrInput): Promis
                     role: "user",
                     content: [
                         {
-                            audio: `data:${input.mimeType || "audio/m4a"};base64,${input.audioBase64}`,
+                            audio: `data:${normalizedMimeType};base64,${input.audioBase64}`,
                         },
                     ],
                 },

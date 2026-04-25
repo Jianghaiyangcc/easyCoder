@@ -16,6 +16,7 @@ interface BailianRuntime {
 
 let runtime: BailianRuntime | null = null;
 let currentSessionId: string | null = null;
+const MIN_RECORDING_DURATION_MS = 500;
 
 class BailianVoiceSessionImpl implements VoiceSession {
     async startSession(config: VoiceSessionConfig): Promise<string | null> {
@@ -69,14 +70,24 @@ export const BailianVoiceSession: React.FC = () => {
     const hasRegistered = useRef(false);
 
     useEffect(() => {
+        let recordingStartedAt = 0;
+
         runtime = {
             recorder,
             startRecording: async () => {
                 await recorder.prepareToRecordAsync();
                 recorder.record();
+                recordingStartedAt = Date.now();
             },
             stopRecordingAndTranscribe: async () => {
                 await recorder.stop();
+
+                const durationMs = recordingStartedAt > 0 ? Date.now() - recordingStartedAt : 0;
+                recordingStartedAt = 0;
+                if (durationMs > 0 && durationMs < MIN_RECORDING_DURATION_MS) {
+                    return null;
+                }
+
                 const fileUri = recorder.uri || recorder.getStatus().url;
                 if (!fileUri) {
                     return null;
@@ -89,10 +100,11 @@ export const BailianVoiceSession: React.FC = () => {
 
                 const file = new File(fileUri);
                 const audioBytes = new Uint8Array(await file.arrayBuffer());
+                const { voiceAssistantLanguage, preferredLanguage } = storage.getState().settings;
                 const transcription = await transcribeBailianAudio(credentials, {
                     audioBase64: encodeBase64(audioBytes, 'base64'),
                     mimeType: 'audio/m4a',
-                    language: storage.getState().settings.voiceAssistantLanguage ?? undefined,
+                    language: voiceAssistantLanguage ?? preferredLanguage ?? undefined,
                 });
 
                 const text = transcription.transcript.trim();

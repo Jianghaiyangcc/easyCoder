@@ -74,6 +74,27 @@ export interface BailianAsrRequest {
     enableItn?: boolean;
 }
 
+function normalizeAsrMimeType(mimeType: string): string {
+    const normalized = mimeType.trim().toLowerCase();
+    if (!normalized) {
+        return 'audio/m4a';
+    }
+
+    const baseMimeType = normalized.split(';')[0]?.trim() || normalized;
+
+    if (baseMimeType === 'audio/x-m4a') {
+        return 'audio/m4a';
+    }
+    if (baseMimeType === 'audio/x-wav') {
+        return 'audio/wav';
+    }
+    if (baseMimeType === 'audio/webm') {
+        return 'audio/webm';
+    }
+
+    return baseMimeType;
+}
+
 export interface BailianTtsRequest {
     text: string;
     language?: string;
@@ -86,6 +107,10 @@ export async function transcribeBailianAudio(
     input: BailianAsrRequest,
 ): Promise<BailianAsrResponse> {
     const serverUrl = getServerUrl();
+    const sanitizedInput: BailianAsrRequest = {
+        ...input,
+        mimeType: normalizeAsrMimeType(input.mimeType),
+    };
 
     const response = await fetch(`${serverUrl}/v1/voice/bailian/asr/transcribe`, {
         method: 'POST',
@@ -94,7 +119,7 @@ export async function transcribeBailianAudio(
             'Content-Type': 'application/json',
             'X-Happy-Client': getHappyClientId(),
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(sanitizedInput),
     });
 
     if (!response.ok) {

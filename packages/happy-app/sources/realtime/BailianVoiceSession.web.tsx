@@ -16,6 +16,21 @@ let currentSessionId: string | null = null;
 let mediaRecorder: MediaRecorder | null = null;
 let mediaStream: MediaStream | null = null;
 let chunks: BlobPart[] = [];
+const MIN_RECORDING_DURATION_MS = 500;
+
+function resolvePreferredRecorderMimeType(): string | null {
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        return 'audio/webm;codecs=opus';
+    }
+    if (MediaRecorder.isTypeSupported('audio/webm')) {
+        return 'audio/webm';
+    }
+    if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        return 'audio/mp4';
+    }
+
+    return null;
+}
 
 function cleanupRecorder() {
     if (mediaStream) {
@@ -80,14 +95,15 @@ export const BailianVoiceSession: React.FC = () => {
     const hasRegistered = useRef(false);
 
     useEffect(() => {
+        let recordingStartedAt = 0;
+
         runtime = {
             startRecording: async () => {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const recorder = new MediaRecorder(stream, {
-                    mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-                        ? 'audio/webm;codecs=opus'
-                        : undefined,
-                });
+                const preferredMimeType = resolvePreferredRecorderMimeType();
+                const recorder = preferredMimeType
+                    ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+                    : new MediaRecorder(stream);
 
                 mediaStream = stream;
                 mediaRecorder = recorder;
@@ -100,6 +116,7 @@ export const BailianVoiceSession: React.FC = () => {
                 };
 
                 recorder.start();
+                recordingStartedAt = Date.now();
             },
             stopRecordingAndTranscribe: async () => {
                 const activeRecorder = mediaRecorder;
@@ -112,6 +129,13 @@ export const BailianVoiceSession: React.FC = () => {
                     activeRecorder.stop();
                 });
 
+                const durationMs = recordingStartedAt > 0 ? Date.now() - recordingStartedAt : 0;
+                recordingStartedAt = 0;
+                if (durationMs > 0 && durationMs < MIN_RECORDING_DURATION_MS) {
+                    cleanupRecorder();
+                    return null;
+                }
+
                 const blob = new Blob(chunks, {
                     type: activeRecorder.mimeType || 'audio/webm',
                 });
@@ -123,10 +147,11 @@ export const BailianVoiceSession: React.FC = () => {
                 }
 
                 const audioBytes = new Uint8Array(await blob.arrayBuffer());
+                const { voiceAssistantLanguage, preferredLanguage } = storage.getState().settings;
                 const transcription = await transcribeBailianAudio(credentials, {
                     audioBase64: encodeBase64(audioBytes, 'base64'),
                     mimeType: blob.type || 'audio/webm',
-                    language: storage.getState().settings.voiceAssistantLanguage ?? undefined,
+                    language: voiceAssistantLanguage ?? preferredLanguage ?? undefined,
                 });
 
                 const text = transcription.transcript.trim();
