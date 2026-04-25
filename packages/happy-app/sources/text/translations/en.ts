@@ -75,6 +75,7 @@ export const en: TranslationStructure = {
         retry: 'Retry',
         delete: 'Delete',
         optional: 'optional',
+        custom: 'Custom',
     },
 
     profile: {
@@ -151,6 +152,8 @@ export const en: TranslationStructure = {
         exchangingTokens: 'Exchanging tokens...',
         usage: 'Usage',
         usageSubtitle: 'View your API usage and costs',
+        quickPhrases: 'Quick Phrases',
+        quickPhrasesSubtitle: 'Manage your quick message templates',
         // Dynamic settings messages
         accountConnected: ({ service }: { service: string }) => `${service} account connected`,
         machineStatus: ({ name, status }: { name: string; status: 'online' | 'offline' }) =>
@@ -467,6 +470,7 @@ export const en: TranslationStructure = {
             end: 'End',
         },
         noMachinesAvailable: 'No machines',
+        quickPhrases: 'Quick Phrases',
     },
 
     machineLauncher: {
@@ -928,6 +932,28 @@ export const en: TranslationStructure = {
         usageOverTime: 'Usage over time',
         byModel: 'By Model',
         noData: 'No usage data available',
+    },
+
+    quickPhrases: {
+        // Quick phrases management
+        empty: 'No quick phrases yet, tap the + button to add one',
+        searchPlaceholder: 'Search quick phrases...',
+        add: 'Add Quick Phrase',
+        edit: 'Edit Quick Phrase',
+        delete: 'Delete',
+        deleteConfirm: 'Are you sure you want to delete this quick phrase?',
+        moveUp: 'Move up',
+        moveDown: 'Move down',
+        builtIn: 'Built-in Quick Phrases',
+        builtInHelp: 'Built-in quick phrases can be hidden but not deleted or edited',
+        editorTitle: 'Quick Phrase Title',
+        editorContent: 'Quick Phrase Content',
+        editorTitlePlaceholder: 'Enter a title (1-30 characters)',
+        editorContentPlaceholder: 'Enter the text to send (1-1000 characters)',
+        editorTitleError: 'Title cannot be empty',
+        editorContentError: 'Content cannot be empty',
+        editorTitleTooLong: 'Title cannot exceed 30 characters',
+        editorContentTooLong: 'Content cannot exceed 1000 characters',
     },
 
     feed: {

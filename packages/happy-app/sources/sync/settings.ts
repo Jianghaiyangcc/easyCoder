@@ -1,6 +1,19 @@
 import * as z from 'zod';
 
 //
+// QuickPhrase Type
+//
+
+export interface QuickPhrase {
+    id: string;
+    title: string;
+    content: string;
+    isBuiltIn: boolean;
+    enabled: boolean;
+    order: number;
+}
+
+//
 // Settings Schema
 //
 
@@ -57,6 +70,15 @@ export const SettingsSchema = z.object({
             opencode: z.boolean().optional(),
         }).default({}),
     }).default({ perMachine: {}, global: {} }).describe('Tracks which CLI installation warnings user has dismissed (per-machine or globally)'),
+    // Quick phrases for quick message sending
+    quickPhrases: z.array(z.object({
+        id: z.string().describe('Unique identifier'),
+        title: z.string().min(1).max(30).describe('Display title'),
+        content: z.string().min(1).max(1000).describe('Text content to send'),
+        isBuiltIn: z.boolean().describe('Whether it is a built-in phrase'),
+        enabled: z.boolean().default(true).describe('Whether it is enabled (mainly for built-in phrases)'),
+        order: z.number().default(0).describe('Sort order'),
+    })).describe('User quick phrases list').default([]),
 });
 
 //
@@ -107,6 +129,48 @@ export const settingsDefaults: Settings = {
     lastUsedPermissionMode: null,
     lastUsedModelMode: null,
     dismissedCLIWarnings: { perMachine: {}, global: {} },
+    quickPhrases: [
+        {
+            id: 'builtin-git-commit',
+            title: '提交代码',
+            content: '请提交代码到 git 服务器',
+            isBuiltIn: true,
+            enabled: true,
+            order: 0,
+        },
+        {
+            id: 'builtin-pr-description',
+            title: '生成 PR 说明',
+            content: '请为本次改动生成一个 Pull Request 描述',
+            isBuiltIn: true,
+            enabled: true,
+            order: 1,
+        },
+        {
+            id: 'builtin-fix-errors',
+            title: '修复错误',
+            content: '请帮我修复当前报错',
+            isBuiltIn: true,
+            enabled: true,
+            order: 2,
+        },
+        {
+            id: 'builtin-run-tests',
+            title: '运行测试',
+            content: '请运行所有测试并修复失败的测试',
+            isBuiltIn: true,
+            enabled: true,
+            order: 3,
+        },
+        {
+            id: 'builtin-review-code',
+            title: '代码审查',
+            content: '请帮我审查最近的代码变更，找出潜在问题',
+            isBuiltIn: true,
+            enabled: true,
+            order: 4,
+        }
+    ],
 };
 Object.freeze(settingsDefaults);
 

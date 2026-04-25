@@ -62,6 +62,7 @@ export const zhHans: TranslationStructure = {
         retry: '重试',
         delete: '删除',
         optional: '可选的',
+        custom: '自定义',
     },
 
     profile: {
@@ -138,6 +139,8 @@ export const zhHans: TranslationStructure = {
         exchangingTokens: '正在交换令牌...',
         usage: '使用情况',
         usageSubtitle: '查看 API 使用情况和费用',
+        quickPhrases: '快捷语管理',
+        quickPhrasesSubtitle: '管理常用的指令模板',
         // Dynamic settings messages
         accountConnected: ({ service }: { service: string }) => `已连接 ${service} 账户`,
         machineStatus: ({ name, status }: { name: string; status: 'online' | 'offline' }) =>
@@ -454,6 +457,7 @@ export const zhHans: TranslationStructure = {
             end: '结束',
         },
         noMachinesAvailable: '无设备',
+        quickPhrases: '快捷语',
     },
 
     machineLauncher: {
@@ -914,6 +918,28 @@ export const zhHans: TranslationStructure = {
         usageOverTime: '使用趋势',
         byModel: '按模型',
         noData: '暂无使用数据',
+    },
+
+    quickPhrases: {
+        // Quick phrases management
+        empty: '暂无快捷语，点击 + 按钮添加',
+        searchPlaceholder: '搜索快捷语...',
+        add: '添加快捷语',
+        edit: '编辑快捷语',
+        delete: '删除',
+        deleteConfirm: '确定要删除这个快捷语吗？',
+        moveUp: '上移',
+        moveDown: '下移',
+        builtIn: '内置快捷语',
+        builtInHelp: '内置快捷语可以隐藏但不能删除或编辑',
+        editorTitle: '快捷语标题',
+        editorContent: '快捷语内容',
+        editorTitlePlaceholder: '请输入标题（1-30字）',
+        editorContentPlaceholder: '请输入要发送的文本（1-1000字）',
+        editorTitleError: '标题不能为空',
+        editorContentError: '内容不能为空',
+        editorTitleTooLong: '标题不能超过30字',
+        editorContentTooLong: '内容不能超过1000字',
     },
 
     feed: {

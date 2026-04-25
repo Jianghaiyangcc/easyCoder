@@ -296,6 +296,7 @@ function SessionViewLoaded({
     const alwaysShowContextSize = useSetting('alwaysShowContextSize');
     const experiments = useSetting('experiments');
     const expResumeSession = useSetting('expResumeSession');
+    const quickPhrases = useSetting('quickPhrases');
     const isArchivedSession = session.metadata?.lifecycleState === 'archived';
     const isDisconnected = !sessionStatus.isConnected;
     const isInactiveArchivedSession = isArchivedSession && isDisconnected;
@@ -463,11 +464,14 @@ function SessionViewLoaded({
                 isPulsing: sessionStatus.isPulsing
             }}
             blockSend={false}
-            onSend={() => {
-                if (message.trim()) {
-                    setMessage('');
-                    clearDraft();
-                    sync.sendMessage(sessionId, message, { source: 'chat' });
+            onSend={(msg) => {
+                const messageToSend = msg ?? message;
+                if (messageToSend.trim()) {
+                    if (!msg) {
+                        setMessage('');
+                        clearDraft();
+                    }
+                    sync.sendMessage(sessionId, messageToSend, { source: msg ? 'quick-phrase' : 'chat' });
                 }
             }}
             onMicPress={isDisconnected ? undefined : micButtonState.onMicPress}
@@ -491,6 +495,7 @@ function SessionViewLoaded({
                 contextSize: session.latestUsage.contextSize
             } : undefined}
             alwaysShowContextSize={alwaysShowContextSize}
+            quickPhrases={quickPhrases}
         />
     );
 

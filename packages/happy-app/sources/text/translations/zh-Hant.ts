@@ -62,6 +62,7 @@ export const zhHant: TranslationStructure = {
         retry: '重試',
         delete: '刪除',
         optional: '選填',
+        custom: '自訂',
     },
 
     profile: {
@@ -137,6 +138,8 @@ export const zhHant: TranslationStructure = {
         exchangingTokens: '正在交換權杖...',
         usage: '使用情況',
         usageSubtitle: '查看 API 使用情況和費用',
+        quickPhrases: '快捷語管理',
+        quickPhrasesSubtitle: '管理常用的指令模板',
         // Dynamic settings messages
         accountConnected: ({ service }: { service: string }) => `已連結 ${service} 帳戶`,
         machineStatus: ({ name, status }: { name: string; status: 'online' | 'offline' }) =>
@@ -453,6 +456,7 @@ export const zhHant: TranslationStructure = {
             end: '結束',
         },
         noMachinesAvailable: '無裝置',
+        quickPhrases: '快捷語',
     },
 
     machineLauncher: {
@@ -913,6 +917,28 @@ export const zhHant: TranslationStructure = {
         usageOverTime: '使用趨勢',
         byModel: '按模型',
         noData: '暫無使用資料',
+    },
+
+    quickPhrases: {
+        // Quick phrases management
+        empty: '暫無快捷語，點擊 + 按鈕新增',
+        searchPlaceholder: '搜尋快捷語...',
+        add: '新增快捷語',
+        edit: '編輯快捷語',
+        delete: '刪除',
+        deleteConfirm: '確定要刪除這個快捷語嗎？',
+        moveUp: '上移',
+        moveDown: '下移',
+        builtIn: '內建快捷語',
+        builtInHelp: '內建快捷語可以隱藏但不能刪除或編輯',
+        editorTitle: '快捷語標題',
+        editorContent: '快捷語內容',
+        editorTitlePlaceholder: '請輸入標題（1-30字）',
+        editorContentPlaceholder: '請輸入要傳送的文本（1-1000字）',
+        editorTitleError: '標題不能為空',
+        editorContentError: '內容不能為空',
+        editorTitleTooLong: '標題不能超過30字',
+        editorContentTooLong: '內容不能超過1000字',
     },
 
     feed: {

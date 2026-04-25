@@ -24,13 +24,14 @@ import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
 import { VoiceBars } from './VoiceBars';
+import { QuickPhrase } from '@/sync/settings';
 
 interface AgentInputProps {
     value: string;
     placeholder: string;
     onChangeText: (text: string) => void;
     sessionId?: string;
-    onSend: () => void;
+    onSend: (message?: string) => void;
     sendIcon?: React.ReactNode;
     onMicPress?: () => void;
     isMicActive?: boolean;
@@ -78,6 +79,7 @@ interface AgentInputProps {
     isSendDisabled?: boolean;
     isSending?: boolean;
     minHeight?: number;
+    quickPhrases?: QuickPhrase[];
 }
 
 const MAX_CONTEXT_SIZE = 190000;
@@ -363,6 +365,36 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     voiceButtonIcon: {
         color: theme.colors.button.secondary.tint,
     },
+    quickPhraseItem: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.divider,
+        minHeight: 60,
+    },
+    quickPhraseItemPressed: {
+        backgroundColor: theme.colors.surfacePressed,
+    },
+    quickPhraseTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.text,
+        marginBottom: 4,
+        ...Typography.default('semiBold'),
+    },
+    quickPhraseContent: {
+        fontSize: 13,
+        color: theme.colors.textSecondary,
+        lineHeight: 18,
+        ...Typography.default(),
+    },
+    quickPhraseEmpty: {
+        padding: 24,
+        textAlign: 'center',
+        color: theme.colors.textSecondary,
+        fontSize: 14,
+        ...Typography.default(),
+    },
 }));
 
 const getContextWarning = (contextSize: number, alwaysShow: boolean = false, theme: Theme) => {
@@ -513,7 +545,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         hapticsLight();
     }, [suggestions, inputState, props.autocompletePrefixes]);
 
-    type InlineSelector = 'permission' | 'model' | 'effort';
+    type InlineSelector = 'permission' | 'model' | 'effort' | 'quickPhrase';
     const [activeSelector, setActiveSelector] = React.useState<InlineSelector | null>(null);
     const hasPermissionSelector = Boolean(props.onPermissionModeChange && availableModes.length > 0);
     const hasModelSelector = Boolean(props.onModelModeChange && availableModels.length > 0);
@@ -555,6 +587,21 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         props.onEffortLevelChange?.(level);
         closeSelector();
     }, [closeSelector, props.onEffortLevelChange]);
+
+    const handleQuickPhraseSelect = React.useCallback((phrase: QuickPhrase) => {
+        hapticsLight();
+        if (props.onSend) {
+            props.onSend(phrase.content);
+        }
+        closeSelector();
+    }, [closeSelector, props.onSend]);
+
+    const sortedQuickPhrases = React.useMemo(() => {
+        const phrases = props.quickPhrases || [];
+        return phrases
+            .filter(p => p.enabled)
+            .sort((a, b) => a.order - b.order);
+    }, [props.quickPhrases]);
 
     // Handle abort button press
     const handleAbortPress = React.useCallback(async () => {
@@ -818,6 +865,39 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                 {t('agentInput.effort.title')}
                                             </Text>
                                         )}
+                                    </View>
+                                )}
+
+                                {activeSelector === 'quickPhrase' && (
+                                    <View style={styles.overlaySection}>
+                                        <Text style={styles.overlaySectionTitle}>
+                                            {t('agentInput.quickPhrases')}
+                                        </Text>
+                                        <ScrollView style={{ maxHeight: 300 }}>
+                                            {sortedQuickPhrases.slice(0, 8).map((phrase) => (
+                                                <Pressable
+                                                    key={phrase.id}
+                                                    style={({ pressed }) => [
+                                                        styles.quickPhraseItem,
+                                                        pressed && styles.quickPhraseItemPressed,
+                                                    ]}
+                                                    onPress={() => handleQuickPhraseSelect(phrase)}
+                                                >
+                                                    <Text style={styles.quickPhraseTitle} numberOfLines={1}>
+                                                        {phrase.title}
+                                                    </Text>
+                                                    <Text style={styles.quickPhraseContent} numberOfLines={2}>
+                                                        {phrase.content}
+                                                    </Text>
+                                                </Pressable>
+                                            ))}
+
+                                            {sortedQuickPhrases.length === 0 && (
+                                                <Text style={styles.quickPhraseEmpty}>
+                                                    {t('quickPhrasesEmpty')}
+                                                </Text>
+                                            )}
+                                        </ScrollView>
                                     </View>
                                 )}
                             </FloatingOverlay>
@@ -1151,8 +1231,24 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     </ScrollView>
                                 </View>
 
-                                {/* 右侧按钮组：语音 + 发送 */}
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                {/* 右侧按钮组：快捷语 + 语音 + 发送 */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+
+                                    {/* 快捷语按钮 */}
+                                    <Pressable
+                                        onPress={() => toggleSelector('quickPhrase')}
+                                        style={({ pressed }) => [
+                                            styles.selectorChip,
+                                            activeSelector === 'quickPhrase' && styles.selectorChipActive,
+                                            pressed && styles.selectorChipPressed,
+                                        ]}
+                                    >
+                                        <Ionicons name="flash-outline" size={14} color={theme.colors.textSecondary} />
+                                        <Text style={styles.selectorChipValue} numberOfLines={1}>
+                                            {t('agentInput.quickPhrases')}
+                                        </Text>
+                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                    </Pressable>
 
                                     {/* 语音按钮 - 始终显示 */}
                                     {props.onMicPress && (

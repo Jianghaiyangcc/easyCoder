@@ -118,6 +118,12 @@ export default function RootLayout() {
                 }}
             />
             <Stack.Screen
+                name="settings/shortcuts"
+                options={{
+                    headerTitle: t('settings.quickPhrases'),
+                }}
+            />
+            <Stack.Screen
                 name="terminal/connect"
                 options={{
                     headerTitle: t('navigation.connectTerminal'),
