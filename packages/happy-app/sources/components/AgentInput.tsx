@@ -44,7 +44,7 @@ interface AgentInputProps {
     onEffortLevelChange?: (level: EffortLevel) => void;
     metadata?: Metadata | null;
     onAbort?: () => void | Promise<void>;
-    showAbortButton?: boolean;
+    isAgentWorking?: boolean;
     connectionStatus?: {
         text: string;
         color: string;
@@ -259,10 +259,12 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 0,
-        marginLeft: 8,
     },
     sendButtonActive: {
         backgroundColor: theme.colors.button.primary.background,
+    },
+    sendButtonStop: {
+        backgroundColor: theme.colors.warningCritical,
     },
     sendButtonInactive: {
         backgroundColor: theme.colors.button.primary.disabled,
@@ -283,6 +285,24 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
     sendButtonIcon: {
         color: theme.colors.button.primary.tint,
+    },
+    voiceButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexShrink: 0,
+        borderWidth: 0,
+        borderColor: 'transparent',
+        marginRight: 6,
+    },
+    voiceButtonActive: {
+        borderWidth: 2,
+        borderColor: theme.colors.button.primary.background,
+    },
+    voiceButtonIcon: {
+        color: theme.colors.button.secondary.tint,
     },
 }));
 
@@ -308,9 +328,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     const isSendBlocked = props.blockSend ?? false;
 
     const hasText = props.value.trim().length > 0;
+    const isAgentWorking = props.isAgentWorking ?? false;
     const canPressSendButton = !props.isSending
         && !props.isSendDisabled
-        && (isSendBlocked ? hasText : (hasText || !!props.onMicPress));
+        && (isSendBlocked ? hasText : (isAgentWorking ? Boolean(props.onAbort) : hasText));
 
     // Check if this is a Codex, Gemini, or OpenClaw session
     // Use metadata.flavor for existing sessions, agentType prop for new sessions
@@ -360,7 +381,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
     // Abort button state
     const [isAborting, setIsAborting] = React.useState(false);
-    const shakerRef = React.useRef<ShakeInstance>(null);
     const sendBlockShakerRef = React.useRef<ShakeInstance>(null);
     const inputRef = React.useRef<MultiTextInputHandle>(null);
 
@@ -457,8 +477,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 await new Promise(resolve => setTimeout(resolve, 300 - elapsed));
             }
         } catch (error) {
-            // Shake on error
-            shakerRef.current?.shake();
             console.error('Abort RPC call failed:', error);
         } finally {
             setIsAborting(false);
@@ -476,15 +494,17 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             handleBlockedSendAttempt();
             return;
         }
-        if (props.isSendDisabled || props.isSending) return;
+        if (props.isSendDisabled || props.isSending || isAborting) return;
 
         hapticsLight();
-        if (hasText) {
+        if (isAgentWorking) {
+            handleAbortPress();
+        } else if (hasText) {
             props.onSend();
         } else {
             props.onMicPress?.();
         }
-    }, [handleBlockedSendAttempt, hasText, isSendBlocked, props]);
+    }, [handleBlockedSendAttempt, hasText, isSendBlocked, isAgentWorking, handleAbortPress, isAborting, props]);
 
     // Handle keyboard navigation
     const handleKeyPress = React.useCallback((event: KeyPressEvent): boolean => {
@@ -516,7 +536,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         }
 
         // Handle Escape for abort when no suggestions are visible
-        if (event.key === 'Escape' && props.showAbortButton && props.onAbort && !isAborting) {
+        if (event.key === 'Escape' && isAgentWorking && props.onAbort && !isAborting) {
             handleAbortPress();
             return true;
         }
@@ -529,6 +549,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             // to avoid false positives on Windows touch-screen laptops with keyboards.
             const isTouchDevice = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
             if (agentInputEnterToSend && event.key === 'Enter' && !event.shiftKey && !isTouchDevice) {
+                if (isAgentWorking && props.onAbort && !props.isSendDisabled && !isAborting) {
+                    handleAbortPress();
+                    return true;
+                }
                 if (props.value.trim()) {
                     if (isSendBlocked) {
                         handleBlockedSendAttempt();
@@ -549,7 +573,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
         }
         return false; // Key was not handled
-    }, [suggestions, moveUp, moveDown, selected, handleSuggestionSelect, props.showAbortButton, props.onAbort, isAborting, handleAbortPress, agentInputEnterToSend, props.value, props.onSend, props.onPermissionModeChange, availableModes, permissionModeKey, isSendBlocked, handleBlockedSendAttempt, props.isSendDisabled]);
+    }, [suggestions, moveUp, moveDown, selected, handleSuggestionSelect, isAgentWorking, props.onAbort, isAborting, handleAbortPress, agentInputEnterToSend, props.value, props.onSend, props.onPermissionModeChange, availableModes, permissionModeKey, isSendBlocked, handleBlockedSendAttempt, props.isSendDisabled]);
 
 
 
@@ -1070,7 +1094,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                     {/* Action buttons below input */}
                     <View style={styles.actionButtonsContainer}>
                         <View style={{ flexDirection: 'column', flex: 1, gap: 2 }}>
-                            {/* Row 1: Settings, Profile (FIRST), Agent, Abort, Git Status */}
+                            {/* Row 1: Settings, Profile (FIRST), Agent, Git Status */}
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <View style={styles.actionButtonsLeft}>
 
@@ -1134,108 +1158,105 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     </Pressable>
                                 )}
 
-                                {/* Abort button */}
-                                {props.onAbort && (
-                                    <Shaker ref={shakerRef}>
-                                        <Pressable
-                                            style={(p) => ({
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                                borderRadius: Platform.select({ default: 16, android: 20 }),
-                                                paddingHorizontal: 8,
-                                                paddingVertical: 6,
-                                                justifyContent: 'center',
-                                                height: 32,
-                                                opacity: p.pressed ? 0.7 : 1,
-                                            })}
-                                            hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                            onPress={handleAbortPress}
-                                            disabled={isAborting}
-                                        >
-                                            {isAborting ? (
-                                                <ActivityIndicator
-                                                    size="small"
-                                                    color={theme.colors.button.secondary.tint}
-                                                />
-                                            ) : (
-                                                <Octicons
-                                                    name={"stop"}
-                                                    size={16}
-                                                    color={theme.colors.button.secondary.tint}
-                                                />
-                                            )}
-                                        </Pressable>
-                                    </Shaker>
-                                )}
-
                                 {/* Git Status Badge */}
                                 <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
                                 </View>
 
-                                {/* Send/Voice button - aligned with first row */}
-                                <View
-                                    style={[
-                                        styles.sendButton,
-                                        isSendBlocked ? styles.sendButtonLocked :
-                                        (hasText || props.isSending || (props.onMicPress && !props.isMicActive))
-                                            ? styles.sendButtonActive
-                                            : styles.sendButtonInactive
-                                    ]}
-                                >
-                                    <Pressable
-                                        style={(p) => ({
-                                            width: '100%',
-                                            height: '100%',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            opacity: p.pressed ? 0.7 : 1,
-                                        })}
-                                        hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                        onPress={handleSendPress}
-                                        disabled={!canPressSendButton}
-                                    >
-                                        {props.isSending ? (
-                                            <ActivityIndicator
-                                                size="small"
-                                                color={theme.colors.button.primary.tint}
-                                            />
-                                        ) : isSendBlocked ? (
-                                            <Ionicons
-                                                name="lock-closed"
-                                                size={15}
-                                                color={theme.colors.textSecondary}
-                                            />
-                                        ) : hasText ? (
-                                            <Octicons
-                                                name="arrow-up"
-                                                size={16}
-                                                color={theme.colors.button.primary.tint}
-                                                style={[
-                                                    styles.sendButtonIcon,
-                                                    { marginTop: Platform.OS === 'web' ? 2 : 0 }
-                                                ]}
-                                            />
-                                        ) : props.onMicPress && !props.isMicActive ? (
-                                            <Image
-                                                source={require('@/assets/images/icon-voice-white.png')}
-                                                style={{
-                                                    width: 24,
-                                                    height: 24,
+                                {/* 右侧按钮组：语音 + 发送 */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+                                    {/* 语音按钮 - 始终显示 */}
+                                    {props.onMicPress && (
+                                        <View
+                                            style={[
+                                                styles.voiceButton,
+                                                props.isMicActive ? styles.voiceButtonActive : undefined
+                                            ]}
+                                        >
+                                            <Pressable
+                                                style={(p) => ({
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    opacity: p.pressed ? 0.7 : 1,
+                                                })}
+                                                hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                                onPress={() => {
+                                                    hapticsLight();
+                                                    props.onMicPress?.();
                                                 }}
-                                                tintColor={theme.colors.button.primary.tint}
-                                            />
-                                        ) : (
-                                            <Octicons
-                                                name="arrow-up"
-                                                size={16}
-                                                color={theme.colors.button.primary.tint}
-                                                style={[
-                                                    styles.sendButtonIcon,
-                                                    { marginTop: Platform.OS === 'web' ? 2 : 0 }
-                                                ]}
-                                            />
-                                        )}
-                                    </Pressable>
+                                            >
+                                                <Image
+                                                    source={require('@/assets/images/icon-voice-white.png')}
+                                                    style={{
+                                                        width: 24,
+                                                        height: 24,
+                                                    }}
+                                                    tintColor={props.isMicActive ?
+                                                        theme.colors.button.primary.tint :
+                                                        theme.colors.button.secondary.tint}
+                                                />
+                                            </Pressable>
+                                        </View>
+                                    )}
+
+                                    {/* 发送/停止按钮 - 合并为一个按钮 */}
+                                    <View
+                                        style={[
+                                            styles.sendButton,
+                                            isAgentWorking ? styles.sendButtonStop :
+                                            isSendBlocked ? styles.sendButtonLocked :
+                                            hasText || props.isSending ? styles.sendButtonActive : styles.sendButtonInactive
+                                        ]}
+                                    >
+                                        <Pressable
+                                            style={(p) => ({
+                                                width: '100%',
+                                                height: '100%',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                opacity: p.pressed ? 0.7 : 1,
+                                            })}
+                                            hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                            onPress={handleSendPress}
+                                            disabled={!canPressSendButton || isAborting}
+                                        >
+                                            {props.isSending || isAborting ? (
+                                                <ActivityIndicator
+                                                    size="small"
+                                                    color={theme.colors.button.primary.tint}
+                                                />
+                                            ) : isAgentWorking ? (
+                                                <Ionicons
+                                                    name="stop-circle"
+                                                    size={16}
+                                                    color={theme.colors.button.primary.tint}
+                                                    style={[
+                                                        styles.sendButtonIcon,
+                                                        { marginTop: Platform.OS === 'web' ? 2 : 0 }
+                                                    ]}
+                                                />
+                                            ) : isSendBlocked ? (
+                                                <Ionicons
+                                                    name="lock-closed"
+                                                    size={15}
+                                                    color={theme.colors.textSecondary}
+                                                />
+                                            ) : (
+                                                <Octicons
+                                                    name="arrow-up"
+                                                    size={16}
+                                                    color={theme.colors.button.primary.tint}
+                                                    style={[
+                                                        styles.sendButtonIcon,
+                                                        { marginTop: Platform.OS === 'web' ? 2 : 0 }
+                                                    ]}
+                                                />
+                                            )}
+                                        </Pressable>
+                                    </View>
+
                                 </View>
                             </View>
                         </View>

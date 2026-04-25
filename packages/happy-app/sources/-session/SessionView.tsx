@@ -408,7 +408,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
             onMicPress={isDisconnected ? undefined : micButtonState.onMicPress}
             isMicActive={isDisconnected ? false : micButtonState.isMicActive}
             onAbort={isDisconnected ? undefined : () => sessionAbort(sessionId)}
-            showAbortButton={sessionStatus.state === 'thinking' || sessionStatus.state === 'waiting'}
+            isAgentWorking={sessionStatus.state === 'thinking' || sessionStatus.state === 'permission_required'}
             onFileViewerPress={experiments ? () => router.push(`/session/${sessionId}/files`) : undefined}
             autocompletePrefixes={['@', '/']}
             autocompleteSuggestions={(query) => getSuggestions(sessionId, query)}
