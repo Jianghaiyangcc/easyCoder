@@ -298,7 +298,7 @@ export const zhHant: TranslationStructure = {
         enterServerUrl: '請輸入伺服器 URL',
         notValidHappyServer: '不是有效的碼不停蹄伺服器',
         changeServer: '更改伺服器',
-        continueWithServer: '繼續使用此伺服器？',
+        continueWithServer: '此伺服器運作正常，確定切換到新伺服器？',
         resetToDefault: '重設為預設',
         resetServerDefault: '重設伺服器為預設值？',
         validating: '驗證中...',

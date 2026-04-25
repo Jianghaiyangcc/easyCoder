@@ -296,7 +296,7 @@ export const en = {
         enterServerUrl: 'Please enter a server URL',
         notValidHappyServer: 'Not a valid Code Never Stops Server',
         changeServer: 'Change Server',
-        continueWithServer: 'Continue with this server?',
+        continueWithServer: 'This server is working properly. Switch to the new server?',
         resetToDefault: 'Reset to Default',
         resetServerDefault: 'Reset server to default?',
         validating: 'Validating...',

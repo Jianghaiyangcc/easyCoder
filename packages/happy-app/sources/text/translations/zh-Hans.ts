@@ -299,7 +299,7 @@ export const zhHans: TranslationStructure = {
         enterServerUrl: '请输入服务器 URL',
         notValidHappyServer: '不是有效的码不停蹄服务器',
         changeServer: '更改服务器',
-        continueWithServer: '继续使用此服务器？',
+        continueWithServer: '此服务器工作正常，确定切换到新服务器？',
         resetToDefault: '重置为默认',
         resetServerDefault: '重置服务器为默认值？',
         validating: '验证中...',

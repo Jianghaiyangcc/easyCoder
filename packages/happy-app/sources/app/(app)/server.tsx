@@ -80,9 +80,12 @@ export default function ServerConfigScreen() {
     const styles = stylesheet;
     const router = useRouter();
     const serverInfo = getServerInfo();
-    const [inputUrl, setInputUrl] = useState(serverInfo.isCustom ? getServerUrl() : '');
+    const initialServerUrl = serverInfo.isCustom ? getServerUrl() : '';
+    const [inputUrl, setInputUrl] = useState(initialServerUrl);
+    const [savedUrl, setSavedUrl] = useState(initialServerUrl);
     const [error, setError] = useState<string | null>(null);
     const [isValidating, setIsValidating] = useState(false);
+    const hasChanges = inputUrl.trim() !== savedUrl.trim();
 
     const validateServer = async (url: string): Promise<boolean> => {
         try {
@@ -117,19 +120,21 @@ export default function ServerConfigScreen() {
     };
 
     const handleSave = async () => {
-        if (!inputUrl.trim()) {
+        const normalizedInputUrl = inputUrl.trim();
+
+        if (!normalizedInputUrl) {
             Modal.alert(t('common.error'), t('server.enterServerUrl'));
             return;
         }
 
-        const validation = validateServerUrl(inputUrl);
+        const validation = validateServerUrl(normalizedInputUrl);
         if (!validation.valid) {
             setError(validation.error || t('errors.invalidFormat'));
             return;
         }
 
         // Validate the server
-        const isValid = await validateServer(inputUrl);
+        const isValid = await validateServer(normalizedInputUrl);
         if (!isValid) {
             return;
         }
@@ -137,11 +142,17 @@ export default function ServerConfigScreen() {
         const confirmed = await Modal.confirm(
             t('server.changeServer'),
             t('server.continueWithServer'),
-            { confirmText: t('common.continue'), destructive: true }
+            {
+                cancelText: t('common.cancel'),
+                confirmText: t('common.ok'),
+                destructive: true,
+            }
         );
 
         if (confirmed) {
-            setServerUrl(inputUrl);
+            setServerUrl(normalizedInputUrl);
+            setInputUrl(normalizedInputUrl);
+            setSavedUrl(normalizedInputUrl);
         }
     };
 
@@ -155,6 +166,7 @@ export default function ServerConfigScreen() {
         if (confirmed) {
             setServerUrl(null);
             setInputUrl('');
+            setSavedUrl('');
         }
     };
 
@@ -217,7 +229,7 @@ export default function ServerConfigScreen() {
                                         title={isValidating ? t('server.validating') : t('common.save')}
                                         size="normal"
                                         action={handleSave}
-                                        disabled={isValidating}
+                                        disabled={isValidating || !hasChanges}
                                     />
                                 </View>
                             </View>
