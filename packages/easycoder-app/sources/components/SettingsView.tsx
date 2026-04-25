@@ -35,7 +35,7 @@ export const SettingsView = React.memo(function SettingsView() {
     const appVersion = Constants.expoConfig?.version || '1.0.0';
     const auth = useAuth();
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
-    const isPro = __DEV__ || useEntitlement('pro');
+    const hasPro = useEntitlement('pro');
     const experiments = useSetting('experiments');
     const isCustomServer = isUsingCustomServer();
     const [showOfflineMachines, setShowOfflineMachines] = React.useState(false);
@@ -77,13 +77,20 @@ export const SettingsView = React.memo(function SettingsView() {
         }
     };
 
-    const handleSubscribe = async () => {
+    const handleSupportUs = async () => {
+        if (hasPro) {
+            Modal.alert(t('settings.supportUs'), t('settings.supportUsSubtitlePro'));
+            return;
+        }
+
         trackPaywallButtonClicked('voluntary_support');
         const result = await sync.presentPaywall('voluntary_support');
         if (!result.success) {
             console.error('Failed to present paywall:', result.error);
-        } else if (result.purchased) {
-            console.log('Purchase successful!');
+            Modal.alert(
+                t('common.error'),
+                `${t('errors.operationFailed')}${result.error ? `: ${result.error}` : ''}`
+            );
         }
     };
 
@@ -216,10 +223,10 @@ export const SettingsView = React.memo(function SettingsView() {
             <ItemGroup>
                 <Item
                     title={t('settings.supportUs')}
-                    subtitle={isPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
+                    subtitle={hasPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
                     icon={<Ionicons name="heart" size={29} color="#FF3B30" />}
                     showChevron={false}
-                    onPress={isPro ? undefined : handleSubscribe}
+                    onPress={handleSupportUs}
                 />
             </ItemGroup>
 

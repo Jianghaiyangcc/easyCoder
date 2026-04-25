@@ -54,7 +54,13 @@ export default React.memo(function VoiceSettingsScreen() {
 
     const handleSupportUs = React.useCallback(async () => {
         trackPaywallButtonClicked('voluntary_support');
-        await sync.presentPaywall('voluntary_support');
+        const result = await sync.presentPaywall('voluntary_support');
+        if (!result.success) {
+            Modal.alert(
+                t('common.error'),
+                `${t('errors.operationFailed')}${result.error ? `: ${result.error}` : ''}`
+            );
+        }
     }, []);
 
     const handleCustomAgentId = React.useCallback(async () => {
