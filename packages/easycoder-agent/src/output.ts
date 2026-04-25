@@ -21,6 +21,7 @@ type MachineMetadata = {
     host?: string;
     platform?: string;
     homeDir?: string;
+    easycoderCliVersion?: string;
     happyCliVersion?: string;
     [key: string]: unknown;
 };

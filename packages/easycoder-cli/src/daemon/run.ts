@@ -35,7 +35,7 @@ const hostSuffix = process.env.EASYCODER_VARIANT === 'dev' ? '-dev' : '';
 export const initialMachineMetadata: MachineMetadata = {
   host: os.hostname() + hostSuffix,
   platform: os.platform(),
-  happyCliVersion: packageJson.version,
+  easycoderCliVersion: packageJson.version,
   homeDir: os.homedir(),
   easycoderHomeDir: configuration.easycoderHomeDir,
   easycoderLibDir: projectPath(),

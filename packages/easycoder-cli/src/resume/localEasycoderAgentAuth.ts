@@ -24,8 +24,8 @@ export type LocalEasycoderAgentCredentials = {
 export type ResumeSupport = {
     rpcAvailable: boolean;
     requiresSameMachine: true;
-    requiresHappyAgentAuth: true;
-    happyAgentAuthenticated: boolean;
+    requiresEasycoderAgentAuth: true;
+    easycoderAgentAuthenticated: boolean;
     detectedAt: number;
 };
 
@@ -65,14 +65,14 @@ function deriveContentKeyPair(secret: Uint8Array): { publicKey: Uint8Array; secr
     };
 }
 
-export function getLocalHappyAgentCredentialPath(easycoderHomeDir: string = configuration.easycoderHomeDir): string {
+export function getLocalEasycoderAgentCredentialPath(easycoderHomeDir: string = configuration.easycoderHomeDir): string {
     return join(easycoderHomeDir, 'agent.key');
 }
 
 export function readLocalEasycoderAgentCredentials(
     easycoderHomeDir: string = configuration.easycoderHomeDir,
 ): LocalEasycoderAgentCredentials | null {
-    const credentialPath = getLocalHappyAgentCredentialPath(easycoderHomeDir);
+    const credentialPath = getLocalEasycoderAgentCredentialPath(easycoderHomeDir);
     if (!existsSync(credentialPath)) {
         return null;
     }
@@ -90,17 +90,17 @@ export function readLocalEasycoderAgentCredentials(
     }
 }
 
-export function hasLocalHappyAgentAuth(easycoderHomeDir: string = configuration.easycoderHomeDir): boolean {
+export function hasLocalEasycoderAgentAuth(easycoderHomeDir: string = configuration.easycoderHomeDir): boolean {
     return readLocalEasycoderAgentCredentials(easycoderHomeDir) !== null;
 }
 
 export function detectResumeSupport(easycoderHomeDir: string = configuration.easycoderHomeDir): ResumeSupport {
-    const happyAgentAuthenticated = hasLocalHappyAgentAuth(easycoderHomeDir);
+    const easycoderAgentAuthenticated = hasLocalEasycoderAgentAuth(easycoderHomeDir);
     return {
-        rpcAvailable: happyAgentAuthenticated,
+        rpcAvailable: easycoderAgentAuthenticated,
         requiresSameMachine: true,
-        requiresHappyAgentAuth: true,
-        happyAgentAuthenticated,
+        requiresEasycoderAgentAuth: true,
+        easycoderAgentAuthenticated,
         detectedAt: Date.now(),
     };
 }

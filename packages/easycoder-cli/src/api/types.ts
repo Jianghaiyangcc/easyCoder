@@ -143,13 +143,32 @@ export type AgentCapability = z.infer<typeof AgentCapabilitySchema>
 /**
  * Machine metadata - static information (rarely changes)
  */
+const ResumeSupportSchema = z.object({
+  rpcAvailable: z.boolean(),
+  requiresSameMachine: z.boolean(),
+  requiresEasycoderAgentAuth: z.boolean().optional(),
+  requiresHappyAgentAuth: z.boolean().optional(),
+  easycoderAgentAuthenticated: z.boolean().optional(),
+  happyAgentAuthenticated: z.boolean().optional(),
+  detectedAt: z.number(),
+}).transform((value) => ({
+  rpcAvailable: value.rpcAvailable,
+  requiresSameMachine: value.requiresSameMachine,
+  requiresEasycoderAgentAuth: value.requiresEasycoderAgentAuth ?? value.requiresHappyAgentAuth ?? false,
+  easycoderAgentAuthenticated: value.easycoderAgentAuthenticated ?? value.happyAgentAuthenticated ?? false,
+  detectedAt: value.detectedAt,
+}))
+
 export const MachineMetadataSchema = z.object({
   host: z.string(),
   platform: z.string(),
-  happyCliVersion: z.string(),
+  easycoderCliVersion: z.string().optional(),
+  happyCliVersion: z.string().optional(),
   homeDir: z.string(),
-  easycoderHomeDir: z.string(),
-  easycoderLibDir: z.string(),
+  easycoderHomeDir: z.string().optional(),
+  happyHomeDir: z.string().optional(),
+  easycoderLibDir: z.string().optional(),
+  happyLibDir: z.string().optional(),
   agentCapabilities: z.object({
     claude: AgentCapabilitySchema.optional(),
     codex: AgentCapabilitySchema.optional(),
@@ -165,14 +184,37 @@ export const MachineMetadataSchema = z.object({
     opencode: z.boolean(),
     detectedAt: z.number(),
   }).optional(),
-  resumeSupport: z.object({
-    rpcAvailable: z.boolean(),
-    requiresSameMachine: z.boolean(),
-    requiresHappyAgentAuth: z.boolean(),
-    happyAgentAuthenticated: z.boolean(),
-    detectedAt: z.number(),
-  }).optional(),
+  resumeSupport: ResumeSupportSchema.optional(),
 })
+  .superRefine((value, context) => {
+    if (!value.easycoderCliVersion && !value.happyCliVersion) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Either easycoderCliVersion or happyCliVersion is required',
+        path: ['easycoderCliVersion'],
+      })
+    }
+    if (!value.easycoderHomeDir && !value.happyHomeDir) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Either easycoderHomeDir or happyHomeDir is required',
+        path: ['easycoderHomeDir'],
+      })
+    }
+    if (!value.easycoderLibDir && !value.happyLibDir) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Either easycoderLibDir or happyLibDir is required',
+        path: ['easycoderLibDir'],
+      })
+    }
+  })
+  .transform((value) => ({
+    ...value,
+    easycoderCliVersion: value.easycoderCliVersion ?? value.happyCliVersion!,
+    easycoderHomeDir: value.easycoderHomeDir ?? value.happyHomeDir!,
+    easycoderLibDir: value.easycoderLibDir ?? value.happyLibDir!,
+  }))
 
 export type MachineMetadata = z.infer<typeof MachineMetadataSchema>
 export type AgentCapabilities = NonNullable<MachineMetadata['agentCapabilities']>

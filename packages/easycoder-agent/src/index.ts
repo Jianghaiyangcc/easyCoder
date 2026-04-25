@@ -97,6 +97,7 @@ function ensureMachineCanResume(machine: DecryptedMachine): void {
     const metadata = (machine.metadata ?? {}) as {
         resumeSupport?: {
             rpcAvailable?: unknown;
+            easycoderAgentAuthenticated?: unknown;
             happyAgentAuthenticated?: unknown;
         };
     };
@@ -105,7 +106,10 @@ function ensureMachineCanResume(machine: DecryptedMachine): void {
         return;
     }
 
-    if (metadata.resumeSupport?.happyAgentAuthenticated === false) {
+    if (
+        metadata.resumeSupport?.easycoderAgentAuthenticated === false
+        || metadata.resumeSupport?.happyAgentAuthenticated === false
+    ) {
         throw new Error('Resume is unavailable on this machine. Run `easycoder-agent auth login` in that machine environment first.');
     }
 

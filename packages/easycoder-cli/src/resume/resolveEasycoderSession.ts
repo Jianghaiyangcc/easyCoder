@@ -6,7 +6,7 @@ import { decodeBase64, decryptLegacy, decryptWithDataKey } from '@/api/encryptio
 import type { Metadata } from '@/api/types';
 import { configuration } from '@/configuration';
 import {
-    getLocalHappyAgentCredentialPath,
+    getLocalEasycoderAgentCredentialPath,
     readLocalEasycoderAgentCredentials,
     type LocalEasycoderAgentCredentials,
 } from './localEasycoderAgentAuth';
@@ -66,7 +66,7 @@ function decryptBoxBundle(bundle: Uint8Array, recipientSecretKey: Uint8Array): U
 }
 
 function readAgentCredentials() {
-    const credentialPath = getLocalHappyAgentCredentialPath();
+    const credentialPath = getLocalEasycoderAgentCredentialPath();
     const credentials = readLocalEasycoderAgentCredentials();
     if (!credentials) {
         throw new Error(

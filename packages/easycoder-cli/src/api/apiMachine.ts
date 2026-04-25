@@ -23,8 +23,8 @@ import { shouldReconnect } from '@/utils/lidState';
 type ResumeSupportSnapshot = {
     rpcAvailable: boolean;
     requiresSameMachine: boolean;
-    requiresHappyAgentAuth: boolean;
-    happyAgentAuthenticated: boolean;
+    requiresEasycoderAgentAuth: boolean;
+    easycoderAgentAuthenticated: boolean;
     detectedAt: number;
 };
 
@@ -45,8 +45,8 @@ function resumeSupportEqual(a: ResumeSupportSnapshot | null, b: ResumeSupportSna
     }
     return a.rpcAvailable === b.rpcAvailable
         && a.requiresSameMachine === b.requiresSameMachine
-        && a.requiresHappyAgentAuth === b.requiresHappyAgentAuth
-        && a.happyAgentAuthenticated === b.happyAgentAuthenticated;
+        && a.requiresEasycoderAgentAuth === b.requiresEasycoderAgentAuth
+        && a.easycoderAgentAuthenticated === b.easycoderAgentAuthenticated;
 }
 
 interface ServerToDaemonEvents {

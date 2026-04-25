@@ -83,7 +83,7 @@ vi.mock('@/api/api', () => ({
 }));
 
 vi.mock('@/daemon/run', () => ({
-  initialMachineMetadata: { host: 'host', platform: 'darwin', happyCliVersion: 'test', homeDir: '/tmp', easycoderHomeDir: '/tmp/.easycoder', easycoderLibDir: '/tmp/happy' },
+  initialMachineMetadata: { host: 'host', platform: 'darwin', easycoderCliVersion: 'test', homeDir: '/tmp', easycoderHomeDir: '/tmp/.easycoder', easycoderLibDir: '/tmp/happy' },
 }));
 
 vi.mock('@/utils/setupOfflineReconnection', () => ({

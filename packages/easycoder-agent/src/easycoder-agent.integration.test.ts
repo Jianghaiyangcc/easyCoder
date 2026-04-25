@@ -431,13 +431,14 @@ describe('easycoder-agent integration', { timeout: 180_000 }, () => {
         const machines = JSON.parse(runAgentCli(['machines', '--json'], agentEnv)) as Array<{
             id: string;
             active: boolean;
-            metadata?: {
-                homeDir?: string;
-                resumeSupport?: {
-                    rpcAvailable?: boolean;
-                    happyAgentAuthenticated?: boolean;
+                metadata?: {
+                    homeDir?: string;
+                    resumeSupport?: {
+                        rpcAvailable?: boolean;
+                        easycoderAgentAuthenticated?: boolean;
+                        happyAgentAuthenticated?: boolean;
+                    };
                 };
-            };
         }>;
         expect(machines.length).toBeGreaterThan(0);
 
@@ -451,13 +452,17 @@ describe('easycoder-agent integration', { timeout: 180_000 }, () => {
                 metadata?: {
                     resumeSupport?: {
                         rpcAvailable?: boolean;
+                        easycoderAgentAuthenticated?: boolean;
                         happyAgentAuthenticated?: boolean;
                     };
                 };
             }>;
             const refreshedMachine = refreshedMachines.find(item => item.id === machine.id);
             return refreshedMachine?.metadata?.resumeSupport?.rpcAvailable === true
-                && refreshedMachine.metadata.resumeSupport.happyAgentAuthenticated === true;
+                && (
+                    refreshedMachine.metadata.resumeSupport.easycoderAgentAuthenticated === true
+                    || refreshedMachine.metadata.resumeSupport.happyAgentAuthenticated === true
+                );
         }, 20_000, `machine ${machine.id} to advertise resume RPC support`);
 
         const spawnResult = JSON.parse(

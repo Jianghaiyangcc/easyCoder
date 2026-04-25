@@ -56,7 +56,7 @@ const testMetadata = {
 const testMachineMetadata = {
     host: 'localhost',
     platform: 'darwin',
-    happyCliVersion: '1.0.0',
+    easycoderCliVersion: '1.0.0',
     homeDir: '/home/user',
     easycoderHomeDir: '/home/user/.easycoder',
     easycoderLibDir: '/home/user/.easycoder/lib'
