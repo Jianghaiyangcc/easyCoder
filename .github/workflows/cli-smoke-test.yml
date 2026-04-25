@@ -4,12 +4,12 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'packages/happy-cli/**'
+      - 'packages/easycoder-cli/**'
       - '.github/workflows/cli-smoke-test.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'packages/happy-cli/**'
+      - 'packages/easycoder-cli/**'
       - '.github/workflows/cli-smoke-test.yml'
   workflow_dispatch:
 
@@ -37,14 +37,14 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Build package
-      run: pnpm --filter easycoder build
+      run: pnpm --filter easycoder-cli build
 
     - name: Pack package
-      run: pnpm --filter easycoder pack --pack-destination packages/happy-cli
+      run: pnpm --filter easycoder pack --pack-destination packages/easycoder-cli
 
     - name: Install packed package globally
       run: |
-        PACKAGE_FILE=$(ls packages/happy-cli/*.tgz)
+        PACKAGE_FILE=$(ls packages/easycoder-cli/*.tgz)
         npm install -g "./$PACKAGE_FILE"
 
     - name: Test binary execution
@@ -99,10 +99,10 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Build package
-      run: pnpm --filter easycoder build
+      run: pnpm --filter easycoder-cli build
 
     - name: Pack package
-      run: pnpm --filter easycoder pack --pack-destination packages/happy-cli
+      run: pnpm --filter easycoder pack --pack-destination packages/easycoder-cli
 
     - name: Install packed package globally
       shell: cmd

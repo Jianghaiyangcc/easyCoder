@@ -13,29 +13,29 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY scripts ./scripts
 COPY patches ./patches
 
-RUN mkdir -p packages/happy-app packages/happy-server packages/happy-cli packages/happy-agent packages/happy-wire
+RUN mkdir -p packages/easycoder-app packages/easycoder-server packages/easycoder-cli packages/easycoder-agent packages/easycoder-wire
 
-COPY packages/happy-app/package.json packages/happy-app/
-COPY packages/happy-server/package.json packages/happy-server/
-COPY packages/happy-cli/package.json packages/happy-cli/
-COPY packages/happy-agent/package.json packages/happy-agent/
-COPY packages/happy-wire/package.json packages/happy-wire/
+COPY packages/easycoder-app/package.json packages/easycoder-app/
+COPY packages/easycoder-server/package.json packages/easycoder-server/
+COPY packages/easycoder-cli/package.json packages/easycoder-cli/
+COPY packages/easycoder-agent/package.json packages/easycoder-agent/
+COPY packages/easycoder-wire/package.json packages/easycoder-wire/
 
 # Workspace postinstall requirements
-COPY packages/happy-app/patches packages/happy-app/patches
-COPY packages/happy-server/prisma packages/happy-server/prisma
-COPY packages/happy-cli/scripts packages/happy-cli/scripts
-COPY packages/happy-cli/tools packages/happy-cli/tools
+COPY packages/easycoder-app/patches packages/easycoder-app/patches
+COPY packages/easycoder-server/prisma packages/easycoder-server/prisma
+COPY packages/easycoder-cli/scripts packages/easycoder-cli/scripts
+COPY packages/easycoder-cli/tools packages/easycoder-cli/tools
 
 RUN SKIP_EASYCODER_WIRE_BUILD=1 pnpm install --frozen-lockfile
 
 # Stage 2: copy source and type-check
 FROM deps AS builder
 
-COPY packages/happy-wire ./packages/happy-wire
-COPY packages/happy-server ./packages/happy-server
+COPY packages/easycoder-wire ./packages/easycoder-wire
+COPY packages/easycoder-server ./packages/easycoder-server
 
-RUN pnpm --filter @slopus/happy-wire build
+RUN pnpm --filter @easycoder/wire build
 RUN pnpm --filter happy-server build
 
 # Stage 3: runtime
@@ -50,12 +50,12 @@ ENV DATA_DIR=/data
 ENV PGLITE_DIR=/data/pglite
 
 COPY --from=builder /repo/node_modules /repo/node_modules
-COPY --from=builder /repo/packages/happy-wire /repo/packages/happy-wire
-COPY --from=builder /repo/packages/happy-server /repo/packages/happy-server
+COPY --from=builder /repo/packages/easycoder-wire /repo/packages/easycoder-wire
+COPY --from=builder /repo/packages/easycoder-server /repo/packages/easycoder-server
 
 VOLUME /data
 EXPOSE 3005
 
-WORKDIR /repo/packages/happy-server
+WORKDIR /repo/packages/easycoder-server
 
 CMD ["sh", "-c", "../../node_modules/.bin/tsx sources/standalone.ts migrate && exec ../../node_modules/.bin/tsx sources/standalone.ts serve"]

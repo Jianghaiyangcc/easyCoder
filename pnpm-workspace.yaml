@@ -1,7 +1,7 @@
 packages:
-  - "packages/happy-app"
-  - "packages/happy-agent"
-  - "packages/happy-cli"
-  - "packages/happy-server"
-  - "packages/happy-wire"
-  - "packages/happy-app-logs"
+  - "packages/easycoder-app"
+  - "packages/easycoder-agent"
+  - "packages/easycoder-cli"
+  - "packages/easycoder-server"
+  - "packages/easycoder-wire"
+  - "packages/easycoder-app-logs"

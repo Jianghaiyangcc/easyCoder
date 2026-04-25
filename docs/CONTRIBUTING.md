@@ -62,11 +62,11 @@ pnpm install
 ### EasyCoder App (Mobile + Web)
 
 ```bash
-pnpm --filter happy-app start          # Expo dev server
-pnpm --filter happy-app ios:dev        # iOS simulator
-pnpm --filter happy-app android:dev    # Android emulator
+pnpm --filter easycoder-app start          # Expo dev server
+pnpm --filter easycoder-app ios:dev        # iOS simulator
+pnpm --filter easycoder-app android:dev    # Android emulator
 pnpm web                                # Browser (shortcut)
-pnpm --filter happy-app typecheck      # Run after all changes
+pnpm --filter easycoder-app typecheck      # Run after all changes
 ```
 
 The app has three build variants — all can be installed simultaneously on the same device:
@@ -82,8 +82,8 @@ Swap `ios:dev` for `ios:preview` or `ios:production` (same for `android:`).
 #### macOS Desktop (Tauri)
 
 ```bash
-pnpm --filter happy-app tauri:dev      # Run with hot reload
-pnpm --filter happy-app tauri:build:dev
+pnpm --filter easycoder-app tauri:dev      # Run with hot reload
+pnpm --filter easycoder-app tauri:build:dev
 ```
 
 ### EasyCoder CLI
@@ -99,7 +99,7 @@ pnpm --filter happy dev                # Run without building (uses tsx)
 To test your local build without overwriting the global `easycoder`:
 
 ```bash
-cd packages/happy-cli
+cd packages/easycoder-cli
 pnpm link:dev       # Creates global easycoder-dev symlink
 pnpm unlink:dev     # Removes it
 ```
@@ -120,23 +120,23 @@ First time? Run `npm run setup:dev` to create the dev data directory.
 ### EasyCoder Server
 
 ```bash
-pnpm --filter happy-server standalone:dev   # Local server (no Docker needed)
+pnpm --filter easycoder-server standalone:dev   # Local server (no Docker needed)
 ```
 
 Runs on `localhost:3005` with embedded PGlite. To point the app at your local server:
 
 ```bash
-EXPO_PUBLIC_EASYCODER_SERVER_URL=http://localhost:3005 pnpm --filter happy-app start
+EXPO_PUBLIC_EASYCODER_SERVER_URL=http://localhost:3005 pnpm --filter easycoder-app start
 ```
 
 ## Project Structure
 
 This is a monorepo with four packages:
 
-- **happy-app** — React Native + Expo mobile/web client
-- **happy-cli** — Node.js CLI that wraps Claude Code and Codex
+- **easycoder-app** — React Native + Expo mobile/web client
+- **easycoder-cli** — Node.js CLI that wraps Claude Code and Codex
 - **easycoder-agent** — Remote agent control
-- **happy-server** — Backend for encrypted sync
+- **easycoder-server** — Backend for encrypted sync
 
 For architecture details, check the [docs/](.) folder or ask EasyCoder itself — it knows how the project is set up.
 

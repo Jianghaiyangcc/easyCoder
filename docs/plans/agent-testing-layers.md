@@ -8,7 +8,7 @@ Layer 1 is direct integration with the real agent.
 
 Source of truth:
 
-- `packages/happy-cli/agents.md`
+- `packages/easycoder-cli/agents.md`
 
 ## Layer 2
 
@@ -24,5 +24,5 @@ Source of truth:
 
 Source of truth:
 
-- `./happy-agent.md`
-- `packages/happy-agent/src/happy-agent.integration.test.ts`
+- `./easycoder-agent.md`
+- `packages/easycoder-agent/src/easycoder-agent.integration.test.ts`

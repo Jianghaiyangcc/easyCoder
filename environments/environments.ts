@@ -18,7 +18,7 @@ const CURRENT_ENV_PATH = path.join(ENVIRONMENTS_DATA_DIR, "current.json");
 const LAB_RAT_PROJECT_TEMPLATE_DIR = path.join(ENVIRONMENTS_ROOT, "lab-rat-todo-project");
 
 // ============================================================================
-// Name generation (expanded from packages/happy-app/sources/utils/generateWorktreeName.ts)
+// Name generation (expanded from packages/easycoder-app/sources/utils/generateWorktreeName.ts)
 // ============================================================================
 
 const adjectives = [
@@ -304,12 +304,12 @@ export async function createEnvironment(opts?: { noSwitch?: boolean }): Promise<
 
     console.log(`Running database migration for ${name}...`);
     const migrationEnv = buildEnvVars(envDir, serverPort, expoPort);
-    const standaloneTs = path.join(REPO_ROOT, "packages", "happy-server", "sources", "standalone.ts");
+    const standaloneTs = path.join(REPO_ROOT, "packages", "easycoder-server", "sources", "standalone.ts");
     const result = spawnSync(
         "tsx",
         [standaloneTs, "migrate"],
         {
-            cwd: path.join(REPO_ROOT, "packages", "happy-server"),
+            cwd: path.join(REPO_ROOT, "packages", "easycoder-server"),
             env: { ...process.env, ...migrationEnv },
             stdio: "inherit",
         }
@@ -355,7 +355,7 @@ export async function startEnvironmentServices(name: string): Promise<void> {
     const serverLogFile = path.join(envDir, "server", "stdout.log");
     console.log(`Starting server on port ${config.serverPort}...`);
     const serverPid = spawnService("pnpm", ["standalone", "serve"], {
-        cwd: path.join(REPO_ROOT, "packages", "happy-server"),
+        cwd: path.join(REPO_ROOT, "packages", "easycoder-server"),
         env: mergedEnv,
         logFile: serverLogFile,
     });
@@ -376,7 +376,7 @@ export async function startEnvironmentServices(name: string): Promise<void> {
     fs.mkdirSync(path.join(envDir, "web"), { recursive: true });
     console.log(`Starting web on port ${config.expoPort}...`);
     const webPid = spawnService("pnpm", ["web", "--port", String(config.expoPort)], {
-        cwd: path.join(REPO_ROOT, "packages", "happy-app"),
+        cwd: path.join(REPO_ROOT, "packages", "easycoder-app"),
         env: { ...mergedEnv, BROWSER: "none" },
         logFile: webLogFile,
     });
@@ -470,7 +470,7 @@ export async function seedEnvironment(name: string): Promise<void> {
     const daemonEnv = { ...process.env, ...envVars };
     delete daemonEnv.CLAUDECODE;
 
-    const happyBin = path.join(REPO_ROOT, "packages", "happy-cli", "bin", "easycoder.mjs");
+    const happyBin = path.join(REPO_ROOT, "packages", "easycoder-cli", "bin", "easycoder.mjs");
     const daemon = spawn("node", [happyBin, "daemon", "start"], {
         env: daemonEnv,
         stdio: "ignore",
@@ -659,7 +659,7 @@ function commandRun(service: string, serviceArgs: string[] = []) {
                 "pnpm",
                 ["standalone", "serve"],
                 {
-                    cwd: path.join(REPO_ROOT, "packages", "happy-server"),
+                    cwd: path.join(REPO_ROOT, "packages", "easycoder-server"),
                     env: mergedEnv,
                     stdio: "inherit",
                 }
@@ -673,7 +673,7 @@ function commandRun(service: string, serviceArgs: string[] = []) {
                 "pnpm",
                 ["web", "--port", String(config.expoPort)],
                 {
-                    cwd: path.join(REPO_ROOT, "packages", "happy-app"),
+                    cwd: path.join(REPO_ROOT, "packages", "easycoder-app"),
                     // Expo treats `--web` as "open in browser". Disable that for env-managed runs.
                     env: { ...mergedEnv, BROWSER: "none" },
                     stdio: "inherit",
@@ -688,7 +688,7 @@ function commandRun(service: string, serviceArgs: string[] = []) {
                 "pnpm",
                 ["ios"],
                 {
-                    cwd: path.join(REPO_ROOT, "packages", "happy-app"),
+                    cwd: path.join(REPO_ROOT, "packages", "easycoder-app"),
                     env: mergedEnv,
                     stdio: "inherit",
                 }
@@ -702,7 +702,7 @@ function commandRun(service: string, serviceArgs: string[] = []) {
                 "pnpm",
                 ["android"],
                 {
-                    cwd: path.join(REPO_ROOT, "packages", "happy-app"),
+                    cwd: path.join(REPO_ROOT, "packages", "easycoder-app"),
                     env: mergedEnv,
                     stdio: "inherit",
                 }
@@ -712,7 +712,7 @@ function commandRun(service: string, serviceArgs: string[] = []) {
         }
         case "cli": {
             console.log(`Starting CLI for environment "${envName}"...`);
-            const cliBin = path.join(REPO_ROOT, "packages", "happy-cli", "bin", "easycoder.mjs");
+            const cliBin = path.join(REPO_ROOT, "packages", "easycoder-cli", "bin", "easycoder.mjs");
             const result = spawnSync(
                 "node",
                 [cliBin, ...serviceArgs],
@@ -739,14 +739,14 @@ function buildEnvVars(envDir: string, serverPort: number, expoPort: number): Rec
     const projectDir = path.join(envDir, "project");
 
     // 读取 .env.dev 文件以获取 Dashscope 等配置
-    const envDevPath = path.join(REPO_ROOT, "packages", "happy-server", ".env.dev");
+    const envDevPath = path.join(REPO_ROOT, "packages", "easycoder-server", ".env.dev");
     if (fs.existsSync(envDevPath)) {
         dotenv.config({ path: envDevPath });
     }
 
     return {
         // Server
-        HANDY_MASTER_SECRET: "happy-dev-secret",
+        HANDY_MASTER_SECRET: "easycoder-dev-secret",
         PORT: String(serverPort),
         NODE_ENV: "development",
         DATA_DIR: path.join(envDir, "server"),
@@ -839,7 +839,7 @@ function writeEnvCommands(envDir: string): void {
     const commands = [
         {
             name: "easycoder",
-            entrypoint: path.join(REPO_ROOT, "packages", "happy-cli", "bin", "easycoder.mjs"),
+            entrypoint: path.join(REPO_ROOT, "packages", "easycoder-cli", "bin", "easycoder.mjs"),
         },
         {
             name: "easycoder-agent",
@@ -903,7 +903,7 @@ async function commandUp(template: Template, opts?: { noSwitch?: boolean }) {
         const envVars = buildEnvVars(envDir, config.serverPort, config.expoPort);
         const mergedEnv: Record<string, string | undefined> = { ...process.env, ...envVars };
         const buildResult = spawnSync("pnpm", ["build"], {
-            cwd: path.join(REPO_ROOT, "packages", "happy-cli"),
+            cwd: path.join(REPO_ROOT, "packages", "easycoder-cli"),
             env: mergedEnv,
             stdio: "inherit",
         });

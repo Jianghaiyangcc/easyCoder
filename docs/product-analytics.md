@@ -152,11 +152,11 @@ all include flow property which customizes the upsell screen shown by revenue ca
 
 ## Relevant Sources
 
-- packages/happy-app/sources/track/index.ts
-- packages/happy-app/sources/hooks/useNavigateToSession.ts
-- packages/happy-app/sources/-session/SessionView.tsx
-- packages/happy-app/sources/realtime/RealtimeSession.ts
-- packages/happy-app/sources/components/SettingsView.tsx
-- packages/happy-app/sources/sync/sync.ts
-- packages/happy-app/sources/track/useTrackScreens.ts
-- packages/happy-app/sources/track/tracking.ts
+- packages/easycoder-app/sources/track/index.ts
+- packages/easycoder-app/sources/hooks/useNavigateToSession.ts
+- packages/easycoder-app/sources/-session/SessionView.tsx
+- packages/easycoder-app/sources/realtime/RealtimeSession.ts
+- packages/easycoder-app/sources/components/SettingsView.tsx
+- packages/easycoder-app/sources/sync/sync.ts
+- packages/easycoder-app/sources/track/useTrackScreens.ts
+- packages/easycoder-app/sources/track/tracking.ts

@@ -66,10 +66,10 @@ On your computer, run `easycoder` instead of `claude` or `easycoder codex` inste
 
 ## 📦 Project Components
 
-- **[Code Never Stops App](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-app)** - Web UI + mobile client (Expo)
-- **[Code Never Stops CLI](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-cli)** - Command-line interface for Claude Code and Codex
+- **[Code Never Stops App](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/easycoder-app)** - Web UI + mobile client (Expo)
+- **[Code Never Stops CLI](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/easycoder-cli)** - Command-line interface for Claude Code and Codex
 - **[Code Never Stops Agent](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-agent)** - Remote agent control CLI (create, send, monitor sessions)
-- **[Code Never Stops Server](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/happy-server)** - Backend server for encrypted sync
+- **[Code Never Stops Server](https://github.com/Jianghaiyangcc/easyCoder/tree/main/packages/easycoder-server)** - Backend server for encrypted sync
 
 ## 🏠 Who We Are
 

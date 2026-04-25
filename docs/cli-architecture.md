@@ -1,6 +1,6 @@
 # CLI Architecture
 
-This document describes the EasyCoder CLI (`packages/happy-cli`) and its daemon. The CLI is both an interactive tool and a background session manager that keeps machine state in sync with the server.
+This document describes the EasyCoder CLI (`packages/easycoder-cli`) and its daemon. The CLI is both an interactive tool and a background session manager that keeps machine state in sync with the server.
 
 ## System overview
 
@@ -373,9 +373,9 @@ RPC is used to send commands over the Socket.IO connection:
 This mechanism allows the server and mobile clients to drive local actions without exposing a broad REST surface.
 
 ## Implementation references
-- CLI entry: `packages/happy-cli/src/index.ts`
-- Daemon: `packages/happy-cli/src/daemon`
-- Control server/client: `packages/happy-cli/src/daemon/controlServer.ts`, `packages/happy-cli/src/daemon/controlClient.ts`
-- API clients: `packages/happy-cli/src/api`
-- Persistence: `packages/happy-cli/src/persistence.ts`
-- Config: `packages/happy-cli/src/configuration.ts`
+- CLI entry: `packages/easycoder-cli/src/index.ts`
+- Daemon: `packages/easycoder-cli/src/daemon`
+- Control server/client: `packages/easycoder-cli/src/daemon/controlServer.ts`, `packages/easycoder-cli/src/daemon/controlClient.ts`
+- API clients: `packages/easycoder-cli/src/api`
+- Persistence: `packages/easycoder-cli/src/persistence.ts`
+- Config: `packages/easycoder-cli/src/configuration.ts`

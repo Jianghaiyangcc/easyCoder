@@ -2,10 +2,10 @@
     "name": "monorepo",
     "private": true,
     "scripts": {
-        "cli": "pnpm --filter happy cli",
+        "cli": "pnpm --filter easycoder-cli cli",
         "release": "node ./scripts/release.cjs",
-        "web": "pnpm --filter happy-app web",
-        "app-logs": "pnpm --filter happy-app-logs start",
+        "web": "pnpm --filter easycoder-app web",
+        "app-logs": "pnpm --filter easycoder-app-logs start",
         "postinstall": "node ./scripts/postinstall.cjs",
         "env:new": "tsx environments/environments.ts new",
         "env:list": "tsx environments/environments.ts list",
@@ -25,12 +25,12 @@
     },
     "workspaces": {
         "packages": [
-            "packages/happy-app",
-            "packages/happy-agent",
-            "packages/happy-cli",
-            "packages/happy-server",
-            "packages/happy-wire",
-            "packages/happy-app-logs"
+            "packages/easycoder-app",
+            "packages/easycoder-agent",
+            "packages/easycoder-cli",
+            "packages/easycoder-server",
+            "packages/easycoder-wire",
+            "packages/easycoder-app-logs"
         ]
     },
     "pnpm": {

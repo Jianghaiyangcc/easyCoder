@@ -366,18 +366,18 @@ Goal: right-click a session to fork it — clone the session in EasyCoder + use 
 
 ## Session Protocol (UNDER REVIEW — FROZEN)
 
-The session protocol (`role: 'session'` envelopes in `happy-wire/src/sessionProtocol.ts`) is **not used in production** and should not be used in dev environments either until we revisit the design. The legacy protocol (`role: 'user'` / `role: 'agent'`) is the active code path everywhere.
+The session protocol (`role: 'session'` envelopes in `easycoder-wire/src/sessionProtocol.ts`) is **not used in production** and should not be used in dev environments either until we revisit the design. The legacy protocol (`role: 'user'` / `role: 'agent'`) is the active code path everywhere.
 
 ### Status
 
-- Types are frozen in `happy-wire` — no new consumers
+- Types are frozen in `easycoder-wire` — no new consumers
 - Dev env was using it but should stop
 - Production has never shipped it
 
 ### Before resuming
 
 - Look at how pi.dev standardizes their agent protocol — we may want to align with or build on that instead of rolling our own envelope format
-- Consider whether `happy-wire` should even own this, or if protocol definition belongs closer to the CLI / agent layer
+- Consider whether `easycoder-wire` should even own this, or if protocol definition belongs closer to the CLI / agent layer
 - The current design may be over-engineered for what we actually need
 
 ## Deferred / later
@@ -401,7 +401,7 @@ The session protocol (`role: 'session'` envelopes in `happy-wire/src/sessionProt
 - Native app test flow:
   1. Start an authenticated env with `yarn env:up:authenticated` or reuse the current env from `yarn env:current`.
   2. Source the env so Expo picks up the right server and dev auth vars: `source environments/data/envs/<env-name>/env.sh`.
-  3. For JS-only work, start Metro without recompiling native: `APP_ENV=development yarn --cwd packages/happy-app start --dev-client --port 8081`.
+  3. For JS-only work, start Metro without recompiling native: `APP_ENV=development yarn --cwd packages/easycoder-app start --dev-client --port 8081`.
   4. Open the installed simulator or device build from Metro with `i` or `a`, or reopen the dev client onto the Metro URL.
   5. Confirm native auth is correct in Metro logs:
      - `credentials ...`
