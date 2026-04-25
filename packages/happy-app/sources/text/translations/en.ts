@@ -463,6 +463,9 @@ export const en: TranslationStructure = {
             fileLabel: 'FILE',
             folderLabel: 'FOLDER',
         },
+        voice: {
+            end: 'End',
+        },
         noMachinesAvailable: 'No machines',
     },
 

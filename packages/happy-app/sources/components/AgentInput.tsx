@@ -23,6 +23,7 @@ import { hackMode, hackModes } from '@/sync/modeHacks';
 import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
+import { VoiceBars } from './VoiceBars';
 
 interface AgentInputProps {
     value: string;
@@ -333,19 +334,31 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         color: theme.colors.button.primary.tint,
     },
     voiceButton: {
-        width: 32,
+        minWidth: 32,
         height: 32,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 0,
-        borderWidth: 0,
-        borderColor: 'transparent',
         marginRight: 6,
     },
+    voiceButtonIdle: {
+        width: 32,
+        paddingHorizontal: 0,
+    },
     voiceButtonActive: {
-        borderWidth: 2,
-        borderColor: theme.colors.button.primary.background,
+        flexDirection: 'row',
+        gap: 6,
+        paddingHorizontal: 10,
+        backgroundColor: theme.colors.button.primary.background,
+    },
+    voiceButtonPressed: {
+        opacity: 0.82,
+    },
+    voiceButtonEndText: {
+        fontSize: 12,
+        color: theme.colors.button.primary.tint,
+        ...Typography.default('semiBold'),
     },
     voiceButtonIcon: {
         color: theme.colors.button.secondary.tint,
@@ -1143,38 +1156,36 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                                     {/* 语音按钮 - 始终显示 */}
                                     {props.onMicPress && (
-                                        <View
-                                            style={[
+                                        <Pressable
+                                            style={({ pressed }) => ([
                                                 styles.voiceButton,
-                                                props.isMicActive ? styles.voiceButtonActive : undefined
-                                            ]}
+                                                props.isMicActive ? styles.voiceButtonActive : styles.voiceButtonIdle,
+                                                pressed && styles.voiceButtonPressed,
+                                            ])}
+                                            hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                            onPress={() => {
+                                                hapticsLight();
+                                                props.onMicPress?.();
+                                            }}
                                         >
-                                            <Pressable
-                                                style={(p) => ({
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    opacity: p.pressed ? 0.7 : 1,
-                                                })}
-                                                hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                                onPress={() => {
-                                                    hapticsLight();
-                                                    props.onMicPress?.();
-                                                }}
-                                            >
+                                            {props.isMicActive ? (
+                                                <>
+                                                    <VoiceBars isActive size="small" color={theme.colors.button.primary.tint} />
+                                                    <Text style={styles.voiceButtonEndText}>
+                                                        {t('agentInput.voice.end')}
+                                                    </Text>
+                                                </>
+                                            ) : (
                                                 <Image
                                                     source={require('@/assets/images/icon-voice-white.png')}
                                                     style={{
                                                         width: 24,
                                                         height: 24,
                                                     }}
-                                                    tintColor={props.isMicActive ?
-                                                        theme.colors.button.primary.tint :
-                                                        theme.colors.button.secondary.tint}
+                                                    tintColor={theme.colors.button.secondary.tint}
                                                 />
-                                            </Pressable>
-                                        </View>
+                                            )}
+                                        </Pressable>
                                     )}
 
                                     {/* 发送/停止按钮 - 合并为一个按钮 */}

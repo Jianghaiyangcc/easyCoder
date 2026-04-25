@@ -450,6 +450,9 @@ export const zhHans: TranslationStructure = {
             fileLabel: '文件',
             folderLabel: '文件夹',
         },
+        voice: {
+            end: '结束',
+        },
         noMachinesAvailable: '无设备',
     },
 

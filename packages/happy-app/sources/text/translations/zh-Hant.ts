@@ -449,6 +449,9 @@ export const zhHant: TranslationStructure = {
             fileLabel: '檔案',
             folderLabel: '資料夾',
         },
+        voice: {
+            end: '結束',
+        },
         noMachinesAvailable: '無裝置',
     },
 
