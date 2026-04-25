@@ -173,13 +173,14 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
     }
 }
 
-export async function stopRealtimeSession() {
+export async function stopRealtimeSession(): Promise<string | null> {
     if (!voiceSession) {
-        return;
+        return null;
     }
 
+    let transcript: string | null = null;
     try {
-        await voiceSession.endSession();
+        transcript = await voiceSession.endSession();
     } catch (error) {
         console.error('Failed to stop realtime session:', error);
     } finally {
@@ -188,6 +189,8 @@ export async function stopRealtimeSession() {
         currentVoiceSessionStartedAt = null;
         voiceSessionStarted = false;
     }
+
+    return transcript;
 }
 
 export function registerVoiceSession(session: VoiceSession) {

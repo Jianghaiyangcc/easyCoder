@@ -11,7 +11,7 @@ export interface VoiceSessionConfig {
 
 export interface VoiceSession {
     startSession(config: VoiceSessionConfig): Promise<string | null>;
-    endSession(): Promise<void>;
+    endSession(): Promise<string | null>;
     sendTextMessage(message: string): void;
     sendContextualUpdate(update: string): void;
     onReady?(sessionId: string): void;

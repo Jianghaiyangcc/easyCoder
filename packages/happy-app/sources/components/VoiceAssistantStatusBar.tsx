@@ -12,9 +12,10 @@ import { VoiceBars } from './VoiceBars';
 interface VoiceAssistantStatusBarProps {
     variant?: 'full' | 'sidebar';
     style?: any;
+    onStoppedWithTranscript?: (transcript: string) => void;
 }
 
-export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style }: VoiceAssistantStatusBarProps) => {
+export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, onStoppedWithTranscript }: VoiceAssistantStatusBarProps) => {
     const { theme } = useUnistyles();
     const realtimeStatus = useRealtimeStatus();
     const realtimeMode = useRealtimeMode();
@@ -69,7 +70,11 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style }: 
     const handlePress = async () => {
         if (realtimeStatus === 'connected' || realtimeStatus === 'connecting') {
             try {
-                await stopRealtimeSession();
+                const transcript = await stopRealtimeSession();
+                const normalizedTranscript = transcript?.trim();
+                if (normalizedTranscript) {
+                    onStoppedWithTranscript?.(normalizedTranscript);
+                }
             } catch (error) {
                 console.error('Error stopping voice session:', error);
             }

@@ -1,40 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import { registerVoiceSession } from './RealtimeSession';
 import { storage } from '@/sync/storage';
-import { sync } from '@/sync/sync';
 import { TokenStorage } from '@/auth/tokenStorage';
 import { encodeBase64 } from '@/encryption/base64';
-import { fetchBailianTts, transcribeBailianAudio } from '@/sync/apiVoice';
-import type { Message } from '@/sync/typesMessage';
+import { transcribeBailianAudio } from '@/sync/apiVoice';
 import type { VoiceSession, VoiceSessionConfig } from './types';
-
-interface PendingReady {
-    sessionId: string;
-    resolve: () => void;
-}
 
 interface BailianRuntime {
     startRecording: () => Promise<void>;
     stopRecordingAndTranscribe: () => Promise<string | null>;
-    playTtsText: (text: string) => Promise<void>;
-    getLatestAssistantText: (sessionId: string, since: number) => string | null;
 }
 
 let runtime: BailianRuntime | null = null;
 let currentSessionId: string | null = null;
-let pendingReady: PendingReady | null = null;
-let currentAudio: HTMLAudioElement | null = null;
 let mediaRecorder: MediaRecorder | null = null;
 let mediaStream: MediaStream | null = null;
 let chunks: BlobPart[] = [];
-
-function cleanupAudio() {
-    if (!currentAudio) {
-        return;
-    }
-    currentAudio.pause();
-    currentAudio = null;
-}
 
 function cleanupRecorder() {
     if (mediaStream) {
@@ -47,69 +28,6 @@ function cleanupRecorder() {
     chunks = [];
 }
 
-function waitForSessionReady(sessionId: string, timeoutMs: number): Promise<void> {
-    return new Promise((resolve) => {
-        pendingReady = {
-            sessionId,
-            resolve: () => {
-                pendingReady = null;
-                resolve();
-            },
-        };
-
-        setTimeout(() => {
-            if (pendingReady?.sessionId === sessionId) {
-                pendingReady = null;
-                resolve();
-            }
-        }, timeoutMs);
-    });
-}
-
-function extractLatestAssistantText(messages: Message[] | undefined, since: number): string | null {
-    if (!messages || messages.length === 0) {
-        return null;
-    }
-
-    for (const message of messages) {
-        if (message.kind !== 'agent-text') {
-            continue;
-        }
-        if (message.createdAt < since) {
-            continue;
-        }
-        const text = message.text?.trim();
-        if (text) {
-            return text;
-        }
-    }
-
-    return null;
-}
-
-async function playAudioUrl(audioUrl: string): Promise<void> {
-    cleanupAudio();
-
-    await new Promise<void>((resolve) => {
-        const audio = new Audio(audioUrl);
-        currentAudio = audio;
-
-        const finalize = () => {
-            audio.onended = null;
-            audio.onerror = null;
-            if (currentAudio === audio) {
-                currentAudio = null;
-            }
-            resolve();
-        };
-
-        audio.onended = finalize;
-        audio.onerror = finalize;
-        void audio.play().catch(finalize);
-
-        setTimeout(finalize, 90_000);
-    });
-}
 
 class BailianVoiceSessionImpl implements VoiceSession {
     async startSession(config: VoiceSessionConfig): Promise<string | null> {
@@ -127,14 +45,13 @@ class BailianVoiceSessionImpl implements VoiceSession {
         return null;
     }
 
-    async endSession(): Promise<void> {
+    async endSession(): Promise<string | null> {
         if (!runtime || !currentSessionId) {
             storage.getState().setRealtimeStatus('disconnected');
             storage.getState().setRealtimeMode('idle', true);
-            return;
+            return null;
         }
 
-        const sessionId = currentSessionId;
         currentSessionId = null;
 
         try {
@@ -142,21 +59,7 @@ class BailianVoiceSessionImpl implements VoiceSession {
             storage.getState().setRealtimeMode('idle', true);
 
             const transcript = await runtime.stopRecordingAndTranscribe();
-            if (!transcript) {
-                return;
-            }
-
-            const responseSince = Date.now();
-            const readyPromise = waitForSessionReady(sessionId, 30_000);
-            sync.sendMessage(sessionId, transcript, { source: 'voice' });
-            await readyPromise;
-
-            const assistantText = runtime.getLatestAssistantText(sessionId, responseSince);
-            if (assistantText) {
-                storage.getState().setRealtimeStatus('connected');
-                storage.getState().setRealtimeMode('agent-speaking', true);
-                await runtime.playTtsText(assistantText);
-            }
+            return transcript?.trim() || null;
         } finally {
             storage.getState().setRealtimeStatus('disconnected');
             storage.getState().setRealtimeMode('idle', true);
@@ -171,11 +74,6 @@ class BailianVoiceSessionImpl implements VoiceSession {
         // Bailian mode does not run a bidirectional voice agent channel.
     }
 
-    onReady(sessionId: string): void {
-        if (pendingReady?.sessionId === sessionId) {
-            pendingReady.resolve();
-        }
-    }
 }
 
 export const BailianVoiceSession: React.FC = () => {
@@ -234,19 +132,6 @@ export const BailianVoiceSession: React.FC = () => {
                 const text = transcription.transcript.trim();
                 return text || null;
             },
-            playTtsText: async (text: string) => {
-                const credentials = await TokenStorage.getCredentials();
-                if (!credentials) {
-                    return;
-                }
-
-                const tts = await fetchBailianTts(credentials, { text });
-                await playAudioUrl(tts.audioUrl);
-            },
-            getLatestAssistantText: (sessionId: string, since: number) => {
-                const messages = storage.getState().sessionMessages[sessionId]?.messages;
-                return extractLatestAssistantText(messages, since);
-            },
         };
 
         if (!hasRegistered.current) {
@@ -256,8 +141,6 @@ export const BailianVoiceSession: React.FC = () => {
 
         return () => {
             runtime = null;
-            pendingReady = null;
-            cleanupAudio();
             cleanupRecorder();
         };
     }, []);

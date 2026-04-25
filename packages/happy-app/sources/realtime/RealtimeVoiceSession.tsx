@@ -63,10 +63,10 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
         }
     }
 
-    async endSession(): Promise<void> {
+    async endSession(): Promise<string | null> {
         if (!conversationInstance) {
             storage.getState().setRealtimeStatus('disconnected');
-            return;
+            return null;
         }
 
         try {
@@ -76,6 +76,8 @@ class RealtimeVoiceSessionImpl implements VoiceSession {
         } finally {
             storage.getState().setRealtimeStatus('disconnected');
         }
+
+        return null;
     }
 
     sendTextMessage(message: string): void {

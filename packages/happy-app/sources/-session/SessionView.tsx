@@ -58,6 +58,24 @@ export const SessionView = React.memo((props: { id: string }) => {
     const realtimeStatus = useRealtimeStatus();
     const isTablet = useIsTablet();
     const [sessionActionsAnchor, setSessionActionsAnchor] = React.useState<SessionActionsAnchor | null>(null);
+    const [pendingVoiceTranscript, setPendingVoiceTranscript] = React.useState<string | null>(null);
+
+    const handleVoiceTranscript = React.useCallback((transcript: string) => {
+        const normalized = transcript.trim();
+        if (!normalized) {
+            return;
+        }
+
+        setPendingVoiceTranscript(prev => prev ? `${prev}\n${normalized}` : normalized);
+    }, []);
+
+    const handleConsumeVoiceTranscript = React.useCallback(() => {
+        setPendingVoiceTranscript(null);
+    }, []);
+
+    React.useEffect(() => {
+        setPendingVoiceTranscript(null);
+    }, [sessionId]);
 
     // Compute header props based on session state
     const headerProps = useMemo(() => {
@@ -147,7 +165,10 @@ export const SessionView = React.memo((props: { id: string }) => {
                     />
                     {/* Voice status bar below header - not on tablet (shown in sidebar) */}
                     {!isTablet && realtimeStatus !== 'disconnected' && (
-                        <VoiceAssistantStatusBar variant="full" />
+                        <VoiceAssistantStatusBar
+                            variant="full"
+                            onStoppedWithTranscript={handleVoiceTranscript}
+                        />
                     )}
                 </View>
             )}
@@ -168,7 +189,13 @@ export const SessionView = React.memo((props: { id: string }) => {
                     </View>
                 ) : (
                     // Normal session view
-                    <SessionViewLoaded key={sessionId} sessionId={sessionId} session={session} />
+                    <SessionViewLoaded
+                        key={sessionId}
+                        sessionId={sessionId}
+                        session={session}
+                        pendingVoiceTranscript={pendingVoiceTranscript}
+                        onConsumeVoiceTranscript={handleConsumeVoiceTranscript}
+                    />
                 )}
             </View>
             {Platform.OS === 'web' && session && (
@@ -192,7 +219,17 @@ export const SessionView = React.memo((props: { id: string }) => {
 });
 
 
-function SessionViewLoaded({ sessionId, session }: { sessionId: string, session: Session }) {
+function SessionViewLoaded({
+    sessionId,
+    session,
+    pendingVoiceTranscript,
+    onConsumeVoiceTranscript,
+}: {
+    sessionId: string,
+    session: Session,
+    pendingVoiceTranscript: string | null,
+    onConsumeVoiceTranscript: () => void,
+}) {
     const { theme } = useUnistyles();
     const router = useRouter();
     const safeArea = useSafeAreaInsets();
@@ -259,6 +296,24 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
     // Use draft hook for auto-saving message drafts
     const { clearDraft } = useDraft(sessionId, message, setMessage);
+
+    const appendVoiceTranscript = React.useCallback((transcript: string | null | undefined) => {
+        const normalized = transcript?.trim();
+        if (!normalized) {
+            return;
+        }
+
+        setMessage(prev => prev ? `${prev}\n${normalized}` : normalized);
+    }, []);
+
+    React.useEffect(() => {
+        if (!pendingVoiceTranscript) {
+            return;
+        }
+
+        appendVoiceTranscript(pendingVoiceTranscript);
+        onConsumeVoiceTranscript();
+    }, [appendVoiceTranscript, onConsumeVoiceTranscript, pendingVoiceTranscript]);
 
     // Handle dismissing CLI version warning
     const handleDismissCliWarning = React.useCallback(() => {
@@ -327,17 +382,19 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
         } else if (realtimeStatus === 'connected') {
             const conversationId = getCurrentVoiceConversationId();
             const durationSeconds = getCurrentVoiceSessionDurationSeconds();
-            await stopRealtimeSession();
+            const transcript = await stopRealtimeSession();
             tracking?.capture('voice_session_stopped', {
                 session_id: sessionId,
                 elevenlabs_conversation_id: conversationId,
                 ...(durationSeconds !== undefined ? { duration_seconds: durationSeconds } : {}),
             });
 
+            appendVoiceTranscript(transcript);
+
             // Notify voice assistant about voice session stop
             voiceHooks.onVoiceStopped();
         }
-    }, [realtimeStatus, sessionId]);
+    }, [appendVoiceTranscript, realtimeStatus, sessionId]);
 
     // Memoize mic button state to prevent flashing during chat transitions
     const micButtonState = useMemo(() => ({
