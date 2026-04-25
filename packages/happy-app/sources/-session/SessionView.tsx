@@ -249,6 +249,13 @@ function SessionViewLoaded({
     const isAcknowledged = machineId && acknowledgedCliVersions[machineId] === cliVersion;
     const shouldShowCliWarning = isCliOutdated && !isAcknowledged;
     const flavor = session.metadata?.flavor;
+    const composerAgentType = React.useMemo<'claude' | 'codex' | 'gemini' | 'openclaw' | 'opencode' | undefined>(() => {
+        if (flavor === 'claude' || flavor === 'codex' || flavor === 'gemini' || flavor === 'openclaw' || flavor === 'opencode') {
+            return flavor;
+        }
+
+        return undefined;
+    }, [flavor]);
     const availableModels = React.useMemo(() => (
         getAvailableModels(flavor, session.metadata, t)
     ), [flavor, session.metadata]);
@@ -438,6 +445,7 @@ function SessionViewLoaded({
             value={message}
             onChangeText={setMessage}
             sessionId={sessionId}
+            agentType={composerAgentType}
             permissionMode={permissionMode}
             onPermissionModeChange={updatePermissionMode}
             availableModes={availableModes}

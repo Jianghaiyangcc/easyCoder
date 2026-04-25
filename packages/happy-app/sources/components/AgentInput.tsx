@@ -67,7 +67,7 @@ interface AgentInputProps {
     };
     alwaysShowContextSize?: boolean;
     onFileViewerPress?: () => void;
-    agentType?: 'claude' | 'codex' | 'gemini' | 'openclaw';
+    agentType?: 'claude' | 'codex' | 'gemini' | 'openclaw' | 'opencode';
     onAgentClick?: () => void;
     machineName?: string | null;
     onMachineClick?: () => void;
@@ -149,17 +149,6 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         height: 1,
         backgroundColor: theme.colors.divider,
         marginHorizontal: 16,
-    },
-    selectorRow: {
-        paddingTop: 6,
-        paddingBottom: 4,
-        paddingHorizontal: 8,
-    },
-    selectorRowContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingRight: 4,
     },
     selectorChip: {
         flexDirection: 'row',
@@ -284,10 +273,15 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingHorizontal: 0,
     },
     actionButtonsLeft: {
-        flexDirection: 'row',
-        gap: 8,
         flex: 1,
         overflow: 'hidden',
+        marginRight: 8,
+    },
+    actionButtonsLeftContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        paddingRight: 4,
     },
     actionButton: {
         flexDirection: 'row',
@@ -389,6 +383,17 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     // Use metadata.flavor for existing sessions, agentType prop for new sessions
     const isCodex = props.metadata?.flavor === 'codex' || props.agentType === 'codex';
     const isGemini = props.metadata?.flavor === 'gemini' || props.agentType === 'gemini';
+    const agentDisplayName = props.agentType === 'claude'
+        ? t('agentInput.agent.claude')
+        : props.agentType === 'codex'
+            ? t('agentInput.agent.codex')
+            : props.agentType === 'openclaw'
+                ? t('agentInput.agent.openclaw')
+                : props.agentType === 'opencode'
+                    ? t('agentInput.agent.opencode')
+                : props.agentType === 'gemini'
+                    ? t('agentInput.agent.gemini')
+                    : null;
     const displayPermissionMode = React.useMemo(() => (
         props.permissionMode ? hackMode(props.permissionMode) : null
     ), [props.permissionMode]);
@@ -500,7 +505,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     const hasPermissionSelector = Boolean(props.onPermissionModeChange && availableModes.length > 0);
     const hasModelSelector = Boolean(props.onModelModeChange && availableModels.length > 0);
     const hasEffortSelector = Boolean(props.onEffortLevelChange && availableEffortLevels.length > 0);
-    const hasInlineSelectors = hasPermissionSelector || hasModelSelector || hasEffortSelector;
 
     const selectedPermissionMode = React.useMemo(() => (
         availableModes.find((mode) => mode.key === permissionModeKey) ?? availableModes[0] ?? null
@@ -1028,70 +1032,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 {/* Box 2: Action Area (Input + Send) */}
                 <Shaker ref={sendBlockShakerRef}>
                 <View style={styles.unifiedPanel}>
-                    {hasInlineSelectors && (
-                        <View style={styles.selectorRow}>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={styles.selectorRowContent}
-                            >
-                                {hasPermissionSelector && selectedPermissionMode && (
-                                    <Pressable
-                                        onPress={() => toggleSelector('permission')}
-                                        style={({ pressed }) => [
-                                            styles.selectorChip,
-                                            activeSelector === 'permission' && styles.selectorChipActive,
-                                            pressed && styles.selectorChipPressed,
-                                        ]}
-                                    >
-                                        <Ionicons name="shield-outline" size={14} color={theme.colors.textSecondary} />
-                                        <Text style={styles.selectorChipLabel}>{t('agentInput.permissionMode.title')}</Text>
-                                        <Text style={styles.selectorChipValue} numberOfLines={1}>
-                                            {withSandboxSuffix(selectedPermissionMode.name, selectedPermissionMode.key)}
-                                        </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
-                                    </Pressable>
-                                )}
-
-                                {hasModelSelector && selectedModel && (
-                                    <Pressable
-                                        onPress={() => toggleSelector('model')}
-                                        style={({ pressed }) => [
-                                            styles.selectorChip,
-                                            activeSelector === 'model' && styles.selectorChipActive,
-                                            pressed && styles.selectorChipPressed,
-                                        ]}
-                                    >
-                                        <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
-                                        <Text style={styles.selectorChipLabel}>{t('agentInput.model.title')}</Text>
-                                        <Text style={styles.selectorChipValue} numberOfLines={1}>
-                                            {selectedModel.name}
-                                        </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
-                                    </Pressable>
-                                )}
-
-                                {hasEffortSelector && selectedEffort && (
-                                    <Pressable
-                                        onPress={() => toggleSelector('effort')}
-                                        style={({ pressed }) => [
-                                            styles.selectorChip,
-                                            activeSelector === 'effort' && styles.selectorChipActive,
-                                            pressed && styles.selectorChipPressed,
-                                        ]}
-                                    >
-                                        <Ionicons name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
-                                        <Text style={styles.selectorChipLabel}>{t('agentInput.effort.title')}</Text>
-                                        <Text style={styles.selectorChipValue} numberOfLines={1}>
-                                            {selectedEffort.name}
-                                        </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
-                                    </Pressable>
-                                )}
-                            </ScrollView>
-                        </View>
-                    )}
-
                     {/* Input field */}
                     <View style={[styles.inputContainer, props.minHeight ? { minHeight: props.minHeight } : undefined]}>
                         <MultiTextInput
@@ -1110,48 +1050,92 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                     {/* Action buttons below input */}
                     <View style={styles.actionButtonsContainer}>
                         <View style={{ flexDirection: 'column', flex: 1, gap: 2 }}>
-                            {/* Row 1: Agent and Git Status */}
+                            {/* Row 1: Permission, Model, Effort, Agent, Git */}
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <View style={styles.actionButtonsLeft}>
-
-                                {/* Agent selector button */}
-                                {props.agentType && props.onAgentClick && (
-                                    <Pressable
-                                        onPress={() => {
-                                            hapticsLight();
-                                            props.onAgentClick?.();
-                                        }}
-                                        hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                        style={(p) => ({
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            borderRadius: Platform.select({ default: 16, android: 20 }),
-                                            paddingHorizontal: 10,
-                                            paddingVertical: 6,
-                                            justifyContent: 'center',
-                                            height: 32,
-                                            opacity: p.pressed ? 0.7 : 1,
-                                            gap: 6,
-                                        })}
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.actionButtonsLeftContent}
                                     >
-                                        <Octicons
-                                            name="cpu"
-                                            size={14}
-                                            color={theme.colors.button.secondary.tint}
-                                        />
-                                        <Text style={{
-                                            fontSize: 13,
-                                            color: theme.colors.button.secondary.tint,
-                                            fontWeight: '600',
-                                            ...Typography.default('semiBold'),
-                                        }}>
-                                            {props.agentType === 'claude' ? t('agentInput.agent.claude') : props.agentType === 'codex' ? t('agentInput.agent.codex') : props.agentType === 'openclaw' ? t('agentInput.agent.openclaw') : t('agentInput.agent.gemini')}
-                                        </Text>
-                                    </Pressable>
-                                )}
+                                        {hasPermissionSelector && selectedPermissionMode && (
+                                            <Pressable
+                                                onPress={() => toggleSelector('permission')}
+                                                style={({ pressed }) => [
+                                                    styles.selectorChip,
+                                                    activeSelector === 'permission' && styles.selectorChipActive,
+                                                    pressed && styles.selectorChipPressed,
+                                                ]}
+                                            >
+                                                <Ionicons name="shield-outline" size={14} color={theme.colors.textSecondary} />
+                                                <Text style={styles.selectorChipValue} numberOfLines={1}>
+                                                    {withSandboxSuffix(selectedPermissionMode.name, selectedPermissionMode.key)}
+                                                </Text>
+                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                            </Pressable>
+                                        )}
 
-                                {/* Git Status Badge */}
-                                <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
+                                        {hasModelSelector && selectedModel && (
+                                            <Pressable
+                                                onPress={() => toggleSelector('model')}
+                                                style={({ pressed }) => [
+                                                    styles.selectorChip,
+                                                    activeSelector === 'model' && styles.selectorChipActive,
+                                                    pressed && styles.selectorChipPressed,
+                                                ]}
+                                            >
+                                                <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                <Text style={styles.selectorChipValue} numberOfLines={1}>
+                                                    {selectedModel.name}
+                                                </Text>
+                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                            </Pressable>
+                                        )}
+
+                                        {hasEffortSelector && selectedEffort && (
+                                            <Pressable
+                                                onPress={() => toggleSelector('effort')}
+                                                style={({ pressed }) => [
+                                                    styles.selectorChip,
+                                                    activeSelector === 'effort' && styles.selectorChipActive,
+                                                    pressed && styles.selectorChipPressed,
+                                                ]}
+                                            >
+                                                <Ionicons name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
+                                                <Text style={styles.selectorChipValue} numberOfLines={1}>
+                                                    {selectedEffort.name}
+                                                </Text>
+                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                            </Pressable>
+                                        )}
+
+                                        {props.agentType && agentDisplayName && (
+                                            props.onAgentClick ? (
+                                                <Pressable
+                                                    onPress={() => {
+                                                        hapticsLight();
+                                                        props.onAgentClick?.();
+                                                    }}
+                                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                                    style={({ pressed }) => [
+                                                        styles.selectorChip,
+                                                        pressed && styles.selectorChipPressed,
+                                                    ]}
+                                                >
+                                                    <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                    <Text style={styles.selectorChipValue} numberOfLines={1}>{agentDisplayName}</Text>
+                                                    <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                                </Pressable>
+                                            ) : (
+                                                <View style={[styles.selectorChip, { opacity: 0.85 }]}>
+                                                    <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                    <Text style={styles.selectorChipValue} numberOfLines={1}>{agentDisplayName}</Text>
+                                                </View>
+                                            )
+                                        )}
+
+                                        <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
+                                    </ScrollView>
                                 </View>
 
                                 {/* 右侧按钮组：语音 + 发送 */}
@@ -1280,7 +1264,7 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
                 paddingVertical: 6,
                 height: 32,
                 opacity: p.pressed ? 0.7 : 1,
-                flex: 1,
+                flexShrink: 1,
                 overflow: 'hidden',
             })}
             hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
