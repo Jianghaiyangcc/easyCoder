@@ -6,6 +6,7 @@ import {
     type BailianAsrResponse,
     type BailianTtsResponse,
     type VoiceConversationResponse,
+    type VoiceProvider,
     type VoiceUsageResponse,
 } from '@easycoder/wire';
 import { AuthCredentials } from '@/auth/tokenStorage';
@@ -47,11 +48,15 @@ export async function fetchVoiceCredentials(
 }
 
 export async function fetchVoiceUsage(
-    credentials: AuthCredentials
+    credentials: AuthCredentials,
+    provider: VoiceProvider,
 ): Promise<VoiceUsageResponse> {
     const serverUrl = getServerUrl();
+    const query = new URLSearchParams({
+        provider,
+    });
 
-    const response = await fetch(`${serverUrl}/v1/voice/usage`, {
+    const response = await fetch(`${serverUrl}/v1/voice/usage?${query.toString()}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${credentials.token}`,
@@ -67,6 +72,7 @@ export async function fetchVoiceUsage(
 }
 
 export interface BailianAsrRequest {
+    requestId?: string;
     audioBase64: string;
     mimeType: string;
     language?: string;

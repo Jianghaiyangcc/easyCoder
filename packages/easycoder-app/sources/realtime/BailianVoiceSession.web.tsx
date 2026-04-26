@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { randomUUID } from 'expo-crypto';
 import { registerVoiceSession } from './RealtimeSession';
 import { storage } from '@/sync/storage';
 import { TokenStorage } from '@/auth/tokenStorage';
@@ -149,6 +150,7 @@ export const BailianVoiceSession: React.FC = () => {
                 const audioBytes = new Uint8Array(await blob.arrayBuffer());
                 const { voiceAssistantLanguage, preferredLanguage } = storage.getState().settings;
                 const transcription = await transcribeBailianAudio(credentials, {
+                    requestId: randomUUID(),
                     audioBase64: encodeBase64(audioBytes, 'base64'),
                     mimeType: blob.type || 'audio/webm',
                     language: voiceAssistantLanguage ?? preferredLanguage ?? undefined,

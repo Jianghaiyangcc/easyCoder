@@ -29,11 +29,36 @@ export const VoiceConversationResponseSchema = z.discriminatedUnion('allowed', [
 export type VoiceConversationResponse = z.infer<typeof VoiceConversationResponseSchema>;
 
 export const VoiceUsageResponseSchema = z.object({
+    windowDays: z.number(),
+    currentProvider: VoiceProviderSchema,
+    current: z.object({
+        provider: VoiceProviderSchema,
+        usedSeconds: z.number(),
+        limitSeconds: z.number(),
+        conversationCount: z.number(),
+        conversationLimit: z.number(),
+    }),
+    providers: z.object({
+        bailian: z.object({
+            provider: z.literal('bailian'),
+            usedSeconds: z.number(),
+            limitSeconds: z.number(),
+            conversationCount: z.number(),
+            conversationLimit: z.number(),
+        }),
+        elevenlabs: z.object({
+            provider: z.literal('elevenlabs'),
+            usedSeconds: z.number(),
+            limitSeconds: z.number(),
+            conversationCount: z.number(),
+            conversationLimit: z.number(),
+        }),
+    }),
     usedSeconds: z.number(),
     limitSeconds: z.number(),
     conversationCount: z.number(),
     conversationLimit: z.number(),
-    elevenUserId: z.string(),
+    elevenUserId: z.string().nullable(),
 });
 
 export type VoiceUsageResponse = z.infer<typeof VoiceUsageResponseSchema>;

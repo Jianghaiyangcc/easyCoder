@@ -1,8 +1,16 @@
 import { z } from "zod";
 import * as crypto from "crypto";
+import * as os from "os";
+import * as path from "path";
+import * as fs from "fs/promises";
+import * as privacyKit from "privacy-kit";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import { Prisma } from "@prisma/client";
 import {
     BailianAsrResponseSchema,
     BailianTtsResponseSchema,
+    VoiceProviderSchema,
     VoiceConversationResponseSchema,
     VoiceUsageResponseSchema,
 } from "@easycoder/wire";
@@ -10,13 +18,20 @@ import { type Fastify } from "../types";
 import { log } from "@/utils/log";
 import { transcribeDashscopeAudio } from "@/modules/dashscopeAsr";
 import { synthesizeDashscopeSpeech } from "@/modules/dashscopeTts";
+import { db } from "@/storage/db";
+import { inTx } from "@/storage/inTx";
 
 const VOICE_FREE_LIMIT_SECONDS = 1200;  // 20 minutes free tier per 30 days (~$0.76 cost)
 const VOICE_HARD_LIMIT_SECONDS = 18000; // 5 hours absolute cap per 30 days (even with subscription)
 const VOICE_MAX_CONVERSATIONS = 100;    // Max conversations trackable per 30 days (ElevenLabs page_size limit)
 const ELEVEN_LABS_API = "https://api.elevenlabs.io/v1/convai";
+const VOICE_USAGE_WINDOW_DAYS = 30;
+const BAILIAN_ASR_IDEMPOTENCY_PREFIX = "bailian_asr";
+const FFPROBE_TIMEOUT_MS = 1500;
+const execFileAsync = promisify(execFile);
 
 const BailianAsrRequestSchema = z.object({
+    requestId: z.string().trim().min(8).max(128).optional(),
     audioBase64: z.string().min(1),
     mimeType: z.string().min(1).default("audio/m4a"),
     language: z.string().optional(),
@@ -43,6 +58,146 @@ function deriveElevenUserId(easycoderUserId: string): string {
     return `u_${base64url}`;
 }
 
+function decodeBase64Url(input: string): Uint8Array {
+    const base64 = input
+        .replace(/-/g, "+")
+        .replace(/_/g, "/")
+        .padEnd(Math.ceil(input.length / 4) * 4, "=");
+    return privacyKit.decodeBase64(base64);
+}
+
+function resolveAudioExtensionFromMimeType(mimeType: string): string {
+    const normalizedMimeType = mimeType.trim().toLowerCase();
+    if (normalizedMimeType.startsWith("audio/webm")) {
+        return "webm";
+    }
+    if (normalizedMimeType.startsWith("audio/wav") || normalizedMimeType.startsWith("audio/x-wav")) {
+        return "wav";
+    }
+    if (normalizedMimeType.startsWith("audio/mp4") || normalizedMimeType.startsWith("audio/m4a") || normalizedMimeType.startsWith("audio/x-m4a")) {
+        return "m4a";
+    }
+    if (normalizedMimeType.startsWith("audio/mpeg")) {
+        return "mp3";
+    }
+
+    return "audio";
+}
+
+/**
+ * Reads exact audio duration using ffprobe from the uploaded base64 payload.
+ * Returns duration in milliseconds when it can be parsed, otherwise null.
+ */
+async function readAudioDurationMs(audioBase64: string, mimeType: string): Promise<number | null> {
+    let audioBytes: Uint8Array;
+    try {
+        audioBytes = privacyKit.decodeBase64(audioBase64);
+    } catch {
+        return null;
+    }
+
+    if (audioBytes.byteLength === 0) {
+        return null;
+    }
+
+    const extension = resolveAudioExtensionFromMimeType(mimeType);
+    const tmpFilePath = path.join(os.tmpdir(), `easycoder-voice-${crypto.randomUUID()}.${extension}`);
+
+    try {
+        await fs.writeFile(tmpFilePath, audioBytes);
+        const ffprobeResult = await execFileAsync(
+            "ffprobe",
+            [
+                "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                tmpFilePath,
+            ],
+            {
+                encoding: "utf8",
+                timeout: FFPROBE_TIMEOUT_MS,
+                windowsHide: true,
+            },
+        );
+
+        const durationSeconds = Number.parseFloat(String(ffprobeResult.stdout).trim());
+        if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+            return null;
+        }
+
+        return Math.round(durationSeconds * 1000);
+    } finally {
+        await fs.unlink(tmpFilePath).catch(() => undefined);
+    }
+}
+
+function isPrismaUniqueConstraintError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+}
+
+/**
+ * Records Bailian ASR duration with idempotency guarantees.
+ * The same requestId can be retried safely without incrementing usage twice.
+ */
+async function recordBailianAsrUsage(input: {
+    accountId: string;
+    requestId: string;
+    durationMs: number;
+}): Promise<boolean> {
+    const normalizedDurationMs = Math.max(0, Math.round(input.durationMs));
+    if (normalizedDurationMs <= 0) {
+        return false;
+    }
+
+    const idempotencyKey = `${BAILIAN_ASR_IDEMPOTENCY_PREFIX}:${input.requestId}`;
+
+    return inTx(async (tx) => {
+        try {
+            await tx.voiceConversation.create({
+                data: {
+                    accountId: input.accountId,
+                    elevenLabsConversationId: idempotencyKey,
+                    durationSecs: Math.max(1, Math.round(normalizedDurationMs / 1000)),
+                },
+            });
+        } catch (error) {
+            if (isPrismaUniqueConstraintError(error)) {
+                return false;
+            }
+            throw error;
+        }
+
+        return true;
+    });
+}
+
+/**
+ * Aggregates Bailian ASR usage over the last N days from idempotent ASR events.
+ */
+async function getBailianUsageSeconds(accountId: string, windowDays: number): Promise<number> {
+    const records = await db.voiceConversation.findMany({
+        where: {
+            accountId,
+            elevenLabsConversationId: {
+                startsWith: `${BAILIAN_ASR_IDEMPOTENCY_PREFIX}:`,
+            },
+            createdAt: {
+                gte: new Date(Date.now() - windowDays * 86400 * 1000),
+            },
+        },
+        select: {
+            durationSecs: true,
+        },
+    });
+
+    let totalDurationSeconds = 0;
+    for (const record of records) {
+        totalDurationSeconds += record.durationSecs ?? 0;
+    }
+
+    return totalDurationSeconds;
+}
+
 /**
  * Get a user's voice usage in seconds over the last 30 days.
  * Queries ElevenLabs directly by user_id (set via participant_name on token mint).
@@ -50,11 +205,11 @@ function deriveElevenUserId(easycoderUserId: string): string {
  *
  * Returns { usedSeconds, conversationCount }.
  */
-async function getVoiceUsage(
+async function getElevenLabsVoiceUsage(
     elevenLabsApiKey: string,
     elevenUserId: string,
 ): Promise<{ usedSeconds: number; conversationCount: number }> {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+    const thirtyDaysAgo = new Date(Date.now() - VOICE_USAGE_WINDOW_DAYS * 86400 * 1000).toISOString();
 
     // Query across all agents — usage is per-user, not per-agent
     const res = await fetch(
@@ -121,7 +276,8 @@ export function voiceRoutes(app: Fastify) {
             return reply.code(500).send({ error: 'DASHSCOPE_API_KEY not configured' });
         }
 
-        const { audioBase64, mimeType, language, model, enableItn } = request.body;
+        const { requestId, audioBase64, mimeType, language, model, enableItn } = request.body;
+        const resolvedRequestId = requestId?.trim() || crypto.randomUUID();
 
         if (audioBase64.length < 16) {
             return reply.code(400).send({ error: 'Invalid audio payload' });
@@ -136,6 +292,19 @@ export function voiceRoutes(app: Fastify) {
                 model,
                 enableItn,
             });
+
+            try {
+                const durationMs = await readAudioDurationMs(audioBase64, mimeType);
+                if (durationMs !== null) {
+                    await recordBailianAsrUsage({
+                        accountId: request.userId,
+                        requestId: resolvedRequestId,
+                        durationMs,
+                    });
+                }
+            } catch (usageError) {
+                log({ module: "voice" }, `Failed to persist Bailian usage for user ${request.userId}: ${usageError}`);
+            }
 
             return reply.send({
                 provider: 'bailian' as const,
@@ -214,7 +383,7 @@ export function voiceRoutes(app: Fastify) {
         const elevenUserId = deriveElevenUserId(userId);
 
         // Check usage from ElevenLabs directly
-        const { usedSeconds, conversationCount } = await getVoiceUsage(elevenLabsApiKey, elevenUserId);
+        const { usedSeconds, conversationCount } = await getElevenLabsVoiceUsage(elevenLabsApiKey, elevenUserId);
         log({ module: 'voice' }, `User ${userId}: ${usedSeconds}s used, ${conversationCount} convos (free=${VOICE_FREE_LIMIT_SECONDS}s, hard=${VOICE_HARD_LIMIT_SECONDS}s)`);
 
         // Conversation count cap — we can only track 100 per query (ElevenLabs page_size limit)
@@ -269,7 +438,12 @@ export function voiceRoutes(app: Fastify) {
             const { token: conversationToken } = (await tokenRes.json()) as { token: string };
 
             // Extract conversation_id from JWT payload (LiveKit room name contains it)
-            const jwtPayload = JSON.parse(Buffer.from(conversationToken.split('.')[1], 'base64').toString());
+            const jwtPayloadPart = conversationToken.split('.')[1];
+            if (!jwtPayloadPart) {
+                log({ module: "voice" }, `Invalid JWT payload for user ${userId}`);
+                return reply.code(500).send({ error: "Failed to parse voice credentials" });
+            }
+            const jwtPayload = JSON.parse(new TextDecoder().decode(decodeBase64Url(jwtPayloadPart)));
             const conversationId = (jwtPayload.video?.room || '').match(/(conv_[a-zA-Z0-9]+)/)?.[0];
 
             if (!conversationId) {
@@ -294,12 +468,16 @@ export function voiceRoutes(app: Fastify) {
     });
 
     /**
-     * Returns voice usage for the authenticated user over the last 30 days.
-     * Queries ElevenLabs directly — no local DB needed.
+     * Returns provider-aware voice usage over the last 30 days.
+     * Bailian usage is aggregated from internal idempotent ASR events, ElevenLabs usage
+     * is fetched from provider APIs, and top-level fields mirror the selected provider.
      */
     app.get('/v1/voice/usage', {
         preHandler: app.authenticate,
         schema: {
+            querystring: z.object({
+                provider: VoiceProviderSchema.optional(),
+            }),
             response: {
                 200: VoiceUsageResponseSchema,
                 500: z.object({ error: z.string() }),
@@ -307,24 +485,65 @@ export function voiceRoutes(app: Fastify) {
         },
     }, async (request, reply) => {
         const userId = request.userId;
+        const currentProvider = (request.query.provider ?? 'elevenlabs') as 'bailian' | 'elevenlabs';
 
         const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
-        if (!elevenLabsApiKey) {
-            return reply.code(500).send({ error: 'ELEVENLABS_API_KEY not configured' });
-        }
-
-        const elevenUserId = deriveElevenUserId(userId);
+        const elevenUserId = elevenLabsApiKey ? deriveElevenUserId(userId) : null;
 
         try {
-            const [{ usedSeconds, conversationCount }, subscribed] = await Promise.all([
-                getVoiceUsage(elevenLabsApiKey, elevenUserId),
+            const [{ usedSeconds: elevenLabsUsedSeconds, conversationCount }, bailianUsedSeconds, subscribed] = await Promise.all([
+                elevenLabsApiKey && elevenUserId
+                    ? getElevenLabsVoiceUsage(elevenLabsApiKey, elevenUserId)
+                    : Promise.resolve({ usedSeconds: 0, conversationCount: 0 }),
+                getBailianUsageSeconds(userId, VOICE_USAGE_WINDOW_DAYS),
                 hasActiveSubscription(userId),
             ]);
+
+            const defaultLimitSeconds = subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS;
+
+            const providers: {
+                bailian: {
+                    provider: "bailian";
+                    usedSeconds: number;
+                    limitSeconds: number;
+                    conversationCount: number;
+                    conversationLimit: number;
+                };
+                elevenlabs: {
+                    provider: "elevenlabs";
+                    usedSeconds: number;
+                    limitSeconds: number;
+                    conversationCount: number;
+                    conversationLimit: number;
+                };
+            } = {
+                bailian: {
+                    provider: 'bailian',
+                    usedSeconds: bailianUsedSeconds,
+                    limitSeconds: defaultLimitSeconds,
+                    conversationCount: 0,
+                    conversationLimit: 0,
+                },
+                elevenlabs: {
+                    provider: 'elevenlabs',
+                    usedSeconds: elevenLabsUsedSeconds,
+                    limitSeconds: defaultLimitSeconds,
+                    conversationCount,
+                    conversationLimit: VOICE_MAX_CONVERSATIONS,
+                },
+            };
+
+            const current = providers[currentProvider];
+
             return reply.send({
-                usedSeconds,
-                limitSeconds: subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS,
-                conversationCount,
-                conversationLimit: VOICE_MAX_CONVERSATIONS,
+                windowDays: VOICE_USAGE_WINDOW_DAYS,
+                currentProvider,
+                current,
+                providers,
+                usedSeconds: current.usedSeconds,
+                limitSeconds: current.limitSeconds,
+                conversationCount: current.conversationCount,
+                conversationLimit: current.conversationLimit,
                 elevenUserId,
             });
         } catch (error) {

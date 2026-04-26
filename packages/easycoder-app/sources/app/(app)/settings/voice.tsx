@@ -62,7 +62,7 @@ export default React.memo(function VoiceSettingsScreen() {
         setUsageLoading(true);
         setUsageError(false);
 
-        fetchVoiceUsage(auth.credentials)
+        fetchVoiceUsage(auth.credentials, voiceProvider)
             .then((nextUsage) => {
                 setUsage(nextUsage);
             })
@@ -71,7 +71,7 @@ export default React.memo(function VoiceSettingsScreen() {
                 setUsageError(true);
             })
             .finally(() => setUsageLoading(false));
-    }, [auth.credentials]);
+    }, [auth.credentials, voiceProvider]);
 
     const refreshMicrophonePermission = React.useCallback(async () => {
         const permission = await checkMicrophonePermission();
