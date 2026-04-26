@@ -17,16 +17,15 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, type ViewStyle } from 'react-native';
 import { ShimmerView } from '@/components/ShimmerView';
-import { StyleSheet as UnistylesStyleSheet, useStyles } from 'react-native-unistyles';
-import { Avatar } from '@/components/Avatar';
+import { StyleSheet as UnistylesStyleSheet, useUnistyles } from 'react-native-unistyles';
 
 //
 // Basic Skeleton
 //
 
-interface SkeletonProps {
+export interface SkeletonProps {
   /**
    * Width of the skeleton
    * @default '100%'
@@ -68,7 +67,7 @@ export function Skeleton({
   style,
   duration,
 }: SkeletonProps) {
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   const skeletonStyle = {
     width: typeof width === 'number' ? width : undefined,
@@ -81,7 +80,7 @@ export function Skeleton({
     skeletonStyle,
     style,
     width === '100%' ? { width: '100%' } : undefined,
-  ]);
+  ]) as ViewStyle;
 
   return (
     <ShimmerView 
@@ -92,7 +91,9 @@ export function Skeleton({
         theme.colors.surface3,
         theme.colors.surface2,
       ]}
-    />
+    >
+      <View style={containerStyle} />
+    </ShimmerView>
   );
 }
 
@@ -100,7 +101,7 @@ export function Skeleton({
 // Text Skeleton
 //
 
-interface SkeletonTextProps {
+export interface SkeletonTextProps {
   /**
    * Number of lines to show
    * @default 3
@@ -149,7 +150,7 @@ export function SkeletonText({
   style,
   duration,
 }: SkeletonTextProps) {
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   return (
     <View style={[styles.textContainer, style]}>
@@ -174,7 +175,7 @@ export function SkeletonText({
 // Avatar Skeleton
 //
 
-interface SkeletonAvatarProps {
+export interface SkeletonAvatarProps {
   /**
    * Size of the avatar
    * @default 40
@@ -223,7 +224,7 @@ export function SkeletonAvatar({
 // Card Skeleton
 //
 
-interface SkeletonCardProps {
+export interface SkeletonCardProps {
   /**
    * Custom style
    */
@@ -265,7 +266,7 @@ export function SkeletonCard({
   showDescription = true,
   duration,
 }: SkeletonCardProps) {
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   return (
     <View style={[styles.cardContainer, style]}>
@@ -305,7 +306,7 @@ export function SkeletonCard({
 // List Skeleton
 //
 
-interface SkeletonListProps {
+export interface SkeletonListProps {
   /**
    * Number of items in the list
    * @default 5
@@ -357,7 +358,7 @@ export function SkeletonList({
 // Rect Skeleton
 //
 
-interface SkeletonRectProps {
+export interface SkeletonRectProps {
   /**
    * Width
    */
@@ -410,7 +411,7 @@ export function SkeletonRect({
 // Circle Skeleton
 //
 
-interface SkeletonCircleProps {
+export interface SkeletonCircleProps {
   /**
    * Diameter
    */

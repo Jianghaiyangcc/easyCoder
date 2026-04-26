@@ -5,6 +5,8 @@
  * Maintains consistency and makes it easy to tweak animation timing and values.
  */
 
+import { Easing } from 'react-native-reanimated';
+
 //
 // Working Indicator
 //
@@ -128,7 +130,7 @@ export const SIDEBAR = {
   DURATION: 300,
   
   /** Easing function for sidebar */
-  EASING: 'easeInOut' as const,
+  EASING: Easing.out(Easing.cubic),
   
   /** Width animation configuration */
   WIDTH: {
@@ -148,6 +150,7 @@ export const MESSAGE_FLOW = {
     user: 200,
     assistant: 200,
     tool: 250,
+    thought: 200,
     permission: 300,
   },
   

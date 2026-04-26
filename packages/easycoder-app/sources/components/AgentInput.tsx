@@ -20,7 +20,6 @@ import { GitStatusBadge, useHasMeaningfulGitStatus } from './GitStatusBadge';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSetting } from '@/sync/storage';
 import { hackMode, hackModes } from '@/sync/modeHacks';
-import { Theme } from '@/theme';
 import { t } from '@/text';
 import { Metadata } from '@/sync/storageTypes';
 import { VoiceBars } from './VoiceBars';
@@ -83,6 +82,13 @@ interface AgentInputProps {
 }
 
 const MAX_CONTEXT_SIZE = 190000;
+
+type ContextWarningTheme = {
+    colors: {
+        warningCritical: string;
+        warning: string;
+    };
+};
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
@@ -397,7 +403,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
 }));
 
-const getContextWarning = (contextSize: number, alwaysShow: boolean = false, theme: Theme) => {
+const getContextWarning = (contextSize: number, alwaysShow: boolean = false, theme: ContextWarningTheme) => {
     const percentageUsed = (contextSize / MAX_CONTEXT_SIZE) * 100;
     const percentageRemaining = Math.max(0, Math.min(100, 100 - percentageUsed));
 

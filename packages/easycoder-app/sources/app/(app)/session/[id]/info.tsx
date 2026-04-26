@@ -447,7 +447,7 @@ function SessionInfoContent({ session }: { session: Session }) {
                         )}
                         {session.metadata.easycoderHomeDir && (
                             <Item
-                                title={t('sessionInfo.happyHome')}
+                                title={t('sessionInfo.easycoderHome')}
                                 subtitle={formatPathRelativeToHome(session.metadata.easycoderHomeDir, session.metadata.homeDir)}
                                 icon={<Ionicons name="home-outline" size={29} color="#5856D6" />}
                                 showChevron={false}

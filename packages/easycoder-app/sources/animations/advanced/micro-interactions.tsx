@@ -30,6 +30,7 @@ import React, { useMemo } from 'react';
 import {
   Pressable,
   Text,
+  TextInput,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
@@ -41,8 +42,10 @@ import Animated, {
   interpolate,
   Easing,
 } from 'react-native-reanimated';
-import { StyleSheet as UnistylesStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet as UnistylesStyleSheet, useUnistyles } from 'react-native-unistyles';
 import { MICRO_INTERACTIONS } from '../constants';
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 //
 // Types
@@ -243,27 +246,32 @@ export function AnimatedInput({
   focusedStyle,
   ...props
 }: AnimatedInputProps) {
-  const isFocused = useSharedValue(false);
+  const isFocused = useSharedValue(0);
+  const [focused, setFocused] = React.useState(false);
   const scale = useSharedValue(1);
 
-  const handleFocus = () => {
-    isFocused.value = true;
+  const handleFocus: NonNullable<TextInputProps['onFocus']> = (event) => {
+    isFocused.value = 1;
+    setFocused(true);
     if (animateFocus) {
       scale.value = withSpring(MICRO_INTERACTIONS.BUTTON.scale.hovered, {
         damping: 15,
         stiffness: 150,
       });
     }
+    props.onFocus?.(event);
   };
 
-  const handleBlur = () => {
-    isFocused.value = false;
+  const handleBlur: NonNullable<TextInputProps['onBlur']> = (event) => {
+    isFocused.value = 0;
+    setFocused(false);
     if (animateFocus) {
       scale.value = withSpring(1, {
         damping: 15,
         stiffness: 150,
       });
     }
+    props.onBlur?.(event);
   };
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -286,29 +294,29 @@ export function AnimatedInput({
     };
   });
 
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   const inputStyle = useMemo(
     () => [
       styles.input,
       {
-        borderColor: isFocused.value ? theme.colors.accent : theme.colors.border,
-        shadowColor: isFocused.value ? theme.colors.accent : 'transparent',
-        shadowRadius: isFocused.value ? 8 : 0,
+        borderColor: focused ? theme.colors.accent : theme.colors.border,
+        shadowColor: focused ? theme.colors.accent : 'transparent',
+        shadowRadius: focused ? 8 : 0,
         shadowOffset: {
           width: 0,
-          height: isFocused.value ? 4 : 0,
+          height: focused ? 4 : 0,
         },
       },
       animatedStyle,
       style,
       focusedStyle,
     ],
-    [isFocused.value, animatedStyle, style, focusedStyle, theme]
+    [focused, animatedStyle, style, focusedStyle, theme]
   );
 
   return (
-    <Animated.TextInput
+    <AnimatedTextInput
       {...props}
       onFocus={handleFocus}
       onBlur={handleBlur}
@@ -338,7 +346,7 @@ export function HoverableCard({
     translateY.value = withTiming(
       MICRO_INTERACTIONS.CARD.translateY.hovered,
       {
-        duration: MICRO_INTERACTIONS.CARD.duration,
+        duration: MICRO_INTERACTIONS.CARD.shadow.duration,
         easing: Easing.out(Easing.cubic),
       }
     );
@@ -347,7 +355,7 @@ export function HoverableCard({
   const handleHoverOut = () => {
     isHovered.value = false;
     translateY.value = withTiming(0, {
-      duration: MICRO_INTERACTIONS.CARD.duration,
+      duration: MICRO_INTERACTIONS.CARD.shadow.duration,
       easing: Easing.out(Easing.cubic),
     });
   };
@@ -378,7 +386,7 @@ export function HoverableCard({
     };
   });
 
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   const cardStyle = useMemo(
     () => [
@@ -447,7 +455,7 @@ export function AnimatedSwitch({
     };
   });
 
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   const containerStyle = useMemo(
     () => [
@@ -533,7 +541,7 @@ export function CopySuccessAnimation({ show, style }: CopySuccessAnimationProps)
     };
   });
 
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   return (
     <Animated.View

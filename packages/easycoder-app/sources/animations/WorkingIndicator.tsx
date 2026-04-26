@@ -12,8 +12,8 @@
  * ```
  */
 
-import React, { useEffect, useRef, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,14 +22,15 @@ import Animated, {
   Easing,
   cancelAnimation,
 } from 'react-native-reanimated';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Animation configuration
 const WORKING_INDICATOR_CYCLE_MS = 1200;
 const WORKING_INDICATOR_OFFSETS = [0, 0.125, 0.25] as const;
 
-type WorkingIndicatorSize = 'small' | 'medium' | 'large';
+export type WorkingIndicatorSize = 'small' | 'medium' | 'large';
 
-interface WorkingIndicatorProps {
+export interface WorkingIndicatorProps {
   /**
    * Size of the indicator dots
    * @default 'medium'
@@ -81,6 +82,7 @@ export function WorkingIndicator({
   style,
   testID,
 }: WorkingIndicatorProps) {
+  const { theme } = useUnistyles();
   const progress = useSharedValue(0);
 
   // Start animation on mount
@@ -153,18 +155,18 @@ export function WorkingIndicator({
   });
 
   const dotOneCombinedStyle = useMemo(
-    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color }, dotOneStyle],
-    [sizeConfig.dotSize, color, dotOneStyle]
+    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color ?? theme.colors.foregroundMuted }, dotOneStyle],
+    [sizeConfig.dotSize, color, dotOneStyle, theme.colors.foregroundMuted]
   );
 
   const dotTwoCombinedStyle = useMemo(
-    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color }, dotTwoStyle],
-    [sizeConfig.dotSize, color, dotTwoStyle]
+    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color ?? theme.colors.foregroundMuted }, dotTwoStyle],
+    [sizeConfig.dotSize, color, dotTwoStyle, theme.colors.foregroundMuted]
   );
 
   const dotThreeCombinedStyle = useMemo(
-    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color }, dotThreeStyle],
-    [sizeConfig.dotSize, color, dotThreeStyle]
+    () => [styles.dot, { width: sizeConfig.dotSize, height: sizeConfig.dotSize, backgroundColor: color ?? theme.colors.foregroundMuted }, dotThreeStyle],
+    [sizeConfig.dotSize, color, dotThreeStyle, theme.colors.foregroundMuted]
   );
 
   const containerStyle = useMemo(

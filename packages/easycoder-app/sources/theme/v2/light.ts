@@ -56,7 +56,6 @@ const lightSemanticColors = {
   muted: '#f4f4f5',
   mutedForeground: '#71717a',
   accentBorder: '#ececf1',
-  input: '#f4f4f5',
   ring: '#18181b',
 
   ...lightDiffColors,
@@ -66,6 +65,12 @@ const lightSemanticColors = {
   terminal: {
     background: '#ffffff',
     foreground: '#1a1a1e',
+    prompt: '#16a34a',
+    command: '#1a1a1e',
+    stdout: '#1a1a1e',
+    stderr: '#d97706',
+    error: '#dc2626',
+    emptyOutput: '#71717a',
     cursor: '#1a1a1e',
     cursorAccent: '#ffffff',
     selectionBackground: 'rgba(0, 0, 0, 0.15)',

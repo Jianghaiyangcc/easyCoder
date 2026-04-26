@@ -14,6 +14,7 @@
  * ```
  */
 
+import React from 'react';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -25,10 +26,8 @@ import Animated, {
   SlideOutLeft,
   SlideInLeft,
   SlideOutRight,
-  type AnimatedStyleProp,
-  type ViewStyle,
 } from 'react-native-reanimated';
-import { Platform } from 'react-native';
+import { Platform, type StyleProp, type ViewStyle } from 'react-native';
 
 //
 // Configuration
@@ -120,7 +119,7 @@ export function getPlatformTransition() {
 // Transition Components
 //
 
-interface PageTransitionProps {
+export interface PageTransitionProps {
   children: React.ReactNode;
   /**
    * Transition type
@@ -135,7 +134,7 @@ interface PageTransitionProps {
   /**
    * Custom style for the container
    */
-  style?: AnimatedStyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
   /**
    * Whether to enable the transition
    * @default true
@@ -200,7 +199,7 @@ function getTransitionByType(type: PageTransitionProps['type'], duration: number
 // Staggered Children Animation
 //
 
-interface StaggeredChildrenProps {
+export interface StaggeredChildrenProps {
   children: React.ReactNode;
   /**
    * Delay between each child animation
@@ -220,7 +219,7 @@ interface StaggeredChildrenProps {
   /**
    * Style for container
    */
-  style?: AnimatedStyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**

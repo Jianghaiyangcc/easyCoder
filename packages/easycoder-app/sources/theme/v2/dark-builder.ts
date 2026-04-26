@@ -58,7 +58,6 @@ function buildDarkSemanticColors(config: DarkThemeConfig) {
     muted: config.surface2,
     mutedForeground: config.foregroundMuted,
     accentBorder: config.borderAccent,
-    input: config.surface2,
     ring: '#d4d4d8',
 
     ...darkDiffColors,
@@ -68,6 +67,12 @@ function buildDarkSemanticColors(config: DarkThemeConfig) {
     terminal: {
       background: config.surface0,
       foreground: '#fafafa',
+      prompt: config.accent,
+      command: '#E0E0E0',
+      stdout: '#E0E0E0',
+      stderr: '#FFB86C',
+      error: '#FF6B6B',
+      emptyOutput: '#7B7B93',
       cursor: '#fafafa',
       cursorAccent: config.surface0,
       selectionBackground: 'rgba(255, 255, 255, 0.2)',

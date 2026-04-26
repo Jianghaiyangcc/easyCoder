@@ -136,7 +136,7 @@ export const darkStatusColors = {
 };
 
 // Terminal ANSI colors for light theme
-export const lightTerminalAnsi: Omit<import('./types').TerminalColors, 'background' | 'foreground' | 'cursor' | 'cursorAccent' | 'selectionBackground' | 'selectionForeground'> = {
+export const lightTerminalAnsi: Omit<import('./types').TerminalColors, 'background' | 'foreground' | 'prompt' | 'command' | 'stdout' | 'stderr' | 'error' | 'emptyOutput' | 'cursor' | 'cursorAccent' | 'selectionBackground' | 'selectionForeground'> = {
   black: '#1a1a1e',
   red: '#dc2626',
   green: '#16a34a',
@@ -156,7 +156,7 @@ export const lightTerminalAnsi: Omit<import('./types').TerminalColors, 'backgrou
 };
 
 // Terminal ANSI colors for dark theme
-export const darkTerminalAnsi: Omit<import('./types').TerminalColors, 'background' | 'foreground' | 'cursor' | 'cursorAccent' | 'selectionBackground' | 'selectionForeground'> = {
+export const darkTerminalAnsi: Omit<import('./types').TerminalColors, 'background' | 'foreground' | 'prompt' | 'command' | 'stdout' | 'stderr' | 'error' | 'emptyOutput' | 'cursor' | 'cursorAccent' | 'selectionBackground' | 'selectionForeground' | 'black' | 'brightBlack'> = {
   red: '#e07070',
   green: '#5dba80',
   yellow: '#d4a44a',

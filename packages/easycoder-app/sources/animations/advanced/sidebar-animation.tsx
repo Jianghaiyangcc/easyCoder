@@ -21,25 +21,20 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import {
   View,
-  StyleSheet,
   Pressable,
   Platform,
+  PanResponder,
+  type PanResponderGestureState,
+  type GestureResponderEvent,
   type ViewStyle,
-  type PressableStateCallbackType,
 } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withSpring,
-  useAnimatedGestureHandler,
-  Gesture,
-  GestureDetector,
-  runOnJS,
-  interpolate,
-  Extrapolation,
 } from 'react-native-reanimated';
-import { StyleSheet as UnistylesStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet as UnistylesStyleSheet } from 'react-native-unistyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SIDEBAR } from '../constants';
 
@@ -126,7 +121,6 @@ export function SidebarAnimation({
   resizable = Platform.OS === 'web',
   onWidthChange,
 }: SidebarAnimationProps) {
-  const { theme } = useStyles();
   const insets = useSafeAreaInsets();
   const isMobile = !resizable;
 
@@ -278,31 +272,46 @@ export function ResizableSidebar({
 }: ResizableSidebarProps) {
   const sidebarWidth = useSharedValue(width);
   const startWidthRef = useRef(width);
+  const latestWidthRef = useRef(width);
+  
+  const clampWidth = (nextWidth: number) => {
+    return Math.max(minWidth, Math.min(maxWidth, nextWidth));
+  };
   
   // Sync width prop with animation value
   useEffect(() => {
-    sidebarWidth.value = withSpring(width, {
+    const clamped = clampWidth(width);
+    latestWidthRef.current = clamped;
+    sidebarWidth.value = withSpring(clamped, {
       damping: 15,
-    stiffness: 150,
+      stiffness: 150,
     });
   }, [width, sidebarWidth]);
 
-  // Pan gesture for width adjustment
-  const panGesture = useAnimatedGestureHandler({
-    onStart: () => {
-      startWidthRef.current = sidebarWidth.value;
-    },
-    onActive: (event) => {
-      const newWidth = startWidthRef.current + event.translationX;
-      const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-      sidebarWidth.value = clampedWidth;
-    },
-    onEnd: () => {
-      if (onWidthChange) {
-        runOnJS(onWidthChange)(sidebarWidth.value);
-      }
-    },
-  });
+  const updateWidth = (_event: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+    const candidate = startWidthRef.current + gestureState.dx;
+    const clamped = clampWidth(candidate);
+    latestWidthRef.current = clamped;
+    sidebarWidth.value = clamped;
+  };
+
+  const panResponder = useMemo(
+    () => PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 2,
+      onPanResponderGrant: () => {
+        startWidthRef.current = latestWidthRef.current;
+      },
+      onPanResponderMove: updateWidth,
+      onPanResponderRelease: () => {
+        onWidthChange?.(latestWidthRef.current);
+      },
+      onPanResponderTerminate: () => {
+        onWidthChange?.(latestWidthRef.current);
+      },
+    }),
+    [onWidthChange, minWidth, maxWidth]
+  );
 
   const sidebarAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -310,36 +319,21 @@ export function ResizableSidebar({
     };
   });
 
-  const resizeHandleAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: 0 }],
-    };
-  });
-
-  const { theme } = useStyles();
-
   return (
-    <GestureDetector gesture={panGesture}>
-      <Animated.View style={[styles.resizableSidebarContainer, sidebarAnimatedStyle]}>
-        <SidebarAnimation
-          {...rest}
-          width={sidebarWidth.value}
-          onWidthChange={onWidthChange}
-          resizable={false}
-        />
-        
-        {/* Resize handle */}
-        <Animated.View
-          style={[
-            styles.resizeHandle,
-            resizeHandleAnimatedStyle,
-            {
-              backgroundColor: 'transparent',
-            },
-          ]}
-        />
-      </Animated.View>
-    </GestureDetector>
+    <Animated.View style={[styles.resizableSidebarContainer, sidebarAnimatedStyle]}>
+      <SidebarAnimation
+        {...rest}
+        width={latestWidthRef.current}
+        onWidthChange={onWidthChange}
+        resizable={true}
+      />
+
+      {/* Resize handle */}
+      <View
+        style={styles.resizeHandle}
+        {...panResponder.panHandlers}
+      />
+    </Animated.View>
   );
 }
 
@@ -354,14 +348,8 @@ interface AnimatedPressableProps {
 }
 
 function AnimatedPressable({ style, onPress, children }: AnimatedPressableProps) {
-  const handlePress = (state: PressableStateCallbackType) => {
-    if (state.pressed) {
-      onPress();
-    }
-  };
-
   return (
-    <Pressable style={style} onPress={handlePress}>
+    <Pressable style={style} onPress={onPress}>
       {children}
     </Pressable>
   );

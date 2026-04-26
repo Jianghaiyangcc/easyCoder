@@ -27,6 +27,12 @@ export type ColorScheme = 'light' | 'dark';
 export interface TerminalColors {
   background: string;
   foreground: string;
+  prompt: string;
+  command: string;
+  stdout: string;
+  stderr: string;
+  error: string;
+  emptyOutput: string;
   cursor: string;
   cursorAccent: string;
   selectionBackground: string;
@@ -121,7 +127,6 @@ export interface ThemeColors {
   muted: string;
   mutedForeground: string;
   accentBorder: string;
-  input: string;
   ring: string;
   
   // Diff colors

@@ -24,13 +24,12 @@ import Animated, {
   FadeInUp,
   FadeIn,
   SlideInLeft,
-  ScaleIn,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import { StyleSheet as UnistylesStyleSheet, useStyles } from 'react-native-unistyles';
+import { StyleSheet as UnistylesStyleSheet, useUnistyles } from 'react-native-unistyles';
 import { MESSAGE_FLOW } from '../constants';
 
 //
@@ -112,7 +111,7 @@ function getMessageAnimation(type: MessageAnimationType, duration?: number) {
       return FadeIn.duration(animDuration).easing(easing);
     
     case 'permission':
-      return ScaleIn.duration(animDuration).easing(easing);
+      return FadeIn.duration(animDuration).easing(easing);
     
     default:
       return FadeInUp.duration(animDuration).easing(easing);
@@ -146,7 +145,7 @@ export function MessageFlowAnimation({
   index = 0,
   staggered = false,
 }: MessageFlowAnimationProps) {
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   // Calculate animation
   const animation = useMemo(() => {
@@ -296,7 +295,7 @@ export function MessageGroup({
   groupId,
   style,
 }: MessageGroupProps) {
-  const { theme } = useStyles();
+  const { theme } = useUnistyles();
 
   const containerStyle = useMemo(
     () => [
