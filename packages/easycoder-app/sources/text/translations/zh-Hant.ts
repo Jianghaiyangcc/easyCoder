@@ -688,6 +688,7 @@ export const zhHant: TranslationStructure = {
         phoneBoundSuccess: '手機號綁定成功',
         phoneUnboundSuccess: '手機號解除綁定成功',
         phoneActionFailed: '手機號校驗失敗',
+        phoneAlreadyInUse: '該手機號已綁定其他帳號，請先解除綁定後再試。',
         unbindPhoneTitle: '確認解除綁定手機號？',
         unbindPhoneMessage: ({ phone }: { phone: string }) => `將向 ${phone} 發送驗證碼以確認解除綁定。`,
         dangerZone: '危險區域',

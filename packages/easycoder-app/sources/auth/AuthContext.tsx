@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { TokenStorage, AuthCredentials } from '@/auth/tokenStorage';
 import { syncCreate } from '@/sync/sync';
 import * as Updates from 'expo-updates';
+import { router } from 'expo-router';
 import { clearPersistence, loadRegisteredPushToken } from '@/sync/persistence';
 import { unregisterPushToken } from '@/sync/apiPush';
 import { Platform } from 'react-native';
@@ -49,11 +50,18 @@ export function AuthProvider({ children, initialCredentials }: { children: React
         }
         clearPersistence();
         await TokenStorage.removeCredentials();
-        
+
         // Update React state to ensure UI consistency
         setCredentials(null);
         setIsAuthenticated(false);
-        
+
+        // Always return to home after a successful logout.
+        try {
+            router.replace('/');
+        } catch {
+            // Ignore navigation errors and continue with platform reload behavior.
+        }
+
         if (Platform.OS === 'web') {
             window.location.reload();
         } else {

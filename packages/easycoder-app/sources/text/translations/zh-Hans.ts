@@ -689,6 +689,7 @@ export const zhHans: TranslationStructure = {
         phoneBoundSuccess: '手机号绑定成功',
         phoneUnboundSuccess: '手机号解绑成功',
         phoneActionFailed: '手机号校验失败',
+        phoneAlreadyInUse: '该手机号已绑定其他账号，请先解绑后再试。',
         unbindPhoneTitle: '确认解绑手机号？',
         unbindPhoneMessage: ({ phone }: { phone: string }) => `将向 ${phone} 发送验证码以确认解绑。`,
         dangerZone: '危险区域',

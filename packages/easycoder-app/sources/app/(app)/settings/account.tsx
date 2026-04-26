@@ -33,7 +33,7 @@ import {
     syncCurrentPushToken,
     type PushPermissionInfo,
 } from '@/sync/pushRegistration';
-import { sendPhoneCode, unbindPhone, verifyPhoneCode } from '@/sync/apiPhone';
+import { PhoneApiRequestError, sendPhoneCode, unbindPhone, verifyPhoneCode } from '@/sync/apiPhone';
 
 function formatPushPermissionLabel(permission: PushPermissionInfo | null): string {
     if (!permission) {
@@ -73,6 +73,16 @@ function formatPushTokenFingerprint(token: string): string {
         return rawValue;
     }
     return `${rawValue.slice(0, 6)}…${rawValue.slice(-6)}`;
+}
+
+function getPhoneActionErrorMessage(error: unknown): string {
+    if (error instanceof PhoneApiRequestError && error.code === 'PHONE_ALREADY_IN_USE') {
+        return t('settingsAccount.phoneAlreadyInUse');
+    }
+    if (error instanceof Error) {
+        return error.message;
+    }
+    return t('settingsAccount.phoneActionFailed');
 }
 
 function formatPushTimestamp(timestamp: number): string {
@@ -265,8 +275,7 @@ export default React.memo(() => {
             await sync.refreshProfile();
             Modal.alert(t('common.success'), t('settingsAccount.phoneBoundSuccess'));
         } catch (error) {
-            const message = error instanceof Error ? error.message : t('settingsAccount.phoneActionFailed');
-            Modal.alert(t('common.error'), message);
+            Modal.alert(t('common.error'), getPhoneActionErrorMessage(error));
         } finally {
             setPhoneActionLoading(null);
         }
@@ -312,8 +321,7 @@ export default React.memo(() => {
             await sync.refreshProfile();
             Modal.alert(t('common.success'), t('settingsAccount.phoneUnboundSuccess'));
         } catch (error) {
-            const message = error instanceof Error ? error.message : t('settingsAccount.phoneActionFailed');
-            Modal.alert(t('common.error'), message);
+            Modal.alert(t('common.error'), getPhoneActionErrorMessage(error));
         } finally {
             setPhoneActionLoading(null);
         }
@@ -341,7 +349,7 @@ export default React.memo(() => {
             { confirmText: t('common.logout'), destructive: true }
         );
         if (confirmed) {
-            auth.logout();
+            await auth.logout();
         }
     };
 

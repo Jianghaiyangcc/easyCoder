@@ -1,14 +1,29 @@
 import { AuthCredentials } from '@/auth/tokenStorage';
-import { backoff } from '@/utils/time';
 import { getServerUrl } from './serverConfig';
 import { getEasyCoderClientId } from './apiSocket';
 
 export type PhoneVerificationScene = 'bind' | 'unbind';
 
-type PhoneApiError = {
+type PhoneApiErrorPayload = {
     error?: string;
     code?: string;
 };
+
+export class PhoneApiRequestError extends Error {
+    readonly statusCode: number;
+    readonly code?: string;
+
+    constructor(options: {
+        message: string;
+        statusCode: number;
+        code?: string;
+    }) {
+        super(options.message);
+        this.name = 'PhoneApiRequestError';
+        this.statusCode = options.statusCode;
+        this.code = options.code;
+    }
+}
 
 function buildHeaders(credentials: AuthCredentials): Record<string, string> {
     return {
@@ -19,8 +34,12 @@ function buildHeaders(credentials: AuthCredentials): Record<string, string> {
 }
 
 async function parseError(response: Response, fallback: string): Promise<never> {
-    const payload = await response.json().catch(() => null) as PhoneApiError | null;
-    throw new Error(payload?.error || fallback);
+    const payload = await response.json().catch(() => null) as PhoneApiErrorPayload | null;
+    throw new PhoneApiRequestError({
+        message: payload?.error || fallback,
+        statusCode: response.status,
+        code: payload?.code,
+    });
 }
 
 export async function sendPhoneCode(
@@ -28,19 +47,17 @@ export async function sendPhoneCode(
     input: { phone?: string; scene: PhoneVerificationScene },
 ): Promise<{ phone: string; expiresInSeconds: number; cooldownSeconds: number; scene: PhoneVerificationScene }> {
     const API_ENDPOINT = getServerUrl();
-    return backoff(async () => {
-        const response = await fetch(`${API_ENDPOINT}/v1/account/phone/send-code`, {
-            method: 'POST',
-            headers: buildHeaders(credentials),
-            body: JSON.stringify(input),
-        });
-
-        if (!response.ok) {
-            await parseError(response, 'Failed to send phone verification code');
-        }
-
-        return response.json();
+    const response = await fetch(`${API_ENDPOINT}/v1/account/phone/send-code`, {
+        method: 'POST',
+        headers: buildHeaders(credentials),
+        body: JSON.stringify(input),
     });
+
+    if (!response.ok) {
+        await parseError(response, 'Failed to send phone verification code');
+    }
+
+    return response.json();
 }
 
 export async function verifyPhoneCode(
@@ -48,19 +65,17 @@ export async function verifyPhoneCode(
     input: { phone: string; code: string },
 ): Promise<{ phoneE164: string; phoneBound: true }> {
     const API_ENDPOINT = getServerUrl();
-    return backoff(async () => {
-        const response = await fetch(`${API_ENDPOINT}/v1/account/phone/verify`, {
-            method: 'POST',
-            headers: buildHeaders(credentials),
-            body: JSON.stringify(input),
-        });
-
-        if (!response.ok) {
-            await parseError(response, 'Failed to verify phone code');
-        }
-
-        return response.json();
+    const response = await fetch(`${API_ENDPOINT}/v1/account/phone/verify`, {
+        method: 'POST',
+        headers: buildHeaders(credentials),
+        body: JSON.stringify(input),
     });
+
+    if (!response.ok) {
+        await parseError(response, 'Failed to verify phone code');
+    }
+
+    return response.json();
 }
 
 export async function unbindPhone(
@@ -68,17 +83,15 @@ export async function unbindPhone(
     input: { code: string },
 ): Promise<{ phoneE164: null; phoneBound: false }> {
     const API_ENDPOINT = getServerUrl();
-    return backoff(async () => {
-        const response = await fetch(`${API_ENDPOINT}/v1/account/phone/unbind`, {
-            method: 'POST',
-            headers: buildHeaders(credentials),
-            body: JSON.stringify(input),
-        });
-
-        if (!response.ok) {
-            await parseError(response, 'Failed to unbind phone');
-        }
-
-        return response.json();
+    const response = await fetch(`${API_ENDPOINT}/v1/account/phone/unbind`, {
+        method: 'POST',
+        headers: buildHeaders(credentials),
+        body: JSON.stringify(input),
     });
+
+    if (!response.ok) {
+        await parseError(response, 'Failed to unbind phone');
+    }
+
+    return response.json();
 }

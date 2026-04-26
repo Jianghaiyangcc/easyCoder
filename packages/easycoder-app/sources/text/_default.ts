@@ -687,6 +687,7 @@ export const en = {
         phoneBoundSuccess: 'Phone number bound successfully',
         phoneUnboundSuccess: 'Phone number unbound successfully',
         phoneActionFailed: 'Phone verification failed',
+        phoneAlreadyInUse: 'This phone number is already bound to another account. Unbind it first and try again.',
         unbindPhoneTitle: 'Unbind this phone?',
         unbindPhoneMessage: ({ phone }: { phone: string }) => `A verification code will be sent to ${phone} to confirm unbinding.`,
         dangerZone: 'Danger Zone',
