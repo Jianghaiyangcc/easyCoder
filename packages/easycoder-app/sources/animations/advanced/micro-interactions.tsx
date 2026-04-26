@@ -86,12 +86,12 @@ export interface AnimatedInputProps extends TextInputProps {
   /**
    * Custom style
    */
-  style?: ViewStyle;
+  style?: TextInputProps['style'];
   
   /**
    * Custom focused style
    */
-  focusedStyle?: ViewStyle;
+  focusedStyle?: TextInputProps['style'];
 }
 
 export interface HoverableCardProps {
