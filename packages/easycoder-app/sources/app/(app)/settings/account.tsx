@@ -33,6 +33,7 @@ import {
     syncCurrentPushToken,
     type PushPermissionInfo,
 } from '@/sync/pushRegistration';
+import { sendPhoneCode, unbindPhone, verifyPhoneCode } from '@/sync/apiPhone';
 
 function formatPushPermissionLabel(permission: PushPermissionInfo | null): string {
     if (!permission) {
@@ -118,6 +119,7 @@ export default React.memo(() => {
     const [requestingPushPermission, setRequestingPushPermission] = useState(false);
     const [refreshingPushToken, setRefreshingPushToken] = useState(false);
     const [deletingPushToken, setDeletingPushToken] = useState<string | null>(null);
+    const [phoneActionLoading, setPhoneActionLoading] = useState<'bind' | 'unbind' | null>(null);
 
     // Get the current secret key
     const currentSecret = auth.credentials?.secret || '';
@@ -126,6 +128,8 @@ export default React.memo(() => {
     // Profile display values
     const displayName = getDisplayName(profile);
     const githubUsername = profile.github?.login;
+    const boundPhone = profile.phoneE164;
+    const phoneBound = profile.phoneBound && !!boundPhone;
 
     const loadPushSettings = useCallback(async (showError = false) => {
         if (!auth.credentials) {
@@ -209,6 +213,111 @@ export default React.memo(() => {
             }
         }
     };
+
+    const handleBindOrChangePhone = useCallback(async () => {
+        if (!auth.credentials) {
+            return;
+        }
+
+        const phoneInput = await Modal.prompt(
+            t('settingsAccount.enterPhoneTitle'),
+            t('settingsAccount.enterPhoneMessage'),
+            {
+                defaultValue: boundPhone || '',
+                placeholder: t('settingsAccount.enterPhonePlaceholder'),
+                inputType: 'numeric',
+            }
+        );
+
+        if (phoneInput === null) {
+            return;
+        }
+
+        const phone = phoneInput.trim();
+        if (!phone) {
+            Modal.alert(t('common.error'), t('settingsAccount.phoneEmptyError'));
+            return;
+        }
+
+        setPhoneActionLoading('bind');
+        try {
+            const sendResult = await sendPhoneCode(auth.credentials, { phone, scene: 'bind' });
+            const codeInput = await Modal.prompt(
+                t('settingsAccount.enterCodeTitle'),
+                t('settingsAccount.enterCodeMessage', { phone: sendResult.phone }),
+                {
+                    placeholder: t('settingsAccount.enterCodePlaceholder'),
+                    inputType: 'numeric',
+                }
+            );
+
+            if (codeInput === null) {
+                return;
+            }
+
+            const code = codeInput.trim();
+            if (!code) {
+                Modal.alert(t('common.error'), t('settingsAccount.codeEmptyError'));
+                return;
+            }
+
+            await verifyPhoneCode(auth.credentials, { phone, code });
+            await sync.refreshProfile();
+            Modal.alert(t('common.success'), t('settingsAccount.phoneBoundSuccess'));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('settingsAccount.phoneActionFailed');
+            Modal.alert(t('common.error'), message);
+        } finally {
+            setPhoneActionLoading(null);
+        }
+    }, [auth.credentials, boundPhone]);
+
+    const handleUnbindPhone = useCallback(async () => {
+        if (!auth.credentials || !phoneBound || !boundPhone) {
+            return;
+        }
+
+        const confirmed = await Modal.confirm(
+            t('settingsAccount.unbindPhoneTitle'),
+            t('settingsAccount.unbindPhoneMessage', { phone: boundPhone }),
+            { confirmText: t('settingsAccount.unbindPhone'), destructive: true }
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        setPhoneActionLoading('unbind');
+        try {
+            const sendResult = await sendPhoneCode(auth.credentials, { scene: 'unbind' });
+            const codeInput = await Modal.prompt(
+                t('settingsAccount.enterCodeTitle'),
+                t('settingsAccount.enterCodeMessage', { phone: sendResult.phone }),
+                {
+                    placeholder: t('settingsAccount.enterCodePlaceholder'),
+                    inputType: 'numeric',
+                }
+            );
+
+            if (codeInput === null) {
+                return;
+            }
+
+            const code = codeInput.trim();
+            if (!code) {
+                Modal.alert(t('common.error'), t('settingsAccount.codeEmptyError'));
+                return;
+            }
+
+            await unbindPhone(auth.credentials, { code });
+            await sync.refreshProfile();
+            Modal.alert(t('common.success'), t('settingsAccount.phoneUnboundSuccess'));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('settingsAccount.phoneActionFailed');
+            Modal.alert(t('common.error'), message);
+        } finally {
+            setPhoneActionLoading(null);
+        }
+    }, [auth.credentials, boundPhone, phoneBound]);
 
     const handleShowSecret = () => {
         setShowSecret(!showSecret);
@@ -358,6 +467,38 @@ export default React.memo(() => {
                             icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
                             onPress={connectAccount}
                             disabled={isConnecting}
+                            showChevron={false}
+                        />
+                    )}
+                </ItemGroup>
+
+                <ItemGroup title={t('settingsAccount.phone')}
+                    footer={t('settingsAccount.phoneFooter')}
+                >
+                    <Item
+                        title={t('settingsAccount.phoneNumber')}
+                        detail={boundPhone || t('settingsAccount.phoneNotBound')}
+                        showChevron={false}
+                        copy={!!boundPhone}
+                    />
+                    <Item
+                        title={phoneBound ? t('settingsAccount.changePhone') : t('settingsAccount.bindPhone')}
+                        subtitle={t('settingsAccount.bindPhoneSubtitle')}
+                        icon={<Ionicons name="phone-portrait-outline" size={29} color="#007AFF" />}
+                        onPress={handleBindOrChangePhone}
+                        loading={phoneActionLoading === 'bind'}
+                        disabled={phoneActionLoading !== null}
+                        showChevron={false}
+                    />
+                    {phoneBound && (
+                        <Item
+                            title={t('settingsAccount.unbindPhone')}
+                            subtitle={t('settingsAccount.unbindPhoneSubtitle')}
+                            icon={<Ionicons name="close-circle-outline" size={29} color="#FF3B30" />}
+                            onPress={handleUnbindPhone}
+                            loading={phoneActionLoading === 'unbind'}
+                            disabled={phoneActionLoading !== null}
+                            destructive
                             showChevron={false}
                         />
                     )}

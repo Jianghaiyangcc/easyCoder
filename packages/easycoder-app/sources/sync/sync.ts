@@ -1440,6 +1440,7 @@ class Sync {
             timestamp: parsedProfile.timestamp,
             firstName: parsedProfile.firstName,
             lastName: parsedProfile.lastName,
+            phoneBound: parsedProfile.phoneBound,
             hasAvatar: !!parsedProfile.avatar,
             hasGitHub: !!parsedProfile.github
         }));
@@ -1908,6 +1909,8 @@ class Sync {
                 ...currentProfile,
                 firstName: accountUpdate.firstName !== undefined ? accountUpdate.firstName : currentProfile.firstName,
                 lastName: accountUpdate.lastName !== undefined ? accountUpdate.lastName : currentProfile.lastName,
+                phoneE164: accountUpdate.phoneE164 !== undefined ? accountUpdate.phoneE164 : currentProfile.phoneE164,
+                phoneBound: accountUpdate.phoneBound !== undefined ? accountUpdate.phoneBound : currentProfile.phoneBound,
                 avatar: accountUpdate.avatar !== undefined ? accountUpdate.avatar : currentProfile.avatar,
                 github: accountUpdate.github !== undefined ? accountUpdate.github : currentProfile.github,
                 timestamp: updateData.createdAt // Update timestamp to latest

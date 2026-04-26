@@ -5,6 +5,8 @@ export type AccountProfile = {
     firstName: string | null;
     lastName: string | null;
     username: string | null;
+    phoneE164: string | null;
+    phoneBound: boolean;
     avatar: ImageRef | null;
     github: GitHubProfile | null;
     settings: {

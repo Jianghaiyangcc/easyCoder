@@ -6,7 +6,13 @@ import { z } from "zod";
 import { randomKeyNaked } from "@/utils/randomKeyNaked";
 import { allocateUserSeq } from "@/storage/seq";
 import { log } from "@/utils/log";
-import { AccountProfile } from "@/types";
+import {
+    listPhoneVerificationCodes,
+    PhoneVerificationError,
+    sendPhoneVerificationCode,
+    verifyAndBindPhone,
+    verifyAndUnbindPhone,
+} from "../services/phoneVerificationService";
 
 export function accountRoutes(app: Fastify) {
     app.get('/v1/account/profile', {
@@ -20,7 +26,8 @@ export function accountRoutes(app: Fastify) {
                 lastName: true,
                 username: true,
                 avatar: true,
-                githubUser: true
+                githubUser: true,
+                phoneE164: true,
             }
         });
         const connectedVendors = new Set((await db.serviceAccountToken.findMany({ where: { accountId: userId } })).map(t => t.vendor));
@@ -32,8 +39,165 @@ export function accountRoutes(app: Fastify) {
             username: user.username,
             avatar: user.avatar ? { ...user.avatar, url: getPublicUrl(user.avatar.path) } : null,
             github: user.githubUser ? user.githubUser.profile : null,
-            connectedServices: Array.from(connectedVendors)
+            connectedServices: Array.from(connectedVendors),
+            phoneE164: user.phoneE164,
+            phoneBound: !!user.phoneE164,
         });
+    });
+
+    app.post('/v1/account/phone/send-code', {
+        preHandler: app.authenticate,
+        schema: {
+            body: z.object({
+                phone: z.string().trim().min(1).optional(),
+                scene: z.enum(['bind', 'unbind']).default('bind'),
+            }),
+        },
+    }, async (request, reply) => {
+        try {
+            const result = await sendPhoneVerificationCode({
+                accountId: request.userId,
+                phone: request.body.phone,
+                scene: request.body.scene,
+                requestIp: request.ip,
+            });
+
+            return reply.send({
+                success: true,
+                phone: result.phoneE164,
+                scene: request.body.scene,
+                expiresInSeconds: result.expiresInSeconds,
+                cooldownSeconds: result.cooldownSeconds,
+            });
+        } catch (error) {
+            if (error instanceof PhoneVerificationError) {
+                return reply.code(error.statusCode).send({
+                    error: error.message,
+                    code: error.code,
+                });
+            }
+            throw error;
+        }
+    });
+
+    app.post('/v1/account/phone/verify', {
+        preHandler: app.authenticate,
+        schema: {
+            body: z.object({
+                phone: z.string().trim().min(1),
+                code: z.string().trim().min(1),
+            }),
+        },
+    }, async (request, reply) => {
+        try {
+            const result = await verifyAndBindPhone({
+                accountId: request.userId,
+                phone: request.body.phone,
+                code: request.body.code,
+            });
+
+            const updSeq = await allocateUserSeq(request.userId);
+            const updatePayload = buildUpdateAccountUpdate(request.userId, {
+                phoneE164: result.phoneE164,
+                phoneBound: result.phoneBound,
+            }, updSeq, randomKeyNaked(12));
+
+            eventRouter.emitUpdate({
+                userId: request.userId,
+                payload: updatePayload,
+                recipientFilter: { type: 'user-scoped-only' },
+            });
+
+            return reply.send({
+                success: true,
+                phoneE164: result.phoneE164,
+                phoneBound: true,
+            });
+        } catch (error) {
+            if (error instanceof PhoneVerificationError) {
+                return reply.code(error.statusCode).send({
+                    error: error.message,
+                    code: error.code,
+                });
+            }
+            throw error;
+        }
+    });
+
+    app.post('/v1/account/phone/unbind', {
+        preHandler: app.authenticate,
+        schema: {
+            body: z.object({
+                code: z.string().trim().min(1),
+            }),
+        },
+    }, async (request, reply) => {
+        try {
+            const result = await verifyAndUnbindPhone({
+                accountId: request.userId,
+                code: request.body.code,
+            });
+
+            const updSeq = await allocateUserSeq(request.userId);
+            const updatePayload = buildUpdateAccountUpdate(request.userId, {
+                phoneE164: result.phoneE164,
+                phoneBound: result.phoneBound,
+            }, updSeq, randomKeyNaked(12));
+
+            eventRouter.emitUpdate({
+                userId: request.userId,
+                payload: updatePayload,
+                recipientFilter: { type: 'user-scoped-only' },
+            });
+
+            return reply.send({
+                success: true,
+                phoneE164: null,
+                phoneBound: false,
+            });
+        } catch (error) {
+            if (error instanceof PhoneVerificationError) {
+                return reply.code(error.statusCode).send({
+                    error: error.message,
+                    code: error.code,
+                });
+            }
+            throw error;
+        }
+    });
+
+    app.get('/v1/account/phone/codes', {
+        preHandler: app.authenticate,
+        schema: {
+            querystring: z.object({
+                limit: z.coerce.number().int().min(1).max(100).default(20),
+            }),
+            response: {
+                200: z.object({
+                    codes: z.array(z.object({
+                        id: z.string(),
+                        phoneE164: z.string(),
+                        scene: z.enum(['bind', 'unbind']),
+                        code: z.string(),
+                        attempts: z.number(),
+                        maxAttempts: z.number(),
+                        expiresAt: z.number(),
+                        consumedAt: z.number().nullable(),
+                        requestIp: z.string().nullable(),
+                        providerCode: z.string().nullable(),
+                        providerMessage: z.string().nullable(),
+                        createdAt: z.number(),
+                    })),
+                }),
+            },
+        },
+    }, async (request, reply) => {
+        const codes = await listPhoneVerificationCodes({
+            accountId: request.userId,
+            limit: request.query.limit,
+        });
+
+        return reply.send({ codes });
     });
 
     // Get Account Settings API

@@ -48,6 +48,8 @@ export const ApiUpdateAccountSchema = z.object({
     }).nullish(),
     firstName: z.string().nullish(),
     lastName: z.string().nullish(),
+    phoneE164: z.string().nullable().nullish(),
+    phoneBound: z.boolean().optional(),
     avatar: ImageRefSchema.nullish(),
     github: GitHubProfileSchema.nullish(),
 });

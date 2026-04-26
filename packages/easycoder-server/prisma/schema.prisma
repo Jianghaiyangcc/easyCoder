@@ -32,11 +32,13 @@ model Account {
     githubUser      GithubUser? @relation(fields: [githubUserId], references: [id])
 
     // Profile
-    firstName String?
-    lastName  String?
-    username  String? @unique
+    firstName       String?
+    lastName        String?
+    username        String? @unique
+    phoneE164       String? @unique
+    phoneVerifiedAt DateTime?
     /// [ImageRef]
-    avatar    Json?
+    avatar          Json?
 
     Session             Session[]
     AccountPushToken    AccountPushToken[]
@@ -53,6 +55,12 @@ model Account {
     UserFeedItem        UserFeedItem[]
     UserKVStore         UserKVStore[]
     VoiceConversation   VoiceConversation[]
+    PhoneVerificationCode PhoneVerificationCode[]
+}
+
+enum PhoneVerificationScene {
+    bind
+    unbind
 }
 
 model TerminalAuthRequest {
@@ -168,6 +176,28 @@ model RepeatKey {
     value     String
     createdAt DateTime @default(now())
     expiresAt DateTime
+}
+
+model PhoneVerificationCode {
+    id              String                 @id @default(cuid())
+    accountId       String
+    account         Account                @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    phoneE164       String
+    scene           PhoneVerificationScene
+    code            String
+    attempts        Int                    @default(0)
+    maxAttempts     Int                    @default(5)
+    expiresAt       DateTime
+    consumedAt      DateTime?
+    requestIp       String?
+    providerCode    String?
+    providerMessage String?
+    createdAt       DateTime               @default(now())
+
+    @@index([accountId, createdAt(sort: Desc)])
+    @@index([phoneE164, createdAt(sort: Desc)])
+    @@index([requestIp, createdAt(sort: Desc)])
+    @@index([expiresAt])
 }
 
 model SimpleCache {

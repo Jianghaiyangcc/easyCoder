@@ -26,6 +26,8 @@ export const ProfileSchema = z.object({
     timestamp: z.number(),
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
+    phoneE164: z.string().nullable().optional().default(null),
+    phoneBound: z.boolean().optional().default(false),
     avatar: ImageRefSchema.nullable(),
     github: GitHubProfileSchema.nullable(),
     connectedServices: z.array(z.string()).default([])
@@ -44,6 +46,8 @@ export const profileDefaults: Profile = {
     timestamp: 0,
     firstName: null,
     lastName: null,
+    phoneE164: null,
+    phoneBound: false,
     avatar: null,
     github: null,
     connectedServices: []
