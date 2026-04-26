@@ -1,10 +1,13 @@
 import {
+    BailianAsrLimitExceededSchema,
     BailianAsrResponseSchema,
     BailianTtsResponseSchema,
     VoiceConversationResponseSchema,
     VoiceUsageResponseSchema,
     type BailianAsrResponse,
+    type BailianAsrLimitExceeded,
     type BailianTtsResponse,
+    type VoiceLimitReason,
     type VoiceConversationResponse,
     type VoiceProvider,
     type VoiceUsageResponse,
@@ -15,6 +18,24 @@ import { getEasyCoderClientId } from './apiSocket';
 import { config } from '@/config';
 
 export type { VoiceConversationResponse, VoiceUsageResponse, BailianAsrResponse, BailianTtsResponse };
+
+export class VoiceQuotaError extends Error {
+    readonly reason: VoiceLimitReason;
+    readonly usedSeconds: number;
+    readonly limitSeconds: number;
+
+    constructor(data: BailianAsrLimitExceeded) {
+        super(data.error);
+        this.name = 'VoiceQuotaError';
+        this.reason = data.reason;
+        this.usedSeconds = data.usedSeconds;
+        this.limitSeconds = data.limitSeconds;
+    }
+}
+
+export function isVoiceQuotaError(error: unknown): error is VoiceQuotaError {
+    return error instanceof VoiceQuotaError;
+}
 
 export async function fetchVoiceCredentials(
     credentials: AuthCredentials,
@@ -128,11 +149,16 @@ export async function transcribeBailianAudio(
         body: JSON.stringify(sanitizedInput),
     });
 
+    const responseJson = await response.json();
     if (!response.ok) {
+        const maybeLimitExceeded = BailianAsrLimitExceededSchema.safeParse(responseJson);
+        if (maybeLimitExceeded.success) {
+            throw new VoiceQuotaError(maybeLimitExceeded.data);
+        }
         throw new Error(`Bailian ASR request failed: ${response.status}`);
     }
 
-    return BailianAsrResponseSchema.parse(await response.json());
+    return BailianAsrResponseSchema.parse(responseJson);
 }
 
 export async function fetchBailianTts(

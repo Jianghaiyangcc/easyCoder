@@ -1,5 +1,5 @@
 import type { VoiceSession } from './types';
-import { fetchVoiceCredentials } from '@/sync/apiVoice';
+import { fetchVoiceCredentials, fetchVoiceUsage, isVoiceQuotaError } from '@/sync/apiVoice';
 import { sync } from '@/sync/sync';
 import { Modal } from '@/modal';
 import { TokenStorage } from '@/auth/tokenStorage';
@@ -21,6 +21,30 @@ let voiceSessionStarted: boolean = false;
 let currentSessionId: string | null = null;
 let currentVoiceConversationId: string | null = null;
 let currentVoiceSessionStartedAt: number | null = null;
+
+type VoiceLimitReason = 'voice_hard_limit_reached' | 'subscription_required' | 'voice_conversation_limit_reached';
+
+async function handleVoiceLimit(reason: VoiceLimitReason, limitSeconds: number): Promise<boolean> {
+    if (reason === 'voice_conversation_limit_reached') {
+        Modal.alert(
+            t('errors.voiceLimitReachedTitle'),
+            t('errors.voiceConversationLimitReached'),
+        );
+        return false;
+    }
+
+    if (reason === 'voice_hard_limit_reached') {
+        const hours = Math.max(1, Math.ceil(limitSeconds / 3600));
+        Modal.alert(
+            t('errors.voiceLimitReachedTitle'),
+            t('errors.voiceHardLimitReached', { hours }),
+        );
+        return false;
+    }
+
+    const result = await sync.presentPaywall('voice_must_pay');
+    return result.purchased === true;
+}
 
 /**
  * Start a voice session. Returns a provider conversation ID when available.
@@ -50,6 +74,26 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
         const voiceProvider = storage.getState().settings.voiceProvider;
 
         if (voiceProvider === 'bailian') {
+            const credentials = await TokenStorage.getCredentials();
+            if (credentials) {
+                try {
+                    const usage = await fetchVoiceUsage(credentials, 'bailian');
+                    if (usage.usedSeconds >= usage.limitSeconds) {
+                        const hasPro = storage.getState().purchases.entitlements['pro'] ?? false;
+                        const shouldContinue = await handleVoiceLimit(
+                            hasPro ? 'voice_hard_limit_reached' : 'subscription_required',
+                            usage.limitSeconds,
+                        );
+                        if (!shouldContinue) {
+                            storage.getState().setRealtimeStatus('disconnected');
+                            return null;
+                        }
+                    }
+                } catch {
+                    // Ignore usage fetch failures and let the server enforce limits.
+                }
+            }
+
             currentSessionId = sessionId;
             const conversationId = await voiceSession.startSession({
                 provider: 'bailian',
@@ -92,19 +136,8 @@ export async function startRealtimeSession(sessionId: string, initialContext?: s
         if (!response.allowed) {
             storage.getState().setRealtimeStatus('disconnected');
 
-            if (response.reason === 'voice_conversation_limit_reached') {
-                Modal.alert(
-                    t('errors.voiceLimitReachedTitle'),
-                    t('errors.voiceConversationLimitReached'),
-                );
-                return null;
-            }
-
-            // Server hard-declined — must pay to continue
-            console.log('[Voice] Not allowed (reason: %s), presenting must-pay paywall...', response.reason);
-            const result = await sync.presentPaywall('voice_must_pay');
-            console.log('[Voice] Must-pay paywall result:', result);
-            if (result.purchased) {
+            const shouldRetry = await handleVoiceLimit(response.reason, response.limitSeconds);
+            if (shouldRetry) {
                 return startRealtimeSession(sessionId, initialContext);
             }
             return null;
@@ -182,6 +215,9 @@ export async function stopRealtimeSession(): Promise<string | null> {
     try {
         transcript = await voiceSession.endSession();
     } catch (error) {
+        if (isVoiceQuotaError(error)) {
+            await handleVoiceLimit(error.reason, error.limitSeconds);
+        }
         console.error('Failed to stop realtime session:', error);
     } finally {
         currentSessionId = null;

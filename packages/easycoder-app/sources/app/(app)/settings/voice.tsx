@@ -236,6 +236,17 @@ export default React.memo(function VoiceSettingsScreen() {
         ? t('settingsVoice.usageFooterBailian')
         : t('settingsVoice.usageFooterElevenLabs');
 
+    const usageTimeLimitReached = Boolean(usage && usage.usedSeconds >= usage.limitSeconds);
+    const usageConversationLimitReached = Boolean(
+        usage && !isBailianMode && usage.conversationCount >= usage.conversationLimit,
+    );
+
+    const usageTimeLimitSubtitle = usage && hasPro
+        ? t('errors.voiceHardLimitReached', {
+            hours: Math.max(1, Math.ceil(usage.limitSeconds / 3600)),
+        })
+        : t('settingsVoice.supportSubtitle');
+
     return (
         <ItemList style={{ paddingTop: 0 }}>
             <ItemGroup
@@ -285,30 +296,50 @@ export default React.memo(function VoiceSettingsScreen() {
                     footer={usageFooter}
                 >
                     {usage ? (
-                        <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-                            <UsageBar
-                                label={t('settingsVoice.usageLabel')}
-                                value={usage.usedSeconds}
-                                maxValue={usage.limitSeconds}
-                                color={usage.usedSeconds >= usage.limitSeconds ? '#FF3B30' : '#007AFF'}
-                            />
-                            <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
-                                {formatVoiceTime(usage.usedSeconds)} / {formatVoiceTime(usage.limitSeconds)}
-                            </Text>
-                            {!isBailianMode && (
-                                <>
-                                    <UsageBar
-                                        label={t('settingsVoice.conversationsLabel')}
-                                        value={usage.conversationCount}
-                                        maxValue={usage.conversationLimit}
-                                        color={usage.conversationCount >= usage.conversationLimit ? '#FF3B30' : '#007AFF'}
-                                    />
-                                    <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
-                                        {usage.conversationCount} / {usage.conversationLimit}
-                                    </Text>
-                                </>
+                        <>
+                            <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+                                <UsageBar
+                                    label={t('settingsVoice.usageLabel')}
+                                    value={usage.usedSeconds}
+                                    maxValue={usage.limitSeconds}
+                                    color={usage.usedSeconds >= usage.limitSeconds ? '#FF3B30' : '#007AFF'}
+                                />
+                                <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                    {formatVoiceTime(usage.usedSeconds)} / {formatVoiceTime(usage.limitSeconds)}
+                                </Text>
+                                {!isBailianMode && (
+                                    <>
+                                        <UsageBar
+                                            label={t('settingsVoice.conversationsLabel')}
+                                            value={usage.conversationCount}
+                                            maxValue={usage.conversationLimit}
+                                            color={usage.conversationCount >= usage.conversationLimit ? '#FF3B30' : '#007AFF'}
+                                        />
+                                        <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                            {usage.conversationCount} / {usage.conversationLimit}
+                                        </Text>
+                                    </>
+                                )}
+                            </View>
+
+                            {usageTimeLimitReached && (
+                                <Item
+                                    title={t('errors.voiceLimitReachedTitle')}
+                                    subtitle={usageTimeLimitSubtitle}
+                                    icon={<Ionicons name="alert-circle-outline" size={29} color="#FF3B30" />}
+                                    showChevron={false}
+                                />
                             )}
-                        </View>
+
+                            {usageConversationLimitReached && (
+                                <Item
+                                    title={t('errors.voiceLimitReachedTitle')}
+                                    subtitle={t('errors.voiceConversationLimitReached')}
+                                    icon={<Ionicons name="alert-circle-outline" size={29} color="#FF3B30" />}
+                                    showChevron={false}
+                                />
+                            )}
+                        </>
                     ) : (
                         <Item
                             title={t('settingsVoice.usageUnavailableTitle')}

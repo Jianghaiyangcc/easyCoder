@@ -3,6 +3,13 @@ import * as z from 'zod';
 export const VoiceProviderSchema = z.enum(['bailian', 'elevenlabs']);
 export type VoiceProvider = z.infer<typeof VoiceProviderSchema>;
 
+export const VoiceLimitReasonSchema = z.enum([
+    'voice_hard_limit_reached',
+    'subscription_required',
+    'voice_conversation_limit_reached',
+]);
+export type VoiceLimitReason = z.infer<typeof VoiceLimitReasonSchema>;
+
 export const VoiceConversationGrantedSchema = z.object({
     allowed: z.literal(true),
     conversationToken: z.string(),
@@ -15,7 +22,7 @@ export const VoiceConversationGrantedSchema = z.object({
 
 export const VoiceConversationDeniedSchema = z.object({
     allowed: z.literal(false),
-    reason: z.enum(['voice_hard_limit_reached', 'subscription_required', 'voice_conversation_limit_reached']),
+    reason: VoiceLimitReasonSchema,
     usedSeconds: z.number(),
     limitSeconds: z.number(),
     agentId: z.string(),
@@ -70,6 +77,15 @@ export const BailianAsrResponseSchema = z.object({
 });
 
 export type BailianAsrResponse = z.infer<typeof BailianAsrResponseSchema>;
+
+export const BailianAsrLimitExceededSchema = z.object({
+    reason: VoiceLimitReasonSchema,
+    usedSeconds: z.number(),
+    limitSeconds: z.number(),
+    error: z.string(),
+});
+
+export type BailianAsrLimitExceeded = z.infer<typeof BailianAsrLimitExceededSchema>;
 
 export const BailianTtsResponseSchema = z.object({
     provider: z.literal('bailian'),

@@ -8,6 +8,7 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { Prisma } from "@prisma/client";
 import {
+    BailianAsrLimitExceededSchema,
     BailianAsrResponseSchema,
     BailianTtsResponseSchema,
     VoiceProviderSchema,
@@ -29,6 +30,10 @@ const VOICE_USAGE_WINDOW_DAYS = 30;
 const BAILIAN_ASR_IDEMPOTENCY_PREFIX = "bailian_asr";
 const FFPROBE_TIMEOUT_MS = 1500;
 const execFileAsync = promisify(execFile);
+
+function resolveVoiceLimitSeconds(subscribed: boolean): number {
+    return subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS;
+}
 
 const BailianAsrRequestSchema = z.object({
     requestId: z.string().trim().min(8).max(128).optional(),
@@ -266,6 +271,7 @@ export function voiceRoutes(app: Fastify) {
             body: BailianAsrRequestSchema,
             response: {
                 200: BailianAsrResponseSchema,
+                403: BailianAsrLimitExceededSchema,
                 400: z.object({ error: z.string() }),
                 500: z.object({ error: z.string() }),
             },
@@ -281,6 +287,29 @@ export function voiceRoutes(app: Fastify) {
 
         if (audioBase64.length < 16) {
             return reply.code(400).send({ error: 'Invalid audio payload' });
+        }
+
+        const [usedSeconds, subscribed] = await Promise.all([
+            getBailianUsageSeconds(request.userId, VOICE_USAGE_WINDOW_DAYS),
+            hasActiveSubscription(request.userId),
+        ]);
+
+        if (usedSeconds >= VOICE_HARD_LIMIT_SECONDS) {
+            return reply.code(403).send({
+                reason: 'voice_hard_limit_reached' as const,
+                usedSeconds,
+                limitSeconds: VOICE_HARD_LIMIT_SECONDS,
+                error: 'Voice hard limit reached',
+            });
+        }
+
+        if (usedSeconds >= VOICE_FREE_LIMIT_SECONDS && !subscribed) {
+            return reply.code(403).send({
+                reason: 'subscription_required' as const,
+                usedSeconds,
+                limitSeconds: VOICE_FREE_LIMIT_SECONDS,
+                error: 'Subscription required for additional voice usage',
+            });
         }
 
         try {
@@ -408,7 +437,7 @@ export function voiceRoutes(app: Fastify) {
             });
         }
 
-        // Free tier — 1 hour, then need subscription
+        // Free tier — 20 minutes, then need subscription
         if (usedSeconds >= VOICE_FREE_LIMIT_SECONDS) {
             const subscribed = await hasActiveSubscription(userId);
             log({ module: 'voice' }, `User ${userId}: subscription check = ${subscribed}`);
@@ -459,7 +488,9 @@ export function voiceRoutes(app: Fastify) {
                 agentId,
                 elevenUserId,
                 usedSeconds,
-                limitSeconds: usedSeconds >= VOICE_FREE_LIMIT_SECONDS ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS,
+                limitSeconds: usedSeconds >= VOICE_FREE_LIMIT_SECONDS
+                    ? VOICE_HARD_LIMIT_SECONDS
+                    : resolveVoiceLimitSeconds(false),
             });
         } catch (error) {
             log({ module: 'voice' }, `ElevenLabs request error for user ${userId}: ${error}`);
@@ -499,7 +530,7 @@ export function voiceRoutes(app: Fastify) {
                 hasActiveSubscription(userId),
             ]);
 
-            const defaultLimitSeconds = subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS;
+            const defaultLimitSeconds = resolveVoiceLimitSeconds(subscribed);
 
             const providers: {
                 bailian: {
