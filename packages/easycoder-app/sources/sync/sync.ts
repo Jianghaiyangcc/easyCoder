@@ -102,9 +102,6 @@ class Sync {
     private pushTokenSync: InvalidateSync;
     private nativeUpdateSync: InvalidateSync;
     private artifactsSync: InvalidateSync;
-    private friendsSync: InvalidateSync;
-    private friendRequestsSync: InvalidateSync;
-    private feedSync: InvalidateSync;
     private activityAccumulator: ActivityUpdateAccumulator;
     private pendingSettings: Partial<Settings> = loadPendingSettings();
     private appState: AppStateStatus = AppState.currentState;
@@ -125,9 +122,6 @@ class Sync {
         this.machinesSync = new InvalidateSync(this.fetchMachines);
         this.nativeUpdateSync = new InvalidateSync(this.fetchNativeUpdate);
         this.artifactsSync = new InvalidateSync(this.fetchArtifactsList);
-        this.friendsSync = new InvalidateSync(this.fetchFriends);
-        this.friendRequestsSync = new InvalidateSync(this.fetchFriendRequests);
-        this.feedSync = new InvalidateSync(this.fetchFeed);
 
         const registerPushToken = async () => {
             if (__DEV__) {
@@ -160,9 +154,6 @@ class Sync {
                 this.nativeUpdateSync.invalidate();
                 log.log('📱 App became active: Invalidating artifacts sync');
                 this.artifactsSync.invalidate();
-                this.friendsSync.invalidate();
-                this.friendRequestsSync.invalidate();
-                this.feedSync.invalidate();
             } else {
                 log.log(`📱 App state changed to: ${nextAppState}`);
                 this.maybeStartBackgroundSendWatchdog();
@@ -221,10 +212,7 @@ class Sync {
         this.machinesSync.invalidate();
         this.pushTokenSync.invalidate();
         this.nativeUpdateSync.invalidate();
-        this.friendsSync.invalidate();
-        this.friendRequestsSync.invalidate();
         this.artifactsSync.invalidate();
-        this.feedSync.invalidate();
         log.log('🔄 #init: All syncs invalidated, including artifacts');
 
         // Wait for both sessions and machines to load, then mark as ready
@@ -1722,9 +1710,6 @@ class Sync {
             this.machinesSync.invalidate();
             log.log('🔌 Socket reconnected: Invalidating artifacts sync');
             this.artifactsSync.invalidate();
-            this.friendsSync.invalidate();
-            this.friendRequestsSync.invalidate();
-            this.feedSync.invalidate();
             // Messages are fetched lazily per-session via onSessionVisible (called by SessionView
             // when realtimeStatus changes). Session metadata + agentState (including permission
             // requests) are already refreshed by sessionsSync.invalidate() above.
@@ -2020,24 +2005,7 @@ class Sync {
                 this.machineDataKeys.delete(machineId);
             }
         } else if (updateData.body.t === 'relationship-updated') {
-            log.log('👥 Received relationship-updated update');
-            const relationshipUpdate = updateData.body;
-            
-            // Apply the relationship update to storage
-            storage.getState().applyRelationshipUpdate({
-                fromUserId: relationshipUpdate.fromUserId,
-                toUserId: relationshipUpdate.toUserId,
-                status: relationshipUpdate.status,
-                action: relationshipUpdate.action,
-                fromUser: relationshipUpdate.fromUser,
-                toUser: relationshipUpdate.toUser,
-                timestamp: relationshipUpdate.timestamp
-            });
-            
-            // Invalidate friends data to refresh with latest changes
-            this.friendsSync.invalidate();
-            this.friendRequestsSync.invalidate();
-            this.feedSync.invalidate();
+            log.log('👥 Received relationship-updated update (ignored: social features disabled)');
         } else if (updateData.body.t === 'new-artifact') {
             log.log('📦 Received new-artifact update');
             const artifactUpdate = updateData.body;
@@ -2150,35 +2118,7 @@ class Sync {
             // Remove encryption key from memory
             this.artifactDataKeys.delete(artifactId);
         } else if (updateData.body.t === 'new-feed-post') {
-            log.log('📰 Received new-feed-post update');
-            const feedUpdate = updateData.body;
-            
-            // Convert to FeedItem with counter from cursor
-            const feedItem: FeedItem = {
-                id: feedUpdate.id,
-                body: feedUpdate.body,
-                cursor: feedUpdate.cursor,
-                createdAt: feedUpdate.createdAt,
-                repeatKey: feedUpdate.repeatKey,
-                counter: parseInt(feedUpdate.cursor.substring(2), 10)
-            };
-            
-            // Check if we need to fetch user for friend-related items
-            if (feedItem.body && (feedItem.body.kind === 'friend_request' || feedItem.body.kind === 'friend_accepted')) {
-                await this.assumeUsers([feedItem.body.uid]);
-                
-                // Check if user fetch failed (404) - don't store item if user not found
-                const users = storage.getState().users;
-                const userProfile = users[feedItem.body.uid];
-                if (userProfile === null || userProfile === undefined) {
-                    // User was not found or 404, don't store this item
-                    log.log(`📰 Skipping feed item ${feedItem.id} - user ${feedItem.body.uid} not found`);
-                    return;
-                }
-            }
-            
-            // Apply to storage (will handle repeatKey replacement)
-            storage.getState().applyFeedItems([feedItem]);
+            log.log('📰 Received new-feed-post update (ignored: social features disabled)');
         }
     }
 
