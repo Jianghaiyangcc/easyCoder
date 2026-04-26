@@ -795,6 +795,7 @@ export const en = {
         title: 'Codex and Claude Code mobile client',
         subtitle: 'End-to-end encrypted and your account is stored only on your device.',
         createAccount: 'Create account',
+        loginWithPhone: 'Login with phone code',
         linkOrRestoreAccount: 'Link or restore account',
         loginWithMobileApp: 'Login with mobile app',
     },

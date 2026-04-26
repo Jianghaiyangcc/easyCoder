@@ -1,6 +1,9 @@
-import { createHmac, randomInt, randomUUID } from "node:crypto";
+import { createHmac, randomBytes, randomInt, randomUUID } from "node:crypto";
 import { PhoneVerificationScene, Prisma } from "@prisma/client";
+import * as privacyKit from "privacy-kit";
 import { db } from "@/storage/db";
+import { decryptBytes, encryptBytes } from "@/modules/encrypt";
+import tweetnacl from "tweetnacl";
 
 const DYSMS_API_VERSION = "2017-05-25";
 const CODE_REGEX = /^\d{6}$/;
@@ -25,7 +28,7 @@ type SmsConfig = {
 };
 
 type SendCodeInput = {
-    accountId: string;
+    accountId?: string;
     phone?: string;
     scene: PhoneVerificationScene;
     requestIp: string;
@@ -135,6 +138,52 @@ function normalizeCode(code: string): string {
         throw new PhoneVerificationError("Verification code must be 6 digits", 400, "INVALID_CODE_FORMAT");
     }
     return trimmed;
+}
+
+function toArrayBufferBytes(value: Uint8Array): Uint8Array<ArrayBuffer> {
+    return Uint8Array.from(value);
+}
+
+function decodeBase64Url(value: string): Uint8Array<ArrayBuffer> {
+    const normalized = value
+        .trim()
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+    const padding = normalized.length % 4;
+    return toArrayBufferBytes(privacyKit.decodeBase64(padding === 0 ? normalized : `${normalized}${"=".repeat(4 - padding)}`));
+}
+
+function encodeBase64Url(value: Uint8Array<ArrayBuffer>): string {
+    return privacyKit.encodeBase64(toArrayBufferBytes(value))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=/g, "");
+}
+
+function normalizeSecret(secret: string): Uint8Array<ArrayBuffer> {
+    let decoded: Uint8Array<ArrayBuffer>;
+    try {
+        decoded = decodeBase64Url(secret);
+    } catch {
+        throw new PhoneVerificationError("Invalid secret key", 400, "INVALID_SECRET");
+    }
+    if (decoded.length !== 32) {
+        throw new PhoneVerificationError("Invalid secret key length", 400, "INVALID_SECRET");
+    }
+    return decoded;
+}
+
+function encryptPhoneLoginSecret(accountId: string, secret: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
+    return toArrayBufferBytes(encryptBytes(["user", accountId, "phone-login", "secret"], toArrayBufferBytes(secret)));
+}
+
+function decryptPhoneLoginSecret(accountId: string, encrypted: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> {
+    return toArrayBufferBytes(decryptBytes(["user", accountId, "phone-login", "secret"], toArrayBufferBytes(encrypted)));
+}
+
+function createPublicKeyFromSecret(secret: Uint8Array<ArrayBuffer>): string {
+    const keyPair = tweetnacl.sign.keyPair.fromSeed(toArrayBufferBytes(secret));
+    return privacyKit.encodeHex(toArrayBufferBytes(keyPair.publicKey));
 }
 
 async function enforceCooldown(phoneE164: string, scene: PhoneVerificationScene, cooldownSeconds: number): Promise<void> {
@@ -264,11 +313,18 @@ async function sendAliyunSms(input: { phoneNational: string; code: string }, con
 }
 
 async function resolveTargetPhone(input: SendCodeInput): Promise<{ national: string; e164: string }> {
-    if (input.scene === PhoneVerificationScene.bind) {
+    if (input.scene === PhoneVerificationScene.bind || input.scene === PhoneVerificationScene.login) {
+        if (input.scene === PhoneVerificationScene.bind && !input.accountId) {
+            throw new PhoneVerificationError("Account is required", 400, "ACCOUNT_REQUIRED");
+        }
         if (!input.phone) {
             throw new PhoneVerificationError("Phone number is required", 400, "PHONE_REQUIRED");
         }
         return normalizeMainlandPhone(input.phone);
+    }
+
+    if (!input.accountId) {
+        throw new PhoneVerificationError("Account is required", 400, "ACCOUNT_REQUIRED");
     }
 
     const account = await db.account.findUnique({
@@ -289,6 +345,9 @@ export async function sendPhoneVerificationCode(input: SendCodeInput): Promise<S
     const requestIp = input.requestIp || "unknown";
 
     if (input.scene === PhoneVerificationScene.bind) {
+        if (!input.accountId) {
+            throw new PhoneVerificationError("Account is required", 400, "ACCOUNT_REQUIRED");
+        }
         const existing = await db.account.findFirst({
             where: {
                 phoneE164: normalized.e164,
@@ -319,13 +378,20 @@ export async function sendPhoneVerificationCode(input: SendCodeInput): Promise<S
     }
 
     await db.$transaction(async (tx) => {
+        const consumeWhere: Prisma.PhoneVerificationCodeWhereInput = {
+            phoneE164: normalized.e164,
+            scene: input.scene,
+            consumedAt: null,
+        };
+        if (input.scene !== PhoneVerificationScene.login) {
+            if (!input.accountId) {
+                throw new PhoneVerificationError("Account is required", 400, "ACCOUNT_REQUIRED");
+            }
+            consumeWhere.accountId = input.accountId;
+        }
+
         await tx.phoneVerificationCode.updateMany({
-            where: {
-                accountId: input.accountId,
-                phoneE164: normalized.e164,
-                scene: input.scene,
-                consumedAt: null,
-            },
+            where: consumeWhere,
             data: {
                 consumedAt: new Date(),
             },
@@ -333,7 +399,7 @@ export async function sendPhoneVerificationCode(input: SendCodeInput): Promise<S
 
         await tx.phoneVerificationCode.create({
             data: {
-                accountId: input.accountId,
+                accountId: input.scene === PhoneVerificationScene.login ? null : input.accountId,
                 phoneE164: normalized.e164,
                 scene: input.scene,
                 code,
@@ -354,7 +420,7 @@ export async function sendPhoneVerificationCode(input: SendCodeInput): Promise<S
 }
 
 async function verifyLatestCode(input: {
-    accountId: string;
+    accountId?: string;
     phoneE164: string;
     scene: PhoneVerificationScene;
     code: string;
@@ -363,14 +429,18 @@ async function verifyLatestCode(input: {
 
     return db.$transaction(async (tx) => {
         const now = new Date();
+        const lookupWhere: Prisma.PhoneVerificationCodeWhereInput = {
+            phoneE164: input.phoneE164,
+            scene: input.scene,
+            consumedAt: null,
+            expiresAt: { gt: now },
+        };
+        if (input.accountId) {
+            lookupWhere.accountId = input.accountId;
+        }
+
         const latestCode = await tx.phoneVerificationCode.findFirst({
-            where: {
-                accountId: input.accountId,
-                phoneE164: input.phoneE164,
-                scene: input.scene,
-                consumedAt: null,
-                expiresAt: { gt: now },
-            },
+            where: lookupWhere,
             orderBy: {
                 createdAt: "desc",
             },
@@ -407,8 +477,10 @@ export async function verifyAndBindPhone(input: {
     accountId: string;
     phone: string;
     code: string;
+    secret: string;
 }): Promise<{ phoneE164: string; phoneBound: boolean }> {
     const normalized = normalizeMainlandPhone(input.phone);
+    const secret = normalizeSecret(input.secret);
     await verifyLatestCode({
         accountId: input.accountId,
         phoneE164: normalized.e164,
@@ -433,6 +505,8 @@ export async function verifyAndBindPhone(input: {
             data: {
                 phoneE164: normalized.e164,
                 phoneVerifiedAt: new Date(),
+                phoneLoginSecretCipher: encryptPhoneLoginSecret(input.accountId, secret),
+                phoneLoginSecretBackedUpAt: new Date(),
             },
         });
     } catch (error) {
@@ -446,6 +520,113 @@ export async function verifyAndBindPhone(input: {
         phoneE164: normalized.e164,
         phoneBound: true,
     };
+}
+
+function resolveExistingPhoneLoginSecret(account: {
+    id: string;
+    phoneLoginSecretCipher: Uint8Array<ArrayBuffer> | null;
+}): string {
+    if (!account.phoneLoginSecretCipher) {
+        throw new PhoneVerificationError("Phone login backup is missing", 409, "PHONE_BACKUP_MISSING");
+    }
+
+    let secret: Uint8Array<ArrayBuffer>;
+    try {
+        secret = decryptPhoneLoginSecret(account.id, account.phoneLoginSecretCipher);
+    } catch {
+        throw new PhoneVerificationError("Phone login backup is invalid", 500, "PHONE_BACKUP_INVALID");
+    }
+
+    if (secret.length !== 32) {
+        throw new PhoneVerificationError("Phone login backup is invalid", 500, "PHONE_BACKUP_INVALID");
+    }
+
+    return encodeBase64Url(secret);
+}
+
+export async function verifyPhoneLoginCode(input: {
+    phone: string;
+    code: string;
+}): Promise<{ accountId: string; secret: string; isNewAccount: boolean; phoneE164: string }> {
+    const normalized = normalizeMainlandPhone(input.phone);
+    await verifyLatestCode({
+        phoneE164: normalized.e164,
+        scene: PhoneVerificationScene.login,
+        code: input.code,
+    });
+
+    const existing = await db.account.findUnique({
+        where: { phoneE164: normalized.e164 },
+        select: {
+            id: true,
+            phoneLoginSecretCipher: true,
+        },
+    });
+
+    if (existing) {
+        return {
+            accountId: existing.id,
+            secret: resolveExistingPhoneLoginSecret(existing),
+            isNewAccount: false,
+            phoneE164: normalized.e164,
+        };
+    }
+
+    const secretBytes = toArrayBufferBytes(randomBytes(32));
+    const publicKey = createPublicKeyFromSecret(secretBytes);
+    const now = new Date();
+
+    try {
+        const created = await db.$transaction(async (tx) => {
+            const account = await tx.account.create({
+                data: {
+                    publicKey,
+                    phoneE164: normalized.e164,
+                    phoneVerifiedAt: now,
+                },
+                select: {
+                    id: true,
+                },
+            });
+
+            await tx.account.update({
+                where: { id: account.id },
+                data: {
+                    phoneLoginSecretCipher: encryptPhoneLoginSecret(account.id, secretBytes),
+                    phoneLoginSecretBackedUpAt: now,
+                },
+            });
+
+            return account;
+        });
+
+        return {
+            accountId: created.id,
+            secret: encodeBase64Url(secretBytes),
+            isNewAccount: true,
+            phoneE164: normalized.e164,
+        };
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+            const racedAccount = await db.account.findUnique({
+                where: { phoneE164: normalized.e164 },
+                select: {
+                    id: true,
+                    phoneLoginSecretCipher: true,
+                },
+            });
+
+            if (racedAccount) {
+                return {
+                    accountId: racedAccount.id,
+                    secret: resolveExistingPhoneLoginSecret(racedAccount),
+                    isNewAccount: false,
+                    phoneE164: normalized.e164,
+                };
+            }
+        }
+        throw error;
+    }
 }
 
 export async function verifyAndUnbindPhone(input: {

@@ -16,6 +16,8 @@ import { MainView } from "@/components/MainView";
 import { t } from '@/text';
 import { useSessionListViewData } from '@/sync/storage';
 import { navigateToSession } from '@/hooks/useNavigateToSession';
+import { Modal } from '@/modal';
+import { PhoneApiRequestError, sendPhoneLoginCode, verifyPhoneLoginCode } from '@/sync/apiPhone';
 
 export default function Home() {
     const auth = useAuth();
@@ -82,6 +84,64 @@ function NotAuthenticated() {
         }
     }
 
+    const loginWithPhone = async () => {
+        const phoneInput = await Modal.prompt(
+            t('settingsAccount.enterPhoneTitle'),
+            t('settingsAccount.enterPhoneMessage'),
+            {
+                placeholder: t('settingsAccount.enterPhonePlaceholder'),
+                inputType: 'numeric',
+            }
+        );
+
+        if (phoneInput === null) {
+            return;
+        }
+
+        const phone = phoneInput.trim();
+        if (!phone) {
+            Modal.alert(t('common.error'), t('settingsAccount.phoneEmptyError'));
+            return;
+        }
+
+        try {
+            const sendResult = await sendPhoneLoginCode({ phone });
+            const codeInput = await Modal.prompt(
+                t('settingsAccount.enterCodeTitle'),
+                t('settingsAccount.enterCodeMessage', { phone: sendResult.phone }),
+                {
+                    placeholder: t('settingsAccount.enterCodePlaceholder'),
+                    inputType: 'numeric',
+                }
+            );
+
+            if (codeInput === null) {
+                return;
+            }
+
+            const code = codeInput.trim();
+            if (!code) {
+                Modal.alert(t('common.error'), t('settingsAccount.codeEmptyError'));
+                return;
+            }
+
+            const loginResult = await verifyPhoneLoginCode({ phone, code });
+            await auth.login(loginResult.token, loginResult.secret);
+            if (loginResult.isNewAccount) {
+                trackAccountCreated();
+                return;
+            }
+            trackAccountRestored();
+        } catch (error) {
+            console.error('Error logging in with phone', error);
+            if (error instanceof PhoneApiRequestError) {
+                Modal.alert(t('common.error'), error.message);
+                return;
+            }
+            Modal.alert(t('common.error'), t('settingsAccount.phoneActionFailed'));
+        }
+    }
+
     const portraitLayout = (
         <View style={styles.portraitContainer}>
             <Image
@@ -109,6 +169,14 @@ function NotAuthenticated() {
                     <View style={styles.buttonContainerSecondary}>
                         <RoundButton
                             size="normal"
+                            title={t('welcome.loginWithPhone')}
+                            action={loginWithPhone}
+                            display="inverted"
+                        />
+                    </View>
+                    <View style={styles.buttonContainerTertiary}>
+                        <RoundButton
+                            size="normal"
                             title={t('welcome.createAccount')}
                             action={createAccount}
                             display="inverted"
@@ -124,6 +192,14 @@ function NotAuthenticated() {
                         />
                     </View>
                     <View style={styles.buttonContainerSecondary}>
+                        <RoundButton
+                            size="normal"
+                            title={t('welcome.loginWithPhone')}
+                            action={loginWithPhone}
+                            display="inverted"
+                        />
+                    </View>
+                    <View style={styles.buttonContainerTertiary}>
                         <RoundButton
                             size="normal"
                             title={t('welcome.linkOrRestoreAccount')}
@@ -170,6 +246,14 @@ function NotAuthenticated() {
                             <View style={styles.landscapeButtonContainerSecondary}>
                                 <RoundButton
                                     size="normal"
+                                    title={t('welcome.loginWithPhone')}
+                                    action={loginWithPhone}
+                                    display="inverted"
+                                />
+                            </View>
+                            <View style={styles.landscapeButtonContainerTertiary}>
+                                <RoundButton
+                                    size="normal"
                                     title={t('welcome.createAccount')}
                                     action={createAccount}
                                     display="inverted"
@@ -184,6 +268,14 @@ function NotAuthenticated() {
                                 />
                             </View>
                             <View style={styles.landscapeButtonContainerSecondary}>
+                                <RoundButton
+                                    size="normal"
+                                    title={t('welcome.loginWithPhone')}
+                                    action={loginWithPhone}
+                                    display="inverted"
+                                />
+                            </View>
+                            <View style={styles.landscapeButtonContainerTertiary}>
                                 <RoundButton
                                     size="normal"
                                     title={t('welcome.linkOrRestoreAccount')}
@@ -242,6 +334,13 @@ const styles = StyleSheet.create((theme) => ({
         marginBottom: 16,
     },
     buttonContainerSecondary: {
+        maxWidth: 280,
+        width: '100%',
+        marginBottom: 16,
+    },
+    buttonContainerTertiary: {
+        maxWidth: 280,
+        width: '100%',
     },
     // Landscape styles
     landscapeContainer: {
@@ -292,6 +391,10 @@ const styles = StyleSheet.create((theme) => ({
         marginBottom: 16,
     },
     landscapeButtonContainerSecondary: {
+        width: 280,
+        marginBottom: 16,
+    },
+    landscapeButtonContainerTertiary: {
         width: 280,
     },
 }));

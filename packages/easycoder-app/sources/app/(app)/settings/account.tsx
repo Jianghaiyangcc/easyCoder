@@ -271,7 +271,7 @@ export default React.memo(() => {
                 return;
             }
 
-            await verifyPhoneCode(auth.credentials, { phone, code });
+            await verifyPhoneCode(auth.credentials, { phone, code, secret: auth.credentials.secret });
             await sync.refreshProfile();
             Modal.alert(t('common.success'), t('settingsAccount.phoneBoundSuccess'));
         } catch (error) {

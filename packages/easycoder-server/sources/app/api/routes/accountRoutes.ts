@@ -86,6 +86,7 @@ export function accountRoutes(app: Fastify) {
             body: z.object({
                 phone: z.string().trim().min(1),
                 code: z.string().trim().min(1),
+                secret: z.string().trim().min(1),
             }),
         },
     }, async (request, reply) => {
@@ -94,6 +95,7 @@ export function accountRoutes(app: Fastify) {
                 accountId: request.userId,
                 phone: request.body.phone,
                 code: request.body.code,
+                secret: request.body.secret,
             });
 
             const updSeq = await allocateUserSeq(request.userId);
@@ -177,7 +179,7 @@ export function accountRoutes(app: Fastify) {
                     codes: z.array(z.object({
                         id: z.string(),
                         phoneE164: z.string(),
-                        scene: z.enum(['bind', 'unbind']),
+                        scene: z.enum(['bind', 'login', 'unbind']),
                         code: z.string(),
                         attempts: z.number(),
                         maxAttempts: z.number(),

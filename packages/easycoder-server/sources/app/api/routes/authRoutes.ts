@@ -4,6 +4,11 @@ import * as privacyKit from "privacy-kit";
 import { db } from "@/storage/db";
 import { auth } from "@/app/auth/auth";
 import { log } from "@/utils/log";
+import {
+    PhoneVerificationError,
+    sendPhoneVerificationCode,
+    verifyPhoneLoginCode,
+} from "../services/phoneVerificationService";
 
 export function authRoutes(app: Fastify) {
     app.post('/v1/auth', {
@@ -36,6 +41,70 @@ export function authRoutes(app: Fastify) {
             success: true,
             token: await auth.createToken(user.id)
         });
+    });
+
+    app.post('/v1/auth/phone/send-code', {
+        schema: {
+            body: z.object({
+                phone: z.string().trim().min(1),
+            }),
+        },
+    }, async (request, reply) => {
+        try {
+            const result = await sendPhoneVerificationCode({
+                phone: request.body.phone,
+                scene: 'login',
+                requestIp: request.ip,
+            });
+
+            return reply.send({
+                success: true,
+                phone: result.phoneE164,
+                expiresInSeconds: result.expiresInSeconds,
+                cooldownSeconds: result.cooldownSeconds,
+            });
+        } catch (error) {
+            if (error instanceof PhoneVerificationError) {
+                return reply.code(error.statusCode).send({
+                    error: error.message,
+                    code: error.code,
+                });
+            }
+            throw error;
+        }
+    });
+
+    app.post('/v1/auth/phone/verify', {
+        schema: {
+            body: z.object({
+                phone: z.string().trim().min(1),
+                code: z.string().trim().min(1),
+            }),
+        },
+    }, async (request, reply) => {
+        try {
+            const result = await verifyPhoneLoginCode({
+                phone: request.body.phone,
+                code: request.body.code,
+            });
+
+            const token = await auth.createToken(result.accountId);
+            return reply.send({
+                success: true,
+                token,
+                secret: result.secret,
+                isNewAccount: result.isNewAccount,
+                phoneE164: result.phoneE164,
+            });
+        } catch (error) {
+            if (error instanceof PhoneVerificationError) {
+                return reply.code(error.statusCode).send({
+                    error: error.message,
+                    code: error.code,
+                });
+            }
+            throw error;
+        }
     });
 
     app.post('/v1/auth/request', {

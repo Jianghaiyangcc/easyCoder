@@ -62,7 +62,7 @@ export async function sendPhoneCode(
 
 export async function verifyPhoneCode(
     credentials: AuthCredentials,
-    input: { phone: string; code: string },
+    input: { phone: string; code: string; secret: string },
 ): Promise<{ phoneE164: string; phoneBound: true }> {
     const API_ENDPOINT = getServerUrl();
     const response = await fetch(`${API_ENDPOINT}/v1/account/phone/verify`, {
@@ -73,6 +73,46 @@ export async function verifyPhoneCode(
 
     if (!response.ok) {
         await parseError(response, 'Failed to verify phone code');
+    }
+
+    return response.json();
+}
+
+export async function sendPhoneLoginCode(
+    input: { phone: string },
+): Promise<{ phone: string; expiresInSeconds: number; cooldownSeconds: number }> {
+    const API_ENDPOINT = getServerUrl();
+    const response = await fetch(`${API_ENDPOINT}/v1/auth/phone/send-code`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-EasyCoder-Client': getEasyCoderClientId(),
+        },
+        body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+        await parseError(response, 'Failed to send phone login verification code');
+    }
+
+    return response.json();
+}
+
+export async function verifyPhoneLoginCode(
+    input: { phone: string; code: string },
+): Promise<{ token: string; secret: string; isNewAccount: boolean; phoneE164: string }> {
+    const API_ENDPOINT = getServerUrl();
+    const response = await fetch(`${API_ENDPOINT}/v1/auth/phone/verify`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-EasyCoder-Client': getEasyCoderClientId(),
+        },
+        body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+        await parseError(response, 'Failed to verify phone login code');
     }
 
     return response.json();

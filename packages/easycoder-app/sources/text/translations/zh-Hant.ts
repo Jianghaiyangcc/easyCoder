@@ -796,6 +796,7 @@ export const zhHant: TranslationStructure = {
         title: 'Codex 和 Claude Code 行動用戶端',
         subtitle: '端對端加密，您的帳戶僅儲存在您的裝置上。',
         createAccount: '建立帳戶',
+        loginWithPhone: '手機號驗證碼登入',
         linkOrRestoreAccount: '連結或恢復帳戶',
         loginWithMobileApp: '使用行動應用程式登入',
     },
