@@ -5,15 +5,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as React from 'react';
 import { encodeBase64 } from "@/encryption/base64";
 import { authGetToken } from "@/auth/authGetToken";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 import { getRandomBytesAsync } from "expo-crypto";
-import { useIsLandscape } from "@/utils/responsive";
+import { useIsLandscape, useIsTablet } from "@/utils/responsive";
 import { Typography } from "@/constants/Typography";
 import { trackAccountCreated, trackAccountRestored } from '@/track';
 import { HomeHeaderNotAuth } from "@/components/HomeHeader";
 import { MainView } from "@/components/MainView";
 import { t } from '@/text';
+import { useSessionListViewData } from '@/sync/storage';
+import { navigateToSession } from '@/hooks/useNavigateToSession';
 
 export default function Home() {
     const auth = useAuth();
@@ -26,6 +28,37 @@ export default function Home() {
 }
 
 function Authenticated() {
+    const router = useRouter();
+    const isTablet = useIsTablet();
+    const sessionListViewData = useSessionListViewData();
+    const hasAutoRoutedRef = React.useRef(false);
+
+    React.useEffect(() => {
+        if (!isTablet) {
+            return;
+        }
+
+        if (hasAutoRoutedRef.current) {
+            return;
+        }
+
+        if (!sessionListViewData) {
+            return;
+        }
+
+        const activeSessionsGroup = sessionListViewData.find((item) => item.type === 'active-sessions');
+        const firstActiveSessionId = activeSessionsGroup?.sessions[0]?.id;
+
+        hasAutoRoutedRef.current = true;
+
+        if (firstActiveSessionId) {
+            navigateToSession(router, firstActiveSessionId);
+            return;
+        }
+
+        router.replace('/new');
+    }, [isTablet, router, sessionListViewData]);
+
     return <MainView variant="phone" />;
 }
 
