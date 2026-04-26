@@ -46,7 +46,7 @@ describe('getSessionNotificationBody', () => {
 
     it('falls back to the last path segment', () => {
         const metadata = makeMetadata({
-            path: '/Users/test/projects/happy-cli',
+            path: '/Users/test/projects/easycoder-cli',
         });
 
         expect(getSessionNotificationBody(metadata)).toBe('easycoder-cli');
