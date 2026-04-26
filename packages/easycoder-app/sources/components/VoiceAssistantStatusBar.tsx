@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRealtimeStatus, useRealtimeMode } from '@/sync/storage';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useRealtimeStatus, useRealtimeMode, useSetting } from '@/sync/storage';
 import { StatusDot } from './StatusDot';
 import { Typography } from '@/constants/Typography';
 import { Ionicons } from '@expo/vector-icons';
 import { stopRealtimeSession } from '@/realtime/RealtimeSession';
 import { useUnistyles } from 'react-native-unistyles';
 import { VoiceBars } from './VoiceBars';
+import { t } from '@/text';
 
 interface VoiceAssistantStatusBarProps {
     variant?: 'full' | 'sidebar';
@@ -17,8 +17,10 @@ interface VoiceAssistantStatusBarProps {
 
 export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, onStoppedWithTranscript }: VoiceAssistantStatusBarProps) => {
     const { theme } = useUnistyles();
+    const voiceProvider = useSetting('voiceProvider');
     const realtimeStatus = useRealtimeStatus();
     const realtimeMode = useRealtimeMode();
+    const isBailianMode = voiceProvider === 'bailian';
 
     // Don't render if disconnected
     if (realtimeStatus === 'disconnected') {
@@ -28,6 +30,10 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
     // Check if voice assistant or user is speaking (show voice bars for either)
     const isVoiceSpeaking = realtimeMode === 'agent-speaking' || realtimeMode === 'user-speaking';
 
+    const tapActionText = isBailianMode
+        ? t('settingsVoice.statusBar.tapToStopRecording')
+        : t('settingsVoice.statusBar.tapToEnd');
+
     const getStatusInfo = () => {
         switch (realtimeStatus) {
             case 'connecting':
@@ -35,7 +41,9 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                     color: theme.colors.status.connecting,
                     backgroundColor: theme.colors.surfaceHighest,
                     isPulsing: true,
-                    text: 'Connecting...',
+                    text: isBailianMode
+                        ? t('settingsVoice.statusBar.transcribingVoiceInput')
+                        : t('settingsVoice.statusBar.connectingRealtime'),
                     textColor: theme.colors.text
                 };
             case 'connected':
@@ -43,7 +51,9 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                     color: theme.colors.status.connected,
                     backgroundColor: theme.colors.surfaceHighest,
                     isPulsing: false,
-                    text: 'Voice Assistant Active',
+                    text: isBailianMode
+                        ? t('settingsVoice.statusBar.recordingVoiceInput')
+                        : t('settingsVoice.statusBar.connectedRealtime'),
                     textColor: theme.colors.text
                 };
             case 'error':
@@ -51,7 +61,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                     color: theme.colors.status.error,
                     backgroundColor: theme.colors.surfaceHighest,
                     isPulsing: false,
-                    text: 'Connection Error',
+                    text: t('settingsVoice.statusBar.connectionError'),
                     textColor: theme.colors.text
                 };
             default:
@@ -59,7 +69,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                     color: theme.colors.status.default,
                     backgroundColor: theme.colors.surfaceHighest,
                     isPulsing: false,
-                    text: 'Voice Assistant',
+                    text: t('settingsVoice.statusBar.voiceAssistant'),
                     textColor: theme.colors.text
                 };
         }
@@ -133,7 +143,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                                 />
                             )}
                             <Text style={[styles.tapToEndText, { color: statusInfo.textColor, marginLeft: isVoiceSpeaking ? 8 : 0 }]}>
-                                Tap to end
+                                {tapActionText}
                             </Text>
                         </View>
                     </View>

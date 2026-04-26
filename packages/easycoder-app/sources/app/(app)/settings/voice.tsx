@@ -18,6 +18,11 @@ import { sync } from '@/sync/sync';
 import { trackPaywallButtonClicked } from '@/track';
 import { getVoiceExperimentStatus, getVoiceUpsellVariantLabel } from '@/realtime/voiceExperiment';
 import { getVoiceLocalCounters, resetVoiceLocalCounters } from '@/sync/persistence';
+import {
+    checkMicrophonePermission,
+    requestMicrophonePermission,
+    showMicrophonePermissionDeniedAlert,
+} from '@/utils/microphonePermissions';
 
 function formatVoiceTime(totalSeconds: number): string {
     const mins = Math.floor(totalSeconds / 60);
@@ -29,6 +34,7 @@ export default React.memo(function VoiceSettingsScreen() {
     const router = useRouter();
     const auth = useAuth();
     const [voiceAssistantLanguage] = useSettingMutable('voiceAssistantLanguage');
+    const [voiceProvider, setVoiceProvider] = useSettingMutable('voiceProvider');
     const [voiceCustomAgentId, setVoiceCustomAgentId] = useSettingMutable('voiceCustomAgentId');
     const [voiceBypassToken, setVoiceBypassToken] = useSettingMutable('voiceBypassToken');
     const [voiceUpsellOverride, setVoiceUpsellOverride] = useLocalSettingMutable('voiceUpsellOverride');
@@ -39,15 +45,42 @@ export default React.memo(function VoiceSettingsScreen() {
 
     const [usage, setUsage] = React.useState<VoiceUsageResponse | null>(null);
     const [usageLoading, setUsageLoading] = React.useState(true);
+    const [usageError, setUsageError] = React.useState(false);
     const [voiceLocalCounters, setVoiceLocalCounters] = React.useState(() => getVoiceLocalCounters());
+    const [microphonePermissionGranted, setMicrophonePermissionGranted] = React.useState<boolean | null>(null);
+
+    const isBailianMode = voiceProvider === 'bailian';
 
     React.useEffect(() => {
-        if (!auth.credentials) return;
+        if (!auth.credentials) {
+            setUsage(null);
+            setUsageLoading(false);
+            setUsageError(false);
+            return;
+        }
+
+        setUsageLoading(true);
+        setUsageError(false);
+
         fetchVoiceUsage(auth.credentials)
-            .then(setUsage)
-            .catch(() => {})
+            .then((nextUsage) => {
+                setUsage(nextUsage);
+            })
+            .catch(() => {
+                setUsage(null);
+                setUsageError(true);
+            })
             .finally(() => setUsageLoading(false));
     }, [auth.credentials]);
+
+    const refreshMicrophonePermission = React.useCallback(async () => {
+        const permission = await checkMicrophonePermission();
+        setMicrophonePermissionGranted(permission.granted);
+    }, []);
+
+    React.useEffect(() => {
+        refreshMicrophonePermission();
+    }, [refreshMicrophonePermission]);
 
     // Find current language or default to first option
     const currentLanguage = findLanguageByCode(voiceAssistantLanguage) || LANGUAGES[0];
@@ -79,6 +112,35 @@ export default React.memo(function VoiceSettingsScreen() {
             setVoiceBypassToken(trimmed !== null);
         }
     }, [voiceCustomAgentId, setVoiceCustomAgentId, setVoiceBypassToken]);
+
+    const handleVoiceModePicker = React.useCallback(() => {
+        Modal.alert(
+            t('settingsVoice.modePickerTitle'),
+            t('settingsVoice.modePickerMessage'),
+            [
+                {
+                    text: t('settingsVoice.modeVoiceInputLabel'),
+                    onPress: () => setVoiceProvider('bailian'),
+                },
+                {
+                    text: t('settingsVoice.modeRealtimeAssistantLabel'),
+                    onPress: () => setVoiceProvider('elevenlabs'),
+                },
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+            ],
+        );
+    }, [setVoiceProvider]);
+
+    const handleMicrophonePermissionPress = React.useCallback(async () => {
+        const result = await requestMicrophonePermission();
+        setMicrophonePermissionGranted(result.granted);
+        if (!result.granted) {
+            showMicrophonePermissionDeniedAlert(result.canAskAgain);
+        }
+    }, []);
 
     const handleVoiceExperimentOverride = React.useCallback(() => {
         Modal.alert(
@@ -148,40 +210,117 @@ export default React.memo(function VoiceSettingsScreen() {
         ].join('\n');
     }, [voiceLocalCounters]);
 
+    const modeLabel = isBailianMode
+        ? t('settingsVoice.modeVoiceInputLabel')
+        : t('settingsVoice.modeRealtimeAssistantLabel');
+
+    const modeDescription = isBailianMode
+        ? t('settingsVoice.modeVoiceInputDescription')
+        : t('settingsVoice.modeRealtimeAssistantDescription');
+
+    const providerLabel = isBailianMode
+        ? t('settingsVoice.providerBailian')
+        : t('settingsVoice.providerElevenLabs');
+
+    const preferredLanguageSubtitle = isBailianMode
+        ? t('settingsVoice.preferredLanguageSubtitleInput')
+        : t('settingsVoice.preferredLanguageSubtitleRealtime');
+
+    const microphonePermissionSubtitle = microphonePermissionGranted === null
+        ? t('common.loading')
+        : microphonePermissionGranted
+            ? t('settingsVoice.microphonePermissionGranted')
+            : t('settingsVoice.microphonePermissionDenied');
+
+    const usageFooter = isBailianMode
+        ? t('settingsVoice.usageFooterBailian')
+        : t('settingsVoice.usageFooterElevenLabs');
+
     return (
         <ItemList style={{ paddingTop: 0 }}>
+            <ItemGroup
+                title={t('settingsVoice.currentModeTitle')}
+                footer={t('settingsVoice.currentModeDescription')}
+            >
+                <Item
+                    title={modeLabel}
+                    subtitle={modeDescription}
+                    detail={providerLabel}
+                    icon={<Ionicons name="radio-outline" size={29} color="#34C759" />}
+                    showChevron={false}
+                />
+            </ItemGroup>
+
+            <ItemGroup title={t('settingsVoice.commonTitle')}>
+                <Item
+                    title={t('settingsVoice.voiceModeTitle')}
+                    subtitle={t('settingsVoice.voiceModeSubtitle')}
+                    detail={modeLabel}
+                    icon={<Ionicons name="swap-horizontal-outline" size={29} color="#007AFF" />}
+                    onPress={handleVoiceModePicker}
+                />
+                <Item
+                    title={t('settingsVoice.preferredLanguage')}
+                    subtitle={preferredLanguageSubtitle}
+                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                    detail={getLanguageDisplayName(currentLanguage)}
+                    onPress={() => router.push('/settings/voice/language')}
+                />
+                <Item
+                    title={t('settingsVoice.microphonePermission')}
+                    subtitle={microphonePermissionSubtitle}
+                    icon={<Ionicons name="mic-outline" size={29} color="#FF9500" />}
+                    onPress={handleMicrophonePermissionPress}
+                />
+            </ItemGroup>
+
             {/* Voice Usage */}
             {usageLoading ? (
                 <View style={{ paddingVertical: 24, alignItems: 'center' }}>
                     <ActivityIndicator />
                 </View>
-            ) : usage ? (
+            ) : (
                 <ItemGroup
                     title={t('settingsVoice.usageTitle')}
-                    footer={t('settingsVoice.usageFooter')}
+                    footer={usageFooter}
                 >
-                    <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
-                        <UsageBar
-                            label={t('settingsVoice.usageLabel')}
-                            value={usage.usedSeconds}
-                            maxValue={usage.limitSeconds}
-                            color={usage.usedSeconds >= usage.limitSeconds ? '#FF3B30' : '#007AFF'}
+                    {usage ? (
+                        <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+                            <UsageBar
+                                label={t('settingsVoice.usageLabel')}
+                                value={usage.usedSeconds}
+                                maxValue={usage.limitSeconds}
+                                color={usage.usedSeconds >= usage.limitSeconds ? '#FF3B30' : '#007AFF'}
+                            />
+                            <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                {formatVoiceTime(usage.usedSeconds)} / {formatVoiceTime(usage.limitSeconds)}
+                            </Text>
+                            {!isBailianMode && (
+                                <>
+                                    <UsageBar
+                                        label={t('settingsVoice.conversationsLabel')}
+                                        value={usage.conversationCount}
+                                        maxValue={usage.conversationLimit}
+                                        color={usage.conversationCount >= usage.conversationLimit ? '#FF3B30' : '#007AFF'}
+                                    />
+                                    <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                        {usage.conversationCount} / {usage.conversationLimit}
+                                    </Text>
+                                </>
+                            )}
+                        </View>
+                    ) : (
+                        <Item
+                            title={t('settingsVoice.usageUnavailableTitle')}
+                            subtitle={usageError
+                                ? t('settingsVoice.usageUnavailableSubtitle')
+                                : t('common.loading')}
+                            icon={<Ionicons name="stats-chart-outline" size={29} color="#8E8E93" />}
+                            showChevron={false}
                         />
-                        <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
-                            {formatVoiceTime(usage.usedSeconds)} / {formatVoiceTime(usage.limitSeconds)}
-                        </Text>
-                        <UsageBar
-                            label={t('settingsVoice.conversationsLabel')}
-                            value={usage.conversationCount}
-                            maxValue={usage.conversationLimit}
-                            color={usage.conversationCount >= usage.conversationLimit ? '#FF3B30' : '#007AFF'}
-                        />
-                        <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
-                            {usage.conversationCount} / {usage.conversationLimit}
-                        </Text>
-                    </View>
+                    )}
                 </ItemGroup>
-            ) : null}
+            )}
 
             {/* Support / Upgrade */}
             {!hasPro && (
@@ -195,10 +334,74 @@ export default React.memo(function VoiceSettingsScreen() {
                 </ItemGroup>
             )}
 
+            {/* Advanced Voice Configuration */}
+            <ItemGroup
+                title={t('settingsVoice.advancedTitle')}
+                footer={t('settingsVoice.advancedDescription')}
+            >
+                {isBailianMode ? (
+                    <Item
+                        title={t('settingsVoice.advancedLockedTitle')}
+                        subtitle={t('settingsVoice.advancedLockedSubtitle')}
+                        icon={<Ionicons name="information-circle-outline" size={29} color="#8E8E93" />}
+                        showChevron={false}
+                    />
+                ) : (
+                    <>
+                        <Item
+                            title={t('settingsVoice.customAgentId')}
+                            subtitle={voiceCustomAgentId ?? t('settingsVoice.customAgentIdNotSet')}
+                            icon={<Ionicons name="key-outline" size={29} color="#FF9500" />}
+                            onPress={handleCustomAgentId}
+                        />
+                        <Item
+                            title={t('settingsVoice.bypassToken')}
+                            subtitle={t('settingsVoice.bypassTokenSubtitle')}
+                            icon={<Ionicons name="flash-outline" size={29} color="#FF3B30" />}
+                            rightElement={
+                                <Switch
+                                    value={voiceBypassToken}
+                                    onValueChange={setVoiceBypassToken}
+                                />
+                            }
+                        />
+                    </>
+                )}
+            </ItemGroup>
+
+            <ItemGroup title={t('settingsVoice.helpTitle')}>
+                <Item
+                    title={t('settingsVoice.modeVoiceInputLabel')}
+                    subtitle={t('settingsVoice.helpVoiceInput')}
+                    icon={<Ionicons name="mic-outline" size={29} color="#007AFF" />}
+                    showChevron={false}
+                />
+                <Item
+                    title={t('settingsVoice.modeRealtimeAssistantLabel')}
+                    subtitle={t('settingsVoice.helpRealtimeAssistant')}
+                    icon={<Ionicons name="sparkles-outline" size={29} color="#AF52DE" />}
+                    showChevron={false}
+                />
+            </ItemGroup>
+
+            {/* Prompt Guide — shown when custom agent is configured */}
+            {!isBailianMode && voiceCustomAgentId && (
+                <ItemGroup
+                    title={t('settingsVoice.promptGuideTitle')}
+                    footer={t('settingsVoice.promptGuideDescription')}
+                >
+                    <Item
+                        title={t('settingsVoice.customAgentId')}
+                        subtitle={voiceCustomAgentId}
+                        copy={voiceCustomAgentId}
+                    />
+                </ItemGroup>
+            )}
+
             {devModeEnabled && (
                 <ItemGroup
                     title="Developer"
-                    footer="Developer-only diagnostics and local override controls for the current voice rollout. The paid voice gate runs through EasyCoder server unless Direct Connection and a custom ElevenLabs agent are both enabled."
+                    footer="Developer-only diagnostics and local override controls for the current voice rollout. The paid realtime voice gate runs through EasyCoder server unless Direct Connection and a custom realtime agent are both enabled."
                 >
                     <Item
                         title="Voice Experiment Override"
@@ -221,58 +424,6 @@ export default React.memo(function VoiceSettingsScreen() {
                         subtitleLines={0}
                         icon={<Ionicons name="refresh-outline" size={29} color="#FF9500" />}
                         onPress={handleResetVoiceCounters}
-                    />
-                </ItemGroup>
-            )}
-
-            {/* Language Settings */}
-            <ItemGroup
-                title={t('settingsVoice.languageTitle')}
-                footer={t('settingsVoice.languageDescription')}
-            >
-                <Item
-                    title={t('settingsVoice.preferredLanguage')}
-                    subtitle={t('settingsVoice.preferredLanguageSubtitle')}
-                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
-                    detail={getLanguageDisplayName(currentLanguage)}
-                    onPress={() => router.push('/settings/voice/language')}
-                />
-            </ItemGroup>
-
-            {/* Bring Your Own Agent */}
-            <ItemGroup
-                title={t('settingsVoice.byoTitle')}
-                footer={t('settingsVoice.byoDescription')}
-            >
-                <Item
-                    title={t('settingsVoice.customAgentId')}
-                    subtitle={voiceCustomAgentId ?? t('settingsVoice.customAgentIdNotSet')}
-                    icon={<Ionicons name="key-outline" size={29} color="#FF9500" />}
-                    onPress={handleCustomAgentId}
-                />
-                <Item
-                    title={t('settingsVoice.bypassToken')}
-                    subtitle={t('settingsVoice.bypassTokenSubtitle')}
-                    icon={<Ionicons name="flash-outline" size={29} color="#FF3B30" />}
-                    rightElement={
-                        <Switch
-                            value={voiceBypassToken}
-                            onValueChange={setVoiceBypassToken}
-                        />
-                    }
-                />
-            </ItemGroup>
-
-            {/* Prompt Guide — shown when custom agent is configured */}
-            {voiceCustomAgentId && (
-                <ItemGroup
-                    title={t('settingsVoice.promptGuideTitle')}
-                    footer={t('settingsVoice.promptGuideDescription')}
-                >
-                    <Item
-                        title={t('settingsVoice.customAgentId')}
-                        subtitle={voiceCustomAgentId}
-                        copy={voiceCustomAgentId}
                     />
                 </ItemGroup>
             )}
