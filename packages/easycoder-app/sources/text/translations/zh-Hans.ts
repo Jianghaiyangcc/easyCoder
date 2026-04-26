@@ -99,6 +99,10 @@ export const zhHans: TranslationStructure = {
         enterSecretKey: '请输入密钥',
         invalidSecretKey: '无效的密钥，请检查后重试。',
         enterUrlManually: '手动输入 URL',
+        linkDeviceSteps: '1. 在移动设备上打开 EasyCoder\n2. 前往 设置 -> 账户\n3. 点击“链接新设备”\n4. 扫描这个二维码',
+        restoreWithSecretKeyInstead: '改为通过密钥恢复',
+        manualRestoreDescription: '输入密钥即可恢复对账户的访问。',
+        secretKeyPlaceholder: 'XXXXX-XXXXX-XXXXX...',
     },
 
     settings: {

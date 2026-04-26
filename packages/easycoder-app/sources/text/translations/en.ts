@@ -112,6 +112,10 @@ export const en: TranslationStructure = {
         enterSecretKey: 'Please enter a secret key',
         invalidSecretKey: 'Invalid secret key. Please check and try again.',
         enterUrlManually: 'Enter URL manually',
+        linkDeviceSteps: '1. Open EasyCoder on your mobile device\n2. Go to Settings -> Account\n3. Tap "Link New Device"\n4. Scan this QR code',
+        restoreWithSecretKeyInstead: 'Restore with Secret Key Instead',
+        manualRestoreDescription: 'Enter your secret key to restore access to your account.',
+        secretKeyPlaceholder: 'XXXXX-XXXXX-XXXXX...',
     },
 
     settings: {

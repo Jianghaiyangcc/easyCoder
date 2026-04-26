@@ -98,6 +98,10 @@ export const zhHant: TranslationStructure = {
         enterSecretKey: '請輸入金鑰',
         invalidSecretKey: '無效的金鑰，請檢查後重試。',
         enterUrlManually: '手動輸入 URL',
+        linkDeviceSteps: '1. 在行動裝置上開啟 EasyCoder\n2. 前往 設定 -> 帳戶\n3. 點擊「連結新裝置」\n4. 掃描這個 QR Code',
+        restoreWithSecretKeyInstead: '改為透過金鑰恢復',
+        manualRestoreDescription: '輸入金鑰即可恢復對帳戶的存取。',
+        secretKeyPlaceholder: 'XXXXX-XXXXX-XXXXX...',
     },
 
     settings: {
