@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as React from 'react';
 import { encodeBase64 } from "@/encryption/base64";
 import { authGetToken } from "@/auth/authGetToken";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { StyleSheet, useUnistyles } from "react-native-unistyles";
 import { getRandomBytesAsync } from "expo-crypto";
 import { useIsLandscape, useIsTablet } from "@/utils/responsive";
@@ -31,6 +31,7 @@ export default function Home() {
 
 function Authenticated() {
     const router = useRouter();
+    const pathname = usePathname();
     const isTablet = useIsTablet();
     const sessionListViewData = useSessionListViewData();
     const hasAutoRoutedRef = React.useRef(false);
@@ -41,6 +42,10 @@ function Authenticated() {
         }
 
         if (hasAutoRoutedRef.current) {
+            return;
+        }
+
+        if (pathname !== '/' && pathname !== '/index') {
             return;
         }
 
@@ -59,7 +64,7 @@ function Authenticated() {
         }
 
         router.replace('/new');
-    }, [isTablet, router, sessionListViewData]);
+    }, [isTablet, pathname, router, sessionListViewData]);
 
     return <MainView variant="phone" />;
 }

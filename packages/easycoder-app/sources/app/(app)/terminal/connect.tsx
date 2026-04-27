@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Typography } from '@/constants/Typography';
 import { RoundButton } from '@/components/RoundButton';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
+import { useAuth } from '@/auth/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { ItemList } from '@/components/ItemList';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -13,6 +14,7 @@ import { t } from '@/text';
 
 export default function TerminalConnectScreen() {
     const router = useRouter();
+    const auth = useAuth();
     const [publicKey, setPublicKey] = useState<string | null>(null);
     const [hashProcessed, setHashProcessed] = useState(false);
     const { processAuthUrl, isLoading } = useConnectTerminal({
@@ -21,16 +23,23 @@ export default function TerminalConnectScreen() {
         }
     });
 
-    // Extract key from hash on web platform
+    // Extract key from query/hash on web platform
     useEffect(() => {
         if (Platform.OS === 'web' && typeof window !== 'undefined' && !hashProcessed) {
+            const params = new URLSearchParams(window.location.search);
+            const keyFromQuery = params.get('key');
             const hash = window.location.hash;
-            if (hash.startsWith('#key=')) {
-                const key = hash.substring(5); // Remove '#key='
+            const keyFromHash = hash.startsWith('#key=') ? hash.substring(5) : null;
+            const key = keyFromQuery || keyFromHash;
+
+            if (key) {
                 setPublicKey(key);
-                
-                // Clear the hash from URL to prevent exposure in browser history
-                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+
+                // Clear key from URL to prevent exposure in browser history
+                params.delete('key');
+                const nextQuery = params.toString();
+                const nextUrl = nextQuery ? `${window.location.pathname}?${nextQuery}` : window.location.pathname;
+                window.history.replaceState(null, '', nextUrl);
                 setHashProcessed(true);
             } else {
                 setHashProcessed(true);
@@ -207,11 +216,19 @@ export default function TerminalConnectScreen() {
                     paddingVertical: 16,
                     gap: 12 
                 }}>
+                    {!auth.isAuthenticated && (
+                        <Item
+                            title={t('settingsAccount.statusNotAuthenticated')}
+                            subtitle={t('welcome.loginWithMobileApp')}
+                            icon={<Ionicons name="person-circle-outline" size={29} color="#FF9500" />}
+                            showChevron={false}
+                        />
+                    )}
                     <RoundButton
                         title={isLoading ? t('terminal.connecting') : t('terminal.acceptConnection')}
                         onPress={handleConnect}
                         size="large"
-                        disabled={isLoading}
+                        disabled={isLoading || !auth.isAuthenticated}
                         loading={isLoading}
                     />
                     <RoundButton
