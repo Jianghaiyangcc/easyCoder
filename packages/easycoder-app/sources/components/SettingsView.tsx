@@ -427,14 +427,6 @@ export const SettingsView = React.memo(function SettingsView() {
                 title={renderSectionTitle(t('settings.supportUs'))}
             >
                 <Item
-                    title={t('subscription.title')}
-                    subtitle={hasPro ? t('subscription.manageSubscription') : t('subscription.upgradeToPro')}
-                    icon={renderIcon('pricetag-outline', iconColor.accent)}
-                    titleStyle={styles.itemTitle}
-                    subtitleStyle={styles.itemSubtitle}
-                    onPress={() => router.push('/settings/subscription')}
-                />
-                <Item
                     title={t('settings.supportUs')}
                     subtitle={hasPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
                     icon={renderIcon('heart', iconColor.danger)}
