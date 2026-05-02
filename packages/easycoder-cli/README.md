@@ -5,10 +5,10 @@ EasyCoder CLI 是在本机运行 AI 编码会话的统一入口，支持 Claude 
 ## 安装
 
 ```bash
-npm install -g easycoder
+npm install -g easycoder-cli
 ```
 
-> 历史包名为 `happy-coder`，当前统一使用 `easycoder`。
+> 当前 npm 包名为 `easycoder-cli`，安装后命令仍是 `easycoder`。
 
 ## 快速开始
 
