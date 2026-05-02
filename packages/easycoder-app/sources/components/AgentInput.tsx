@@ -172,9 +172,9 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 999,
-        height: 30,
-        paddingHorizontal: 11,
-        gap: 6,
+        height: 26,
+        paddingHorizontal: 9,
+        gap: 5,
         borderWidth: 1,
         borderColor: theme.dark ? 'rgba(255,255,255,0.12)' : 'rgba(17,24,39,0.10)',
         backgroundColor: theme.colors.surfaceHigh,
@@ -257,10 +257,11 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     statusContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         paddingHorizontal: 16,
         paddingBottom: 6,
         minHeight: 24,
+        gap: 8,
     },
     statusRow: {
         flexDirection: 'row',
@@ -332,12 +333,12 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     actionButtonsLeft: {
         flex: 1,
         overflow: 'hidden',
-        marginRight: 8,
+        marginRight: 4,
     },
     actionButtonsLeftContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 4,
         paddingRight: 4,
     },
     mobileConfigRow: {
@@ -347,7 +348,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     mobileConfigRowContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 4,
         paddingRight: 4,
     },
     actionButton: {
@@ -406,7 +407,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 0,
-        marginRight: 6,
+        marginRight: 0,
     },
     voiceButtonIdle: {
         width: 36,
@@ -1053,29 +1054,29 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     </Text>
                                 </View>
                             )}
+                            {/* Permission badge — only shown when non-default */}
+                            {displayPermissionMode && permissionModeKey !== 'default' && (() => {
+                                const permColor = isSandboxedYoloMode ? '#4169E1' :
+                                    permissionModeKey === 'acceptEdits' ? theme.colors.permission.acceptEdits :
+                                        permissionModeKey === 'bypassPermissions' ? theme.colors.permission.bypass :
+                                            permissionModeKey === 'plan' ? theme.colors.permission.plan :
+                                                permissionModeKey === 'read-only' ? theme.colors.permission.readOnly :
+                                                    permissionModeKey === 'safe-yolo' ? theme.colors.permission.safeYolo :
+                                                        permissionModeKey === 'yolo' ? theme.colors.permission.yolo :
+                                                            theme.colors.textSecondary;
+                                const permIcon: 'play-forward' | 'pause' =
+                                    permissionModeKey === 'plan' || permissionModeKey === 'read-only'
+                                        ? 'pause' : 'play-forward';
+                                return (
+                                    <View style={styles.statusTag}>
+                                        <AppIcon name={permIcon} size={11} color={permColor} />
+                                        <Text style={[styles.statusTagText, { color: permColor }]}>
+                                            {withSandboxSuffix(displayPermissionMode.name, permissionModeKey)}
+                                        </Text>
+                                    </View>
+                                );
+                            })()}
                         </View>
-                        {/* Permission badge — only shown when non-default */}
-                        {displayPermissionMode && permissionModeKey !== 'default' && (() => {
-                            const permColor = isSandboxedYoloMode ? '#4169E1' :
-                                permissionModeKey === 'acceptEdits' ? theme.colors.permission.acceptEdits :
-                                    permissionModeKey === 'bypassPermissions' ? theme.colors.permission.bypass :
-                                        permissionModeKey === 'plan' ? theme.colors.permission.plan :
-                                            permissionModeKey === 'read-only' ? theme.colors.permission.readOnly :
-                                                permissionModeKey === 'safe-yolo' ? theme.colors.permission.safeYolo :
-                                                    permissionModeKey === 'yolo' ? theme.colors.permission.yolo :
-                                                        theme.colors.textSecondary;
-                            const permIcon: 'play-forward' | 'pause' =
-                                permissionModeKey === 'plan' || permissionModeKey === 'read-only'
-                                    ? 'pause' : 'play-forward';
-                            return (
-                                <View style={styles.statusTag}>
-                                    <AppIcon name={permIcon} size={11} color={permColor} />
-                                    <Text style={[styles.statusTagText, { color: permColor }]}>
-                                        {withSandboxSuffix(displayPermissionMode.name, permissionModeKey)}
-                                    </Text>
-                                </View>
-                            );
-                        })()}
                     </View>
                 )}
 
@@ -1312,7 +1313,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 </View>
 
                                 {/* 右侧按钮组：快捷语 + 语音 + 发送 */}
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
 
                                     {/* 快捷语按钮 */}
                                     <Pressable

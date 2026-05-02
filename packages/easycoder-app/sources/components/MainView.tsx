@@ -4,7 +4,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSocketStatus, useRealtimeStatus, useLocalSetting } from '@/sync/storage';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
 import { useIsTablet } from '@/utils/responsive';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { EmptySessionsTablet } from './EmptySessionsTablet';
 import { SessionsList } from './SessionsList';
 import { FABWide } from './FABWide';
@@ -210,6 +210,7 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
     const sessionListViewData = useVisibleSessionListViewData();
     const isTablet = useIsTablet();
     const router = useRouter();
+    const pathname = usePathname();
     const realtimeStatus = useRealtimeStatus();
 
     // Tab state management
@@ -236,22 +237,7 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
 
     // Sidebar variant
     if (variant === 'sidebar') {
-        // Route detection - check if user is on settings page
-        const getCurrentRoute = () => {
-            try {
-                const segments = router.routerState?.segments;
-                if (segments && segments.length > 0) {
-                    return '/' + segments.join('/');
-                }
-                return '/';
-            } catch (error) {
-                console.error('Error getting current route:', error);
-                return '/';
-            }
-        };
-
-        const currentRoute = getCurrentRoute();
-        const isSettingsRoute = currentRoute?.startsWith('/settings');
+        const isSettingsRoute = pathname?.startsWith('/settings');
 
         // If on settings route, render SettingsView (includes subscription entry)
         if (isSettingsRoute) {

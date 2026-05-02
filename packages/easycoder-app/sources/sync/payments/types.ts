@@ -29,7 +29,6 @@ export interface SubscriptionStatus {
     productId?: string;
     expiryDate?: number;
     autoRenew?: boolean;
-    productId?: string;
     planType?: 'monthly' | 'annual' | 'lifetime';
 }
 
