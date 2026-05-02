@@ -4,12 +4,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSocketStatus, useRealtimeStatus, useLocalSetting } from '@/sync/storage';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
 import { useIsTablet } from '@/utils/responsive';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { EmptySessionsTablet } from './EmptySessionsTablet';
 import { SessionsList } from './SessionsList';
 import { FABWide } from './FABWide';
 import { TabBar, TabType } from './TabBar';
-import { SettingsView } from './SettingsView';
 import { SettingsViewWrapper } from './SettingsViewWrapper';
 import { SessionsListWrapper } from './SessionsListWrapper';
 import { Header } from './navigation/Header';
@@ -210,7 +209,6 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
     const sessionListViewData = useVisibleSessionListViewData();
     const isTablet = useIsTablet();
     const router = useRouter();
-    const pathname = usePathname();
     const realtimeStatus = useRealtimeStatus();
 
     // Tab state management
@@ -237,16 +235,6 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
 
     // Sidebar variant
     if (variant === 'sidebar') {
-        const isSettingsRoute = pathname?.startsWith('/settings');
-
-        // If on settings route, render SettingsView (includes subscription entry)
-        if (isSettingsRoute) {
-            return (
-                <View style={styles.sidebarContentContainer}>
-                    <SettingsView />
-                </View>
-            );
-        }
         // Loading state
         if (sessionListViewData === null) {
             return (
