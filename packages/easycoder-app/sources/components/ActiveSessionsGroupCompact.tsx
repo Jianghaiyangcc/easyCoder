@@ -23,12 +23,14 @@ import { isWorktreePath, getRepoPath, getWorktreeName } from '@/utils/worktree';
 import { useNewSessionDraft } from '@/hooks/useNewSessionDraft';
 import { useRouter } from 'expo-router';
 
-const STATUS_CONFIG: Record<SessionState, { color: string; dotColor: string; isPulsing: boolean; isConnected: boolean }> = {
-    disconnected: { color: '#999', dotColor: '#999', isPulsing: false, isConnected: false },
-    thinking: { color: '#007AFF', dotColor: '#007AFF', isPulsing: true, isConnected: true },
-    waiting: { color: '#34C759', dotColor: '#34C759', isPulsing: false, isConnected: true },
-    permission_required: { color: '#FF9500', dotColor: '#FF9500', isPulsing: true, isConnected: true },
-};
+function getStatusConfig(theme: any): Record<SessionState, { color: string; dotColor: string; isPulsing: boolean; isConnected: boolean }> {
+    return {
+        disconnected: { color: theme.colors.textSecondary, dotColor: theme.colors.textSecondary, isPulsing: false, isConnected: false },
+        thinking: { color: theme.colors.textLink, dotColor: theme.colors.textLink, isPulsing: true, isConnected: true },
+        waiting: { color: theme.colors.status.connected, dotColor: theme.colors.status.connected, isPulsing: false, isConnected: true },
+        permission_required: { color: theme.colors.warning, dotColor: theme.colors.warning, isPulsing: true, isConnected: true },
+    };
+}
 
 interface ActiveSessionsGroupProps {
     sessions: SessionRowData[];
@@ -268,7 +270,8 @@ export function ActiveSessionsGroupCompact({ sessions, selectedSessionId }: Acti
 const CompactSessionRow = React.memo(({ session, selected, showBorder }: { session: SessionRowData; selected?: boolean; showBorder?: boolean }) => {
     const styles = stylesheet;
     const { theme } = useUnistyles();
-    const status = STATUS_CONFIG[session.state];
+    const statusConfig = React.useMemo(() => getStatusConfig(theme), [theme]);
+    const status = statusConfig[session.state];
     const navigateToSession = useNavigateToSession();
     const swipeableRef = React.useRef<Swipeable | null>(null);
     const swipeEnabled = Platform.OS !== 'web';
@@ -406,20 +409,21 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.groupped.background,
-        paddingTop: 8,
+        paddingTop: 6,
+        paddingBottom: 12,
     },
     // Section header styles
     sectionHeader: {
-        paddingTop: 12,
-        paddingBottom: Platform.select({ ios: 6, default: 8 }),
-        paddingHorizontal: Platform.select({ ios: 32, default: 24 }),
+        paddingTop: 16,
+        paddingBottom: 8,
+        paddingHorizontal: 28,
         flexDirection: 'row',
         alignItems: 'center',
     },
     sectionHeaderSingleLine: {
-        paddingTop: 12,
-        paddingBottom: Platform.select({ ios: 6, default: 8 }),
-        paddingHorizontal: Platform.select({ ios: 32, default: 24 }),
+        paddingTop: 16,
+        paddingBottom: 8,
+        paddingHorizontal: 28,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -432,12 +436,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         minWidth: 0,
     },
     sectionHeaderPath: {
-        ...Typography.default('regular'),
+        ...Typography.default('semiBold'),
         color: theme.colors.groupped.sectionTitle,
-        fontSize: Platform.select({ ios: 13, default: 14 }),
-        lineHeight: Platform.select({ ios: 18, default: 20 }),
-        letterSpacing: Platform.select({ ios: -0.08, default: 0.1 }),
-        fontWeight: Platform.select({ ios: 'normal', default: '500' }),
+        fontSize: 13,
+        lineHeight: 18,
+        letterSpacing: 0.3,
+        textTransform: 'uppercase',
     },
     branchRow: {
         flexDirection: 'row',
@@ -473,7 +477,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     machineSeparator: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: Platform.select({ ios: 32, default: 24 }),
+        paddingHorizontal: 28,
         paddingTop: 8,
         paddingBottom: 0,
     },
@@ -492,14 +496,16 @@ const stylesheet = StyleSheet.create((theme) => ({
     projectCard: {
         backgroundColor: theme.colors.surface,
         marginBottom: 8,
-        marginHorizontal: Platform.select({ ios: 16, default: 12 }),
-        borderRadius: Platform.select({ ios: 10, default: 16 }),
+        marginHorizontal: 16,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.10)' : 'rgba(12,16,25,0.08)',
         overflow: 'hidden',
         shadowColor: theme.colors.shadow.color,
-        shadowOffset: { width: 0, height: 0.33 },
-        shadowOpacity: theme.colors.shadow.opacity,
-        shadowRadius: 0,
-        elevation: 1,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: theme.dark ? 0.22 : 0.08,
+        shadowRadius: 12,
+        elevation: 3,
     },
     // Session row styles
     sessionRow: {

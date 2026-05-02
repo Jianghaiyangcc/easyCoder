@@ -13,7 +13,7 @@ import { useSetting } from '@/sync/storage';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
 import { Typography } from '@/constants/Typography';
 import { StatusDot } from './StatusDot';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useIsTablet } from '@/utils/responsive';
 import { requestReview } from '@/utils/requestReview';
 import { UpdateBanner } from './UpdateBanner';
@@ -23,6 +23,15 @@ import { SessionActionsAnchor, SessionActionsPopover } from './SessionActionsPop
 import { useSessionActionAlert } from '@/hooks/useSessionQuickActions';
 import { useSettingMutable } from '@/sync/storage';
 import { t } from '@/text';
+
+function getStatusConfig(theme: any): Record<SessionState, { color: string; dotColor: string; isPulsing: boolean; isConnected: boolean }> {
+    return {
+        disconnected: { color: theme.colors.textSecondary, dotColor: theme.colors.textSecondary, isPulsing: false, isConnected: false },
+        thinking: { color: theme.colors.textLink, dotColor: theme.colors.textLink, isPulsing: true, isConnected: true },
+        waiting: { color: theme.colors.status.connected, dotColor: theme.colors.status.connected, isPulsing: false, isConnected: true },
+        permission_required: { color: theme.colors.warning, dotColor: theme.colors.warning, isPulsing: true, isConnected: true },
+    };
+}
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
@@ -38,15 +47,16 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     headerSection: {
         backgroundColor: theme.colors.groupped.background,
-        paddingHorizontal: 24,
-        paddingTop: 20,
+        paddingHorizontal: 28,
+        paddingTop: 16,
         paddingBottom: 8,
     },
     headerText: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 13,
         color: theme.colors.groupped.sectionTitle,
-        letterSpacing: 0.1,
+        lineHeight: 18,
+        letterSpacing: 0.3,
+        textTransform: 'uppercase',
         ...Typography.default('semiBold'),
     },
     projectGroup: {
@@ -75,31 +85,38 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     sessionItemContainer: {
         marginHorizontal: 16,
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.10)' : 'rgba(12,16,25,0.08)',
         marginBottom: 1,
         overflow: 'hidden',
+        shadowColor: theme.colors.shadow.color,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: theme.dark ? 0.22 : 0.08,
+        shadowRadius: 12,
+        elevation: 3,
     },
     sessionItemFirst: {
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
+        borderTopLeftRadius: 14,
+        borderTopRightRadius: 14,
     },
     sessionItemLast: {
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
+        borderBottomLeftRadius: 14,
+        borderBottomRightRadius: 14,
     },
     sessionItemSingle: {
-        borderRadius: 12,
+        borderRadius: 14,
     },
     sessionItemContainerFirst: {
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
+        borderTopLeftRadius: 14,
+        borderTopRightRadius: 14,
     },
     sessionItemContainerLast: {
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
+        borderBottomLeftRadius: 14,
+        borderBottomRightRadius: 14,
         marginBottom: 12,
     },
     sessionItemContainerSingle: {
-        borderRadius: 12,
+        borderRadius: 14,
         marginBottom: 12,
     },
     sessionItemSelected: {
@@ -336,13 +353,6 @@ export function SessionsList() {
     );
 }
 
-const STATUS_CONFIG: Record<SessionState, { color: string; dotColor: string; isPulsing: boolean; isConnected: boolean }> = {
-    disconnected: { color: '#999', dotColor: '#999', isPulsing: false, isConnected: false },
-    thinking: { color: '#007AFF', dotColor: '#007AFF', isPulsing: true, isConnected: true },
-    waiting: { color: '#34C759', dotColor: '#34C759', isPulsing: false, isConnected: true },
-    permission_required: { color: '#FF9500', dotColor: '#FF9500', isPulsing: true, isConnected: true },
-};
-
 const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }: {
     session: SessionRowData;
     selected?: boolean;
@@ -351,9 +361,11 @@ const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }
     isSingle?: boolean;
 }) => {
     const styles = stylesheet;
+    const { theme } = useUnistyles();
     const navigateToSession = useNavigateToSession();
     const [actionsAnchor, setActionsAnchor] = React.useState<SessionActionsAnchor | null>(null);
-    const status = STATUS_CONFIG[session.state];
+    const statusConfig = React.useMemo(() => getStatusConfig(theme), [theme]);
+    const status = statusConfig[session.state];
 
     const statusText = getSessionStateText(session.state, session.activeAt);
 
