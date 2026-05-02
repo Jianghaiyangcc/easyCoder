@@ -423,10 +423,15 @@ export const zhHans: TranslationStructure = {
         emptyMainScreen: {
             // Used by EmptyMainScreen component
             readyToCode: '准备开始编程？',
+            subtitle: '请在终端依次执行以下命令，完成安装、登录和后台服务启动。',
             installCli: '安装 CLI',
+            loginAccount: '登录账号',
+            startDaemon: '启动后台服务',
+            optionalStatusCommand: '可选：easycoder daemon status',
+            successHint: '执行 daemon start 后，回到 App，机器显示在线即可开始。',
             runIt: '运行它',
             scanQrCode: '扫描二维码',
-            openCamera: '打开相机',
+            openCamera: '扫码认证设备',
             viewSystemStatus: '查看系统状态',
         },
     },

@@ -420,7 +420,12 @@ export const en = {
         emptyMainScreen: {
             // Used by EmptyMainScreen component
             readyToCode: 'Ready to code?',
+            subtitle: 'Run these commands in your terminal to install, sign in, and start the background service.',
             installCli: 'Install the CLI',
+            loginAccount: 'Sign in',
+            startDaemon: 'Start daemon',
+            optionalStatusCommand: 'Optional: easycoder daemon status',
+            successHint: 'After daemon start, return to the app. You are ready when your machine shows online.',
             runIt: 'Run it',
             scanQrCode: 'Scan the QR code',
             openCamera: 'Open Camera',

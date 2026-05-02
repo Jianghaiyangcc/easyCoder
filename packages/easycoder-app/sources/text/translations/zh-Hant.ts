@@ -422,7 +422,12 @@ export const zhHant: TranslationStructure = {
         emptyMainScreen: {
             // Used by EmptyMainScreen component
             readyToCode: '準備開始寫程式？',
+            subtitle: '請在終端依序執行以下命令，完成安裝、登入與背景服務啟動。',
             installCli: '安裝 CLI',
+            loginAccount: '登入帳號',
+            startDaemon: '啟動背景服務',
+            optionalStatusCommand: '可選：easycoder daemon status',
+            successHint: '執行 daemon start 後，回到 App，機器顯示在線即可開始。',
             runIt: '執行它',
             scanQrCode: '掃描 QR Code',
             openCamera: '開啟相機',
