@@ -11,6 +11,7 @@ import { Session } from '@/sync/storageTypes';
 import { useHeaderHeight } from '@/utils/responsive';
 import { layout } from '@/components/layout';
 import { useUnistyles } from 'react-native-unistyles';
+import { StatusDot } from '@/components/StatusDot';
 
 interface ChatHeaderViewProps {
     title: string;
@@ -114,15 +115,27 @@ export const ChatHeaderView: React.FC<ChatHeaderViewProps> = ({
     } as any : {};
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top, backgroundColor: theme.colors.header.background }]}>
+        <View style={[styles.container, {
+            paddingTop: insets.top,
+            backgroundColor: theme.colors.header.background,
+            borderBottomColor: theme.dark ? 'rgba(255,255,255,0.10)' : 'rgba(17,24,39,0.08)',
+        }]}>
             <View style={styles.contentWrapper}>
                 <View style={[styles.content, { height: headerHeight }]}>
                     <Pressable onPress={handleBackPress} style={styles.backButton} hitSlop={15}>
-                        <AppIcon
-                            name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
-                            size={Platform.select({ ios: 28, default: 24 })}
-                            color={theme.colors.header.tint}
-                        />
+                        <View style={[
+                            styles.headerActionSurface,
+                            {
+                                borderColor: theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(17,24,39,0.10)',
+                                backgroundColor: theme.dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.82)',
+                            }
+                        ]}>
+                            <AppIcon
+                                name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
+                                size={Platform.select({ ios: 24, default: 21 })}
+                                color={theme.colors.header.tint}
+                            />
+                        </View>
                     </Pressable>
 
                     <View style={styles.titleContainer}>
@@ -140,20 +153,28 @@ export const ChatHeaderView: React.FC<ChatHeaderViewProps> = ({
                             {title}
                         </Text>
                         {subtitle && (
-                            <Text
-                                numberOfLines={1}
-                                ellipsizeMode="tail"
-                                style={[
-                                    styles.subtitle,
-                                    {
-                                        color: theme.colors.header.tint,
-                                        opacity: 0.7,
-                                        ...Typography.default()
-                                    }
-                                ]}
-                            >
-                                {subtitle}
-                            </Text>
+                            <View style={styles.subtitleRow}>
+                                <StatusDot
+                                    color={isConnected ? theme.colors.status.connected : theme.colors.status.disconnected}
+                                    isPulsing={false}
+                                    size={5}
+                                    style={{ marginRight: 5 }}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail"
+                                    style={[
+                                        styles.subtitle,
+                                        {
+                                            color: theme.colors.header.tint,
+                                            opacity: 0.72,
+                                            ...Typography.default()
+                                        }
+                                    ]}
+                                >
+                                    {subtitle}
+                                </Text>
+                            </View>
                         )}
                     </View>
 
@@ -206,6 +227,7 @@ const styles = StyleSheet.create({
     container: {
         position: 'relative',
         zIndex: 100,
+        borderBottomWidth: StyleSheet.hairlineWidth,
     },
     contentWrapper: {
         width: '100%',
@@ -214,12 +236,20 @@ const styles = StyleSheet.create({
     content: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: Platform.OS === 'ios' ? 8 : 16,
+        paddingHorizontal: Platform.OS === 'ios' ? 10 : 16,
         width: '100%',
         maxWidth: layout.headerMaxWidth,
     },
     backButton: {
-        marginRight: 8,
+        marginRight: 10,
+    },
+    headerActionSurface: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     titleContainer: {
         flex: 1,
@@ -228,21 +258,28 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: Platform.select({
-            ios: 15,
+            ios: 16,
             android: 15,
             default: 16
         }),
         fontWeight: '600',
-        marginBottom: 1,
+        marginBottom: 2,
+        lineHeight: 20,
         width: '100%',
+    },
+    subtitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        minWidth: 0,
     },
     subtitle: {
         fontSize: 12,
         fontWeight: '400',
-        lineHeight: 14,
+        lineHeight: 16,
     },
     avatarButtonSlot: {
-        marginRight: Platform.select({ ios: -8, default: -8 }),
+        marginRight: Platform.select({ ios: -6, default: -6 }),
         overflow: 'visible',
     },
     avatarButton: {

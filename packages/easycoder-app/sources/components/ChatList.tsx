@@ -90,7 +90,7 @@ const ChatListInternal = React.memo((props: {
                         ]}
                         onPress={scrollToBottom}
                     >
-                        <AppIcon name="arrow-down" size={14} color={theme.colors.text} />
+                        <AppIcon name="arrow-down" size={15} color={theme.colors.text} />
                     </Pressable>
                 </View>
             )}
@@ -103,28 +103,28 @@ const styles = StyleSheet.create((theme) => ({
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 12,
+        bottom: 20,
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'box-none',
     },
     scrollButton: {
-        borderRadius: 16,
-        width: 32,
-        height: 32,
+        borderRadius: 18,
+        width: 36,
+        height: 36,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: theme.colors.divider,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(17,24,39,0.10)',
         shadowColor: theme.colors.shadow.color,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 2,
-        shadowOpacity: theme.colors.shadow.opacity * 0.5,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 6 },
+        shadowRadius: 10,
+        shadowOpacity: theme.dark ? 0.28 : 0.12,
+        elevation: 3,
     },
     scrollButtonDefault: {
         backgroundColor: theme.colors.surface,
-        opacity: 0.9,
+        opacity: 0.95,
     },
     scrollButtonPressed: {
         backgroundColor: theme.colors.surface,

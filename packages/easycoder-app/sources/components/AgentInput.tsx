@@ -95,8 +95,8 @@ type ContextWarningTheme = {
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
         alignItems: 'center',
-        paddingBottom: 8,
-        paddingTop: 8,
+        paddingBottom: 10,
+        paddingTop: 6,
     },
     innerContainer: {
         width: '100%',
@@ -104,11 +104,18 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
     unifiedPanel: {
         backgroundColor: theme.colors.input.background,
-        borderRadius: Platform.select({ default: 16, android: 20 }),
+        borderRadius: Platform.select({ default: 18, android: 20 }),
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.12)' : 'rgba(17,24,39,0.08)',
         overflow: 'hidden',
         paddingVertical: 2,
-        paddingBottom: 8,
+        paddingBottom: 10,
         paddingHorizontal: 8,
+        shadowColor: theme.colors.shadow.color,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: theme.dark ? 0.22 : 0.09,
+        shadowRadius: 16,
+        elevation: 4,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -117,7 +124,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingLeft: 8,
         paddingRight: 8,
         paddingVertical: 4,
-        minHeight: 40,
+        minHeight: 44,
     },
 
     // Overlay styles
@@ -165,11 +172,11 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 999,
-        height: 28,
-        paddingHorizontal: 10,
+        height: 30,
+        paddingHorizontal: 11,
         gap: 6,
         borderWidth: 1,
-        borderColor: theme.colors.divider,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.12)' : 'rgba(17,24,39,0.10)',
         backgroundColor: theme.colors.surfaceHigh,
     },
     selectorChipActive: {
@@ -282,6 +289,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        paddingTop: 1,
     },
     actionButtonsLeft: {
         flex: 1,
@@ -320,9 +328,9 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         color: theme.colors.button.secondary.tint,
     },
     sendButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 0,
@@ -354,17 +362,20 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         color: theme.colors.button.primary.tint,
     },
     voiceButton: {
-        minWidth: 32,
-        height: 32,
-        borderRadius: 16,
+        minWidth: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
         flexShrink: 0,
         marginRight: 6,
     },
     voiceButtonIdle: {
-        width: 32,
+        width: 36,
         paddingHorizontal: 0,
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.12)' : 'rgba(17,24,39,0.10)',
+        backgroundColor: theme.colors.surfaceHigh,
     },
     voiceButtonActive: {
         flexDirection: 'row',
