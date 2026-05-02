@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Octicons } from '@expo/vector-icons';
 import { useSessionProjectGitStatus } from '@/sync/storage';
 import { GitStatus } from '@/sync/storageTypes';
 import { StyleSheet } from 'react-native-unistyles';

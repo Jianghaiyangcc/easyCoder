@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Text, View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Octicons } from '@expo/vector-icons';
+
 import { AppIcon } from '@/components/AppIcon';
 import { getToolViewComponent } from './views/_all';
 import { Message, ToolCall } from '@/sync/typesMessage';
@@ -107,11 +107,11 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
     if (tool.name === 'CodexBash' && tool.input?.parsed_cmd && Array.isArray(tool.input.parsed_cmd) && tool.input.parsed_cmd.length > 0) {
         const parsedCmd = tool.input.parsed_cmd[0];
         if (parsedCmd.type === 'read') {
-            icon = <Octicons name="eye" size={18} color={theme.colors.text} />;
+            icon = <AppIcon name="eye" size={18} color={theme.colors.text} />;
         } else if (parsedCmd.type === 'write') {
-            icon = <Octicons name="file-diff" size={18} color={theme.colors.text} />;
+            icon = <AppIcon name="file-diff" size={18} color={theme.colors.text} />;
         } else {
-            icon = <Octicons name="terminal" size={18} color={theme.colors.text} />;
+            icon = <AppIcon name="terminal" size={18} color={theme.colors.text} />;
         }
     } else if (knownTool && typeof knownTool.icon === 'function') {
         icon = knownTool.icon(18, theme.colors.text);

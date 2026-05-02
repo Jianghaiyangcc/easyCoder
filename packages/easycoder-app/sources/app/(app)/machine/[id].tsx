@@ -6,7 +6,7 @@ import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { Typography } from '@/constants/Typography';
 import { useSessions, useAllMachines, useMachine } from '@/sync/storage';
-import { Octicons } from '@expo/vector-icons';
+
 import { AppIcon } from '@/components/AppIcon';
 import type { Session } from '@/sync/storageTypes';
 import { machineStopDaemon, machineUpdateMetadata, machineDelete } from '@/sync/ops';
@@ -347,7 +347,7 @@ export default function MachineDetailScreen() {
                             }}
                             disabled={isRenamingMachine}
                         >
-                            <Octicons
+                            <AppIcon
                                 name="pencil"
                                 size={24}
                                 color={theme.colors.text}

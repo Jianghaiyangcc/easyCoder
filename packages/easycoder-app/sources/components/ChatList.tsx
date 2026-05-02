@@ -8,7 +8,7 @@ import { MessageView } from './MessageView';
 import { Metadata, Session } from '@/sync/storageTypes';
 import { ChatFooter } from './ChatFooter';
 import { Message } from '@/sync/typesMessage';
-import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const SCROLL_THRESHOLD = 300;
@@ -90,7 +90,7 @@ const ChatListInternal = React.memo((props: {
                         ]}
                         onPress={scrollToBottom}
                     >
-                        <Octicons name="arrow-down" size={14} color={theme.colors.text} />
+                        <AppIcon name="arrow-down" size={14} color={theme.colors.text} />
                     </Pressable>
                 </View>
             )}

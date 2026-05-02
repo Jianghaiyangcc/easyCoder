@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useSessionGitStatus, useSessionProjectGitStatus } from '@/sync/storage';
 import { GitStatus } from '@/sync/storageTypes';
 import { useUnistyles } from 'react-native-unistyles';
@@ -35,7 +35,7 @@ export function GitStatusBadge({ sessionId }: GitStatusBadgeProps) {
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, overflow: 'hidden' }}>
             {/* Git icon - always shown */}
-            <Octicons
+            <AppIcon
                 name="git-branch"
                 size={16}
                 color={theme.colors.button.secondary.tint}

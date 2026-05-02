@@ -17,15 +17,103 @@ import { WeChatQRCodeModal } from '@/components/WeChatQRCodeModal';
 import { useMultiClick } from '@/hooks/useMultiClick';
 import { useAllMachines } from '@/sync/storage';
 import { isMachineOnline } from '@/utils/machineUtils';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { layout } from '@/components/layout';
 import { useProfile } from '@/sync/storage';
 import { getDisplayName, getAvatarUrl, getBio } from '@/sync/profile';
 import { Avatar } from '@/components/Avatar';
 import { t } from '@/text';
 
+const stylesheet = StyleSheet.create((theme) => ({
+    headerWrap: {
+        maxWidth: layout.maxWidth,
+        alignSelf: 'center',
+        width: '100%',
+    },
+    headerCard: {
+        overflow: 'hidden',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 24,
+        backgroundColor: theme.colors.surface,
+        marginTop: 16,
+        borderRadius: 16,
+        marginHorizontal: 16,
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+        shadowColor: theme.colors.shadow.color,
+        shadowOpacity: theme.dark ? 0.3 : 0.12,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 4,
+    },
+    headerAccent: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 4,
+        backgroundColor: theme.colors.textLink,
+        opacity: theme.dark ? 0.5 : 0.75,
+    },
+    profileName: {
+        fontSize: 22,
+        color: theme.colors.text,
+        marginBottom: 4,
+        fontFamily: 'BricolageGrotesque-Bold',
+    },
+    profileBio: {
+        fontSize: 14,
+        color: theme.colors.textSecondary,
+        textAlign: 'center',
+        marginBottom: 12,
+        paddingHorizontal: 16,
+    },
+    badgeRow: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 8,
+    },
+    badge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        borderRadius: 999,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderWidth: 1,
+    },
+    badgeText: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    metricsRow: {
+        marginTop: 12,
+        flexDirection: 'row',
+        gap: 10,
+    },
+    metricPill: {
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        minWidth: 110,
+        borderWidth: 1,
+    },
+    metricLabel: {
+        fontSize: 11,
+        color: theme.colors.textSecondary,
+        marginBottom: 2,
+    },
+    metricValue: {
+        fontSize: 13,
+        color: theme.colors.text,
+        fontWeight: '600',
+    },
+}));
+
 export const SettingsView = React.memo(function SettingsView() {
     const { theme } = useUnistyles();
+    const styles = stylesheet;
     const router = useRouter();
     const appVersion = Constants.expoConfig?.version || '1.0.0';
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
@@ -79,6 +167,9 @@ export const SettingsView = React.memo(function SettingsView() {
     const cardWidth = Math.max(0, Math.min(windowWidth, layout.maxWidth) - 32);
     const logoWidth = Math.min(cardWidth, Math.max(240, cardWidth * 0.72), 420);
     const logoHeight = logoWidth * 0.3;
+    const planLabel = hasPro ? 'PRO' : 'FREE';
+    const connectivityLabel = isGatewayConnected ? t('status.online') : t('status.offline');
+    const machineSummary = `${onlineMachineCount}/${allMachinesWithOffline.length}`;
 
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
 
@@ -123,8 +214,9 @@ export const SettingsView = React.memo(function SettingsView() {
 
         <ItemList style={{ paddingTop: 0 }}>
             {/* App Info Header */}
-            <View style={{ maxWidth: layout.maxWidth, alignSelf: 'center', width: '100%' }}>
-                <View style={{ alignItems: 'center', paddingVertical: 24, backgroundColor: theme.colors.surface, marginTop: 16, borderRadius: 12, marginHorizontal: 16 }}>
+            <View style={styles.headerWrap}>
+                <View style={styles.headerCard}>
+                    <View style={styles.headerAccent} />
                     {profile.firstName ? (
                         // Profile view: Avatar + name + version
                         <>
@@ -136,11 +228,11 @@ export const SettingsView = React.memo(function SettingsView() {
                                     thumbhash={profile.avatar?.thumbhash}
                                 />
                             </View>
-                            <Text style={{ fontSize: 20, fontWeight: '600', color: theme.colors.text, marginBottom: bio ? 4 : 8 }}>
+                            <Text style={styles.profileName}>
                                 {displayName}
                             </Text>
                             {bio && (
-                                <Text style={{ fontSize: 14, color: theme.colors.textSecondary, textAlign: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
+                                <Text style={styles.profileBio}>
                                     {bio}
                                 </Text>
                             )}
@@ -155,6 +247,50 @@ export const SettingsView = React.memo(function SettingsView() {
                             />
                         </>
                     )}
+                    <View style={styles.badgeRow}>
+                        <View style={[styles.badge, {
+                            borderColor: hasPro ? 'rgba(52,199,89,0.45)' : 'rgba(142,142,147,0.45)',
+                            backgroundColor: hasPro ? 'rgba(52,199,89,0.12)' : 'rgba(142,142,147,0.1)',
+                        }]}>
+                            <AppIcon
+                                name={hasPro ? 'sparkles-outline' : 'person-circle-outline'}
+                                size={14}
+                                color={hasPro ? theme.colors.status.connected : theme.colors.textSecondary}
+                            />
+                            <Text style={[styles.badgeText, { color: hasPro ? theme.colors.status.connected : theme.colors.textSecondary }]}>
+                                {planLabel}
+                            </Text>
+                        </View>
+                        <View style={[styles.badge, {
+                            borderColor: isGatewayConnected ? 'rgba(10,132,255,0.45)' : 'rgba(255,149,0,0.45)',
+                            backgroundColor: isGatewayConnected ? 'rgba(10,132,255,0.12)' : 'rgba(255,149,0,0.12)',
+                        }]}>
+                            <AppIcon
+                                name={isGatewayConnected ? 'radio-outline' : 'warning-outline'}
+                                size={14}
+                                color={isGatewayConnected ? theme.colors.textLink : theme.colors.warning}
+                            />
+                            <Text style={[styles.badgeText, { color: isGatewayConnected ? theme.colors.textLink : theme.colors.warning }]}>
+                                {connectivityLabel}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={styles.metricsRow}>
+                        <View style={[styles.metricPill, {
+                            borderColor: theme.dark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.08)',
+                            backgroundColor: theme.dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)',
+                        }]}>
+                            <Text style={styles.metricLabel}>{t('settings.machines')}</Text>
+                            <Text style={styles.metricValue}>{machineSummary}</Text>
+                        </View>
+                        <View style={[styles.metricPill, {
+                            borderColor: theme.dark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.08)',
+                            backgroundColor: theme.dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)',
+                        }]}>
+                            <Text style={styles.metricLabel}>{t('common.version')}</Text>
+                            <Text style={styles.metricValue}>{appVersion}</Text>
+                        </View>
+                    </View>
                 </View>
             </View>
 

@@ -4,7 +4,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { Text } from '@/components/StyledText';
 import { Machine } from '@/sync/storageTypes';
 import { SessionRowData } from '@/sync/storage';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { AppIcon } from '@/components/AppIcon';
 import { type SessionState, formatPathRelativeToHome, formatLastSeen } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
@@ -106,7 +106,7 @@ const SectionHeader = React.memo(({ session, displayPath }: { session: SessionRo
                             {branchName}
                         </Text>
                         {isWorktree && (
-                            <MaterialCommunityIcons
+                            <AppIcon
                                 name="tree"
                                 size={11}
                                 color={theme.colors.textSecondary}

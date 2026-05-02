@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { ToolCall } from '@/sync/typesMessage';
 import { ToolSectionView } from '../ToolSectionView';
 import { CommandView } from '@/components/CommandView';
@@ -39,13 +39,13 @@ export const CodexBashView = React.memo<CodexBashViewProps>(({ tool, metadata })
     let icon: React.ReactNode;
     switch (operationType) {
         case 'read':
-            icon = <Octicons name="eye" size={18} color={theme.colors.textSecondary} />;
+            icon = <AppIcon name="eye" size={18} color={theme.colors.textSecondary} />;
             break;
         case 'write':
-            icon = <Octicons name="file-diff" size={18} color={theme.colors.textSecondary} />;
+            icon = <AppIcon name="file-diff" size={18} color={theme.colors.textSecondary} />;
             break;
         default:
-            icon = <Octicons name="terminal" size={18} color={theme.colors.textSecondary} />;
+            icon = <AppIcon name="terminal" size={18} color={theme.colors.textSecondary} />;
     }
 
     // Format the display based on operation type

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, ActivityIndicator, Platform, TextInput } from 'react-native';
 import { t } from '@/text';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Text } from '@/components/StyledText';
 import { Item } from '@/components/Item';
 import { ItemList } from '@/components/ItemList';
@@ -91,7 +91,7 @@ export default React.memo(function FilesScreen() {
                     }}>
                         {t('files.deleted')}
                     </Text>
-                    <Octicons name="diff-removed" size={16} color="#FF3B30" />
+                    <AppIcon name="diff-removed" size={16} color="#FF3B30" />
                 </View>
             );
         }
@@ -120,7 +120,7 @@ export default React.memo(function FilesScreen() {
                 return null;
         }
 
-        return <Octicons name={statusIcon as any} size={16} color={statusColor} />;
+        return <AppIcon name={statusIcon as any} size={16} color={statusColor} />;
     };
 
     const renderLineChanges = (file: GitFileStatus) => {
@@ -142,7 +142,7 @@ export default React.memo(function FilesScreen() {
 
     const renderFileIconForSearch = (file: FileItem) => {
         if (file.fileType === 'folder') {
-            return <Octicons name="file-directory" size={29} color="#007AFF" />;
+            return <AppIcon name="file-directory" size={29} color="#007AFF" />;
         }
 
         return <FileIcon fileName={file.fileName} size={29} />;
@@ -195,7 +195,7 @@ export default React.memo(function FilesScreen() {
                     paddingHorizontal: 12,
                     paddingVertical: 8
                 }}>
-                    <Octicons name="search" size={16} color={theme.colors.textSecondary} style={{ marginRight: 8 }} />
+                    <AppIcon name="search" size={16} color={theme.colors.textSecondary} style={{ marginRight: 8 }} />
                     <TextInput
                         value={searchQuery}
                         onChangeText={setSearchQuery}
@@ -224,7 +224,7 @@ export default React.memo(function FilesScreen() {
                         alignItems: 'center',
                         marginBottom: 8
                     }}>
-                        <Octicons name="git-branch" size={16} color={theme.colors.textSecondary} style={{ marginRight: 6 }} />
+                        <AppIcon name="git-branch" size={16} color={theme.colors.textSecondary} style={{ marginRight: 6 }} />
                         <Text style={{
                             fontSize: 16,
                             fontWeight: '600',
@@ -263,7 +263,7 @@ export default React.memo(function FilesScreen() {
                         paddingTop: 40,
                         paddingHorizontal: 20
                     }}>
-                        <Octicons name="git-branch" size={48} color={theme.colors.textSecondary} />
+                        <AppIcon name="git-branch" size={48} color={theme.colors.textSecondary} />
                         <Text style={{
                             fontSize: 16,
                             color: theme.colors.textSecondary,
@@ -311,7 +311,7 @@ export default React.memo(function FilesScreen() {
                             paddingTop: 40,
                             paddingHorizontal: 20
                         }}>
-                            <Octicons name={searchQuery ? "search" : "file-directory"} size={48} color={theme.colors.textSecondary} />
+                            <AppIcon name={searchQuery ? "search" : "file-directory"} size={48} color={theme.colors.textSecondary} />
                             <Text style={{
                                 fontSize: 16,
                                 color: theme.colors.textSecondary,

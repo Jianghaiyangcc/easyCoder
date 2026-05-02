@@ -1,4 +1,4 @@
-import { Octicons } from '@expo/vector-icons';
+
 import { AppIcon } from '@/components/AppIcon';
 import * as React from 'react';
 import { View, Platform, useWindowDimensions, Text, ActivityIndicator, TouchableWithoutFeedback, Pressable, ScrollView } from 'react-native';
@@ -1192,7 +1192,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             pressed && styles.selectorChipPressed,
                                         ]}
                                     >
-                                        <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                        <AppIcon name="cpu" size={13} color={theme.colors.textSecondary} />
                                         <Text style={styles.selectorChipValue} numberOfLines={1}>
                                             {selectedModel.name}
                                         </Text>
@@ -1256,7 +1256,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     pressed && styles.selectorChipPressed,
                                                 ]}
                                             >
-                                                <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                <AppIcon name="cpu" size={13} color={theme.colors.textSecondary} />
                                                 <Text style={styles.selectorChipValue} numberOfLines={1}>
                                                     {selectedModel.name}
                                                 </Text>
@@ -1294,13 +1294,13 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                         pressed && styles.selectorChipPressed,
                                                     ]}
                                                 >
-                                                    <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                    <AppIcon name="cpu" size={13} color={theme.colors.textSecondary} />
                                                     <Text style={styles.selectorChipValue} numberOfLines={1}>{agentDisplayName}</Text>
                                                     <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                                 </Pressable>
                                             ) : (
                                                 <View style={[styles.selectorChip, { opacity: 0.85 }]}>
-                                                    <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
+                                                    <AppIcon name="cpu" size={13} color={theme.colors.textSecondary} />
                                                     <Text style={styles.selectorChipValue} numberOfLines={1}>{agentDisplayName}</Text>
                                                 </View>
                                             )
@@ -1406,7 +1406,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     color={theme.colors.textSecondary}
                                                 />
                                             ) : (
-                                                <Octicons
+                                                <AppIcon
                                                     name="arrow-up"
                                                     size={16}
                                                     color={theme.colors.button.primary.tint}
@@ -1462,7 +1462,7 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
             {hasMeaningfulGitStatus ? (
                 <GitStatusBadge sessionId={sessionId} />
             ) : (
-                <Octicons
+                <AppIcon
                     name="git-branch"
                     size={16}
                     color={theme.colors.button.secondary.tint}

@@ -16,7 +16,6 @@ import {
     Image as RNImage,
 } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
-import { Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AppIcon } from '@/components/AppIcon';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Typography } from '@/constants/Typography';
@@ -243,7 +242,7 @@ function PickerContent({
                 style={(p) => [pickerStyles.option, p.pressed && pickerStyles.optionPressed, item.dimmed && { opacity: 0.45 }]}
                 onPress={() => onSelect(item.key)}
             >
-                <Octicons
+                <AppIcon
                     name={isSelected ? 'check-circle-fill' : 'circle'}
                     size={16}
                     color={isSelected ? theme.colors.button.primary.background : theme.colors.textSecondary}
@@ -1111,7 +1110,7 @@ function NewSessionScreen() {
                                             style={(p) => [styles.configRow, p.pressed && styles.configRowPressed]}
                                             onPress={() => togglePicker('worktree')}
                                         >
-                                            <MaterialCommunityIcons name="tree" size={15} color={theme.colors.textSecondary} />
+                                            <AppIcon name="tree" size={15} color={theme.colors.textSecondary} />
                                             <Text style={styles.configLabel} numberOfLines={1}>
                                                 {worktreeLabel}
                                             </Text>
@@ -1198,7 +1197,7 @@ function NewSessionScreen() {
                                             hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
                                             style={(p) => [styles.collapsedIconButton, p.pressed && styles.configRowPressed]}
                                         >
-                                            <MaterialCommunityIcons name="tree" size={14} color={theme.colors.textSecondary} />
+                                            <AppIcon name="tree" size={14} color={theme.colors.textSecondary} />
                                         </Pressable>
                                     )}
                                 </View>
@@ -1297,7 +1296,7 @@ function NewSessionScreen() {
                                             color={theme.colors.button.primary.tint}
                                         />
                                     ) : (
-                                        <Octicons
+                                        <AppIcon
                                             name="arrow-up"
                                             size={16}
                                             color={theme.colors.button.primary.tint}
