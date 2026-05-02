@@ -10,7 +10,7 @@
 import chalk from 'chalk'
 import { runClaude, StartOptions } from '@/claude/runClaude'
 import { logger } from './ui/logger'
-import { readCredentials, readSettings } from './persistence'
+import { readCredentials, readDaemonState, readSettings } from './persistence'
 import { authAndSetupMachineIfNeeded } from './ui/auth'
 import packageJson from '../package.json'
 import { z } from 'zod'
@@ -33,6 +33,8 @@ import { extractNoSandboxFlag } from './utils/sandboxFlags'
 import { handleResumeCommand } from '@/resume/handleResumeCommand'
 import { ensureDaemonRunning } from './daemon/ensureDaemonRunning'
 import { handleCodexCommand } from './commands/codexCommand'
+import { existsSync } from 'node:fs'
+import { configuration } from './configuration'
 
 
 (async () => {
@@ -484,6 +486,13 @@ import { handleCodexCommand } from './commands/codexCommand'
       return
 
     } else if (daemonSubcommand === 'start') {
+      const credentials = await readCredentials()
+      if (!credentials) {
+        console.error('Cannot start daemon in background: no authentication credentials found.')
+        console.error('Run `easycoder auth login` first, then retry `easycoder daemon start`.')
+        process.exit(1)
+      }
+
       // Spawn detached daemon process
       const child = spawnEasycoderCLI(['daemon', 'start-sync'], {
         detached: true,
@@ -505,7 +514,22 @@ import { handleCodexCommand } from './commands/codexCommand'
       if (started) {
         console.log('Daemon started successfully');
       } else {
-        console.error('Failed to start daemon');
+        const daemonState = await readDaemonState()
+        const hasLockWithoutState = existsSync(configuration.daemonLockFile) && !daemonState
+        const latestLog = await getLatestDaemonLog()
+
+        console.error('Failed to start daemon.')
+        if (hasLockWithoutState) {
+          console.error('Detected abnormal daemon startup residue: lock file exists but state file is missing.')
+          console.error('Try: `easycoder doctor clean` and then `easycoder daemon start`')
+        }
+        if (latestLog) {
+          console.error(`Latest daemon log: ${latestLog.path}`)
+        }
+        console.error('Diagnostics:')
+        console.error('  easycoder daemon status')
+        console.error('  easycoder daemon logs')
+        console.error('  easycoder doctor')
         process.exit(1);
       }
       process.exit(0);
