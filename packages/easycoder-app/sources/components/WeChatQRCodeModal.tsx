@@ -6,6 +6,8 @@ import { Typography } from '@/constants/Typography';
 import { useUnistyles } from 'react-native-unistyles';
 import { Image } from 'expo-image';
 
+const wechatJoinQr = require('@/assets/images/wechat-join-qr.png');
+
 interface WeChatQRCodeModalProps {
     onClose: () => void;
 }
@@ -41,7 +43,7 @@ export function WeChatQRCodeModal({ onClose }: WeChatQRCodeModalProps) {
                     {/* QR Code */}
                     <View style={[styles.qrContainer, { width: qrSize, height: qrSize }]}>
                         <Image
-                            source={{ uri: 'https://via.placeholder.com/240x240/07C160/FFFFFF?text=WeChat+QR+Code' }}
+                            source={wechatJoinQr}
                             style={styles.qrImage}
                             contentFit="contain"
                         />
