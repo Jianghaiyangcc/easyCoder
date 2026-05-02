@@ -9,7 +9,7 @@ import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
-import { useEntitlement, useLocalSettingMutable, useSetting, useSocketStatus } from '@/sync/storage';
+import { useEntitlement, useLocalSettingMutable, useSocketStatus } from '@/sync/storage';
 import { sync } from '@/sync/sync';
 import { trackWhatsNewClicked } from '@/track';
 import { Modal } from '@/modal';
@@ -30,7 +30,6 @@ export const SettingsView = React.memo(function SettingsView() {
     const appVersion = Constants.expoConfig?.version || '1.0.0';
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
     const hasPro = useEntitlement('pro');
-    const experiments = useSetting('experiments');
     const socketStatus = useSocketStatus();
     const [showOfflineMachines, setShowOfflineMachines] = React.useState(false);
     const allMachinesWithOffline = useAllMachines({ includeOffline: true });
@@ -151,57 +150,53 @@ export const SettingsView = React.memo(function SettingsView() {
                 </View>
             </View>
 
-            {/* Connect Terminal - gated by experiments on all platforms */}
-            {experiments && (
-                <ItemGroup>
-                    {Platform.OS !== 'web' && (
-                        <Item
-                            title={t('settings.scanQrCodeToAuthenticate')}
-                            icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
-                            onPress={connectTerminal}
-                            loading={isLoading}
-                            showChevron={false}
-                        />
-                    )}
+            {/* Connect Terminal */}
+            <ItemGroup>
+                {Platform.OS !== 'web' && (
                     <Item
-                        title={t('connect.enterUrlManually')}
-                        icon={<Ionicons name="link-outline" size={29} color="#007AFF" />}
-                        onPress={async () => {
-                            const url = await Modal.prompt(
-                                t('modals.authenticateTerminal'),
-                                t('modals.pasteUrlFromTerminal'),
-                                {
-                                    placeholder: 'easycoder://terminal?...',
-                                    confirmText: t('common.authenticate')
-                                }
-                            );
-                            if (url?.trim()) {
-                                connectWithUrl(url.trim());
+                        title={t('settings.scanQrCodeToAuthenticate')}
+                        icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
+                        onPress={connectTerminal}
+                        loading={isLoading}
+                        showChevron={false}
+                    />
+                )}
+                <Item
+                    title={t('connect.enterUrlManually')}
+                    icon={<Ionicons name="link-outline" size={29} color="#007AFF" />}
+                    onPress={async () => {
+                        const url = await Modal.prompt(
+                            t('modals.authenticateTerminal'),
+                            t('modals.pasteUrlFromTerminal'),
+                            {
+                                placeholder: 'easycoder://terminal?...',
+                                confirmText: t('common.authenticate')
                             }
-                        }}
-                        showChevron={false}
-                    />
-                </ItemGroup>
-            )}
+                        );
+                        if (url?.trim()) {
+                            connectWithUrl(url.trim());
+                        }
+                    }}
+                    showChevron={false}
+                />
+            </ItemGroup>
 
-            {/* Support Us - gated by experiments on all platforms */}
-            {experiments && (
-                <ItemGroup>
-                    <Item
-                        title={t('subscription.title')}
-                        subtitle={hasPro ? t('subscription.manageSubscription') : t('subscription.upgradeToPro')}
-                        icon={<Ionicons name="pricetag-outline" size={29} color="#FF9500" />}
-                        onPress={() => router.push('/settings/subscription')}
-                    />
-                    <Item
-                        title={t('settings.supportUs')}
-                        subtitle={hasPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
-                        icon={<Ionicons name="heart" size={29} color="#FF3B30" />}
-                        showChevron={false}
-                        onPress={handleSupportUs}
-                    />
-                </ItemGroup>
-            )}
+            {/* Support Us */}
+            <ItemGroup>
+                <Item
+                    title={t('subscription.title')}
+                    subtitle={hasPro ? t('subscription.manageSubscription') : t('subscription.upgradeToPro')}
+                    icon={<Ionicons name="pricetag-outline" size={29} color="#FF9500" />}
+                    onPress={() => router.push('/settings/subscription')}
+                />
+                <Item
+                    title={t('settings.supportUs')}
+                    subtitle={hasPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
+                    icon={<Ionicons name="heart" size={29} color="#FF3B30" />}
+                    showChevron={false}
+                    onPress={handleSupportUs}
+                />
+            </ItemGroup>
 
             {/* Social */}
             {/* <ItemGroup title={t('settings.social')}>
