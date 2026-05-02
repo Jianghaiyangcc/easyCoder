@@ -12,15 +12,13 @@
 
 <div align="center">
 
-[🤖 Android](https://play.google.com/store/apps/details?id=club.daima.code) •
+
 [🌐 Web](https://code.daima.club) •
 [📚 文档](https://code.daima.club/docs/) •
-[🎥 Demo](https://youtu.be/GCS0OG9QMSE) •
-[💬 Discord](https://discord.gg/fX9WBAhyfD)
+
 
 </div>
 
-<img width="5178" height="2364" alt="EasyCoder" src="/.github/header.png" />
 
 ## 什么是 EasyCoder？
 
