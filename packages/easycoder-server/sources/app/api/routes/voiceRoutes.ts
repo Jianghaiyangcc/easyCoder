@@ -22,7 +22,10 @@ import { synthesizeDashscopeSpeech } from "@/modules/dashscopeTts";
 import { db } from "@/storage/db";
 import { inTx } from "@/storage/inTx";
 
-const VOICE_FREE_LIMIT_SECONDS = 1200;  // 20 minutes free tier per 30 days (~$0.76 cost)
+const DEFAULT_VOICE_FREE_LIMIT_SECONDS = 1200; // 20 minutes free tier per 30 days (~$0.76 cost)
+const DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT = 200;
+const VOICE_FREE_LIMIT_SECONDS = parsePositiveInt(process.env.VOICE_FREE_LIMIT_SECONDS, DEFAULT_VOICE_FREE_LIMIT_SECONDS);
+const VOICE_FREE_ASR_LIMIT_COUNT = parsePositiveInt(process.env.VOICE_FREE_ASR_LIMIT_COUNT, DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT);
 const VOICE_HARD_LIMIT_SECONDS = 18000; // 5 hours absolute cap per 30 days (even with subscription)
 const VOICE_MAX_CONVERSATIONS = 100;    // Max conversations trackable per 30 days (ElevenLabs page_size limit)
 const ELEVEN_LABS_API = "https://api.elevenlabs.io/v1/convai";
@@ -30,6 +33,17 @@ const VOICE_USAGE_WINDOW_DAYS = 30;
 const BAILIAN_ASR_IDEMPOTENCY_PREFIX = "bailian_asr";
 const FFPROBE_TIMEOUT_MS = 1500;
 const execFileAsync = promisify(execFile);
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+    if (!value) {
+        return fallback;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return fallback;
+    }
+    return parsed;
+}
 
 function resolveVoiceLimitSeconds(subscribed: boolean): number {
     return subscribed ? VOICE_HARD_LIMIT_SECONDS : VOICE_FREE_LIMIT_SECONDS;
@@ -176,11 +190,16 @@ async function recordBailianAsrUsage(input: {
     });
 }
 
+interface BailianUsageStats {
+    usedSeconds: number;
+    asrCount: number;
+}
+
 /**
  * Aggregates Bailian ASR usage over the last N days from idempotent ASR events.
  */
-async function getBailianUsageSeconds(accountId: string, windowDays: number): Promise<number> {
-    const records = await db.voiceConversation.findMany({
+async function getBailianUsageStats(accountId: string, windowDays: number): Promise<BailianUsageStats> {
+    const aggregate = await db.voiceConversation.aggregate({
         where: {
             accountId,
             elevenLabsConversationId: {
@@ -190,17 +209,18 @@ async function getBailianUsageSeconds(accountId: string, windowDays: number): Pr
                 gte: new Date(Date.now() - windowDays * 86400 * 1000),
             },
         },
-        select: {
+        _sum: {
             durationSecs: true,
+        },
+        _count: {
+            _all: true,
         },
     });
 
-    let totalDurationSeconds = 0;
-    for (const record of records) {
-        totalDurationSeconds += record.durationSecs ?? 0;
-    }
-
-    return totalDurationSeconds;
+    return {
+        usedSeconds: aggregate._sum.durationSecs ?? 0,
+        asrCount: aggregate._count._all,
+    };
 }
 
 /**
@@ -289,8 +309,8 @@ export function voiceRoutes(app: Fastify) {
             return reply.code(400).send({ error: 'Invalid audio payload' });
         }
 
-        const [usedSeconds, subscribed] = await Promise.all([
-            getBailianUsageSeconds(request.userId, VOICE_USAGE_WINDOW_DAYS),
+        const [{ usedSeconds, asrCount }, subscribed] = await Promise.all([
+            getBailianUsageStats(request.userId, VOICE_USAGE_WINDOW_DAYS),
             hasActiveSubscription(request.userId),
         ]);
 
@@ -303,13 +323,24 @@ export function voiceRoutes(app: Fastify) {
             });
         }
 
-        if (usedSeconds >= VOICE_FREE_LIMIT_SECONDS && !subscribed) {
-            return reply.code(403).send({
-                reason: 'subscription_required' as const,
-                usedSeconds,
-                limitSeconds: VOICE_FREE_LIMIT_SECONDS,
-                error: 'Subscription required for additional voice usage',
-            });
+        if (!subscribed) {
+            if (usedSeconds >= VOICE_FREE_LIMIT_SECONDS) {
+                return reply.code(403).send({
+                    reason: 'subscription_required' as const,
+                    usedSeconds,
+                    limitSeconds: VOICE_FREE_LIMIT_SECONDS,
+                    error: 'Subscription required for additional voice usage',
+                });
+            }
+
+            if (asrCount >= VOICE_FREE_ASR_LIMIT_COUNT) {
+                return reply.code(403).send({
+                    reason: 'subscription_required' as const,
+                    usedSeconds,
+                    limitSeconds: VOICE_FREE_LIMIT_SECONDS,
+                    error: 'Subscription required for additional voice ASR usage',
+                });
+            }
         }
 
         try {
@@ -522,11 +553,11 @@ export function voiceRoutes(app: Fastify) {
         const elevenUserId = elevenLabsApiKey ? deriveElevenUserId(userId) : null;
 
         try {
-            const [{ usedSeconds: elevenLabsUsedSeconds, conversationCount }, bailianUsedSeconds, subscribed] = await Promise.all([
+            const [{ usedSeconds: elevenLabsUsedSeconds, conversationCount }, bailianUsageStats, subscribed] = await Promise.all([
                 elevenLabsApiKey && elevenUserId
                     ? getElevenLabsVoiceUsage(elevenLabsApiKey, elevenUserId)
                     : Promise.resolve({ usedSeconds: 0, conversationCount: 0 }),
-                getBailianUsageSeconds(userId, VOICE_USAGE_WINDOW_DAYS),
+                getBailianUsageStats(userId, VOICE_USAGE_WINDOW_DAYS),
                 hasActiveSubscription(userId),
             ]);
 
@@ -550,7 +581,7 @@ export function voiceRoutes(app: Fastify) {
             } = {
                 bailian: {
                     provider: 'bailian',
-                    usedSeconds: bailianUsedSeconds,
+                    usedSeconds: bailianUsageStats.usedSeconds,
                     limitSeconds: defaultLimitSeconds,
                     conversationCount: 0,
                     conversationLimit: 0,
