@@ -14,8 +14,7 @@ import {
     verifyAndUnbindPhone,
 } from "../services/phoneVerificationService";
 
-const DEFAULT_USAGE_WINDOW_DAYS = 30;
-const MAX_USAGE_WINDOW_DAYS = 90;
+const DEFAULT_USAGE_TIMEZONE = 'UTC';
 const DEFAULT_VOICE_FREE_LIMIT_SECONDS = 1200;
 const DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT = 200;
 const DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT = 10000;
@@ -32,6 +31,45 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
     }
     return parsed;
 }
+
+function getUsageTimeZone(): string {
+    const configured = process.env.SYSTEM_TIMEZONE ?? process.env.TZ;
+    return configured && configured.trim().length > 0
+        ? configured.trim()
+        : DEFAULT_USAGE_TIMEZONE;
+}
+
+function shiftMonthKey(monthKey: string, offsetMonths: number): string {
+    const match = /^(\d{4})-(\d{2})$/.exec(monthKey);
+    if (!match) {
+        throw new Error(`Invalid month key: ${monthKey}`);
+    }
+    const year = Number.parseInt(match[1], 10);
+    const month = Number.parseInt(match[2], 10);
+    const shifted = new Date(Date.UTC(year, month - 1 + offsetMonths, 1));
+    const shiftedYear = shifted.getUTCFullYear();
+    const shiftedMonth = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+    return `${shiftedYear}-${shiftedMonth}`;
+}
+
+function toNumber(value: unknown): number {
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : 0;
+    }
+    if (typeof value === 'bigint') {
+        return Number(value);
+    }
+    if (typeof value === 'string') {
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+}
+
+type MonthlyAggregateRow = {
+    month: string;
+    value: unknown;
+};
 
 export function accountRoutes(app: Fastify) {
     app.get('/v1/account/profile', {
@@ -498,72 +536,127 @@ export function accountRoutes(app: Fastify) {
     app.get('/v1/usage/summary', {
         preHandler: app.authenticate,
         schema: {
-            querystring: z.object({
-                windowDays: z.coerce.number().int().min(1).max(MAX_USAGE_WINDOW_DAYS).optional(),
-            }),
             response: {
                 200: z.object({
-                    windowDays: z.number(),
-                    voiceAsrCount: z.number(),
-                    voiceMinutes: z.number(),
-                    voiceAsrCountLimit: z.number(),
-                    voiceMinutesLimit: z.number(),
-                    globalMessageCount: z.number(),
-                    globalMessageCountLimit: z.number(),
+                    timezone: z.string(),
+                    currentMonth: z.object({
+                        month: z.string(),
+                        messageCount: z.number(),
+                        voiceMinutes: z.number(),
+                        voiceCount: z.number(),
+                        messageCountLimit: z.number(),
+                        voiceMinutesLimit: z.number(),
+                        voiceCountLimit: z.number(),
+                    }),
+                    last6FullMonths: z.array(z.object({
+                        month: z.string(),
+                        messageCount: z.number(),
+                        voiceMinutes: z.number(),
+                        voiceCount: z.number(),
+                    })).length(6),
                 }),
                 500: z.object({ error: z.string() }),
             },
         },
     }, async (request, reply) => {
         const userId = request.userId;
-        const windowDays = request.query.windowDays ?? DEFAULT_USAGE_WINDOW_DAYS;
-        const createdAfter = new Date(Date.now() - windowDays * 86400 * 1000);
+        const timezone = getUsageTimeZone();
         const voiceFreeLimitSeconds = parsePositiveInt(process.env.VOICE_FREE_LIMIT_SECONDS, DEFAULT_VOICE_FREE_LIMIT_SECONDS);
-        const voiceAsrCountLimit = parsePositiveInt(process.env.VOICE_FREE_ASR_LIMIT_COUNT, DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT);
-        const globalMessageCountLimit = parsePositiveInt(process.env.GLOBAL_MESSAGE_COUNT_LIMIT, DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT);
+        const voiceCountLimit = parsePositiveInt(process.env.VOICE_FREE_ASR_LIMIT_COUNT, DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT);
+        const messageCountLimit = parsePositiveInt(process.env.GLOBAL_MESSAGE_COUNT_LIMIT, DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT);
 
         try {
-            const [voiceAggregate, globalMessageCount] = await Promise.all([
-                db.voiceConversation.aggregate({
-                    where: {
-                        accountId: userId,
-                        elevenLabsConversationId: {
-                            startsWith: BAILIAN_ASR_IDEMPOTENCY_PREFIX,
-                        },
-                        createdAt: {
-                            gte: createdAfter,
-                        },
-                    },
-                    _count: {
-                        _all: true,
-                    },
-                    _sum: {
-                        durationSecs: true,
-                    },
-                }),
-                db.usageReport.count({
-                    where: {
-                        accountId: userId,
-                        createdAt: {
-                            gte: createdAfter,
-                        },
-                        key: {
-                            startsWith: MESSAGE_USAGE_KEY_PREFIX,
-                        },
-                    },
-                }),
+            const currentMonthRows = await db.$queryRaw<Array<{ month: string }>>`
+                SELECT to_char(date_trunc('month', now() AT TIME ZONE ${timezone}), 'YYYY-MM') AS month
+            `;
+            const currentMonth = currentMonthRows[0]?.month;
+            if (!currentMonth) {
+                throw new Error('Failed to resolve current month for usage summary');
+            }
+
+            const monthKeys = Array.from({ length: 7 }, (_, index) => shiftMonthKey(currentMonth, -index));
+            const relevantMonths = new Set(monthKeys);
+            const last6FullMonthsAscending = monthKeys.slice(1).reverse();
+
+            const [messageRows, voiceCountRows, voiceSecondsRows] = await Promise.all([
+                db.$queryRaw<MonthlyAggregateRow[]>`
+                    SELECT
+                        to_char(date_trunc('month', "createdAt" AT TIME ZONE ${timezone}), 'YYYY-MM') AS month,
+                        COUNT(*)::int AS value
+                    FROM "UsageReport"
+                    WHERE "accountId" = ${userId}
+                        AND "key" LIKE ${`${MESSAGE_USAGE_KEY_PREFIX}%`}
+                        AND ("createdAt" AT TIME ZONE ${timezone}) >= (date_trunc('month', now() AT TIME ZONE ${timezone}) - interval '6 months')
+                    GROUP BY 1
+                `,
+                db.$queryRaw<MonthlyAggregateRow[]>`
+                    SELECT
+                        to_char(date_trunc('month', "createdAt" AT TIME ZONE ${timezone}), 'YYYY-MM') AS month,
+                        COUNT(*)::int AS value
+                    FROM "VoiceConversation"
+                    WHERE "accountId" = ${userId}
+                        AND "elevenLabsConversationId" LIKE ${`${BAILIAN_ASR_IDEMPOTENCY_PREFIX}%`}
+                        AND ("createdAt" AT TIME ZONE ${timezone}) >= (date_trunc('month', now() AT TIME ZONE ${timezone}) - interval '6 months')
+                    GROUP BY 1
+                `,
+                db.$queryRaw<MonthlyAggregateRow[]>`
+                    SELECT
+                        to_char(date_trunc('month', "createdAt" AT TIME ZONE ${timezone}), 'YYYY-MM') AS month,
+                        COALESCE(SUM(COALESCE("durationSecs", 0)), 0)::int AS value
+                    FROM "VoiceConversation"
+                    WHERE "accountId" = ${userId}
+                        AND "elevenLabsConversationId" LIKE ${`${BAILIAN_ASR_IDEMPOTENCY_PREFIX}%`}
+                        AND ("createdAt" AT TIME ZONE ${timezone}) >= (date_trunc('month', now() AT TIME ZONE ${timezone}) - interval '6 months')
+                    GROUP BY 1
+                `,
             ]);
 
-            const voiceUsedSeconds = voiceAggregate._sum.durationSecs ?? 0;
+            const messageByMonth = new Map<string, number>();
+            for (const row of messageRows) {
+                if (!relevantMonths.has(row.month)) {
+                    continue;
+                }
+                messageByMonth.set(row.month, toNumber(row.value));
+            }
+
+            const voiceCountByMonth = new Map<string, number>();
+            for (const row of voiceCountRows) {
+                if (!relevantMonths.has(row.month)) {
+                    continue;
+                }
+                voiceCountByMonth.set(row.month, toNumber(row.value));
+            }
+
+            const voiceSecondsByMonth = new Map<string, number>();
+            for (const row of voiceSecondsRows) {
+                if (!relevantMonths.has(row.month)) {
+                    continue;
+                }
+                voiceSecondsByMonth.set(row.month, toNumber(row.value));
+            }
+
+            const currentMonthMessageCount = messageByMonth.get(currentMonth) ?? 0;
+            const currentMonthVoiceCount = voiceCountByMonth.get(currentMonth) ?? 0;
+            const currentMonthVoiceMinutes = Math.round((((voiceSecondsByMonth.get(currentMonth) ?? 0) / 60) * 10)) / 10;
+            const voiceMinutesLimit = Math.round((voiceFreeLimitSeconds / 60) * 10) / 10;
 
             return reply.send({
-                windowDays,
-                voiceAsrCount: voiceAggregate._count._all,
-                voiceMinutes: Math.round((voiceUsedSeconds / 60) * 10) / 10,
-                voiceAsrCountLimit,
-                voiceMinutesLimit: Math.round((voiceFreeLimitSeconds / 60) * 10) / 10,
-                globalMessageCount,
-                globalMessageCountLimit,
+                timezone,
+                currentMonth: {
+                    month: currentMonth,
+                    messageCount: currentMonthMessageCount,
+                    voiceMinutes: currentMonthVoiceMinutes,
+                    voiceCount: currentMonthVoiceCount,
+                    messageCountLimit,
+                    voiceMinutesLimit,
+                    voiceCountLimit,
+                },
+                last6FullMonths: last6FullMonthsAscending.map((month) => ({
+                    month,
+                    messageCount: messageByMonth.get(month) ?? 0,
+                    voiceMinutes: Math.round((((voiceSecondsByMonth.get(month) ?? 0) / 60) * 10)) / 10,
+                    voiceCount: voiceCountByMonth.get(month) ?? 0,
+                })),
             });
         } catch (error) {
             log({ module: 'api', level: 'error' }, `Failed to query usage summary: ${error}`);

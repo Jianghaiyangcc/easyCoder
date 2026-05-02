@@ -228,6 +228,7 @@ model UsageReport {
 
     @@unique([accountId, sessionId, key])
     @@index([accountId])
+    @@index([accountId, createdAt(sort: Desc)])
     @@index([sessionId])
 }
 

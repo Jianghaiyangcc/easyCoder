@@ -22,13 +22,24 @@ export interface UsageResponse {
 }
 
 export interface UsageSummaryResponse {
-    windowDays: number;
-    voiceAsrCount: number;
+    timezone: string;
+    currentMonth: {
+        month: string;
+        messageCount: number;
+        voiceMinutes: number;
+        voiceCount: number;
+        messageCountLimit: number;
+        voiceMinutesLimit: number;
+        voiceCountLimit: number;
+    };
+    last6FullMonths: MonthlyUsagePoint[];
+}
+
+export interface MonthlyUsagePoint {
+    month: string;
+    messageCount: number;
     voiceMinutes: number;
-    voiceAsrCountLimit: number;
-    voiceMinutesLimit: number;
-    globalMessageCount: number;
-    globalMessageCountLimit: number;
+    voiceCount: number;
 }
 
 /**
@@ -65,15 +76,11 @@ export async function queryUsage(
 
 export async function getUsageSummary(
     credentials: AuthCredentials,
-    windowDays: number = 30,
 ): Promise<UsageSummaryResponse> {
     const API_ENDPOINT = getServerUrl();
 
     return await backoff(async () => {
-        const query = new URLSearchParams({
-            windowDays: String(windowDays),
-        });
-        const response = await fetch(`${API_ENDPOINT}/v1/usage/summary?${query.toString()}`, {
+        const response = await fetch(`${API_ENDPOINT}/v1/usage/summary`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${credentials.token}`,
