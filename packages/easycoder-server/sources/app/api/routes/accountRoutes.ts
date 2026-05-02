@@ -16,8 +16,22 @@ import {
 
 const DEFAULT_USAGE_WINDOW_DAYS = 30;
 const MAX_USAGE_WINDOW_DAYS = 90;
+const DEFAULT_VOICE_FREE_LIMIT_SECONDS = 1200;
+const DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT = 200;
+const DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT = 10000;
 const MESSAGE_USAGE_KEY_PREFIX = 'message_sent:';
 const BAILIAN_ASR_IDEMPOTENCY_PREFIX = 'bailian_asr:';
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+    if (!value) {
+        return fallback;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return fallback;
+    }
+    return parsed;
+}
 
 export function accountRoutes(app: Fastify) {
     app.get('/v1/account/profile', {
@@ -492,7 +506,10 @@ export function accountRoutes(app: Fastify) {
                     windowDays: z.number(),
                     voiceAsrCount: z.number(),
                     voiceMinutes: z.number(),
+                    voiceAsrCountLimit: z.number(),
+                    voiceMinutesLimit: z.number(),
                     globalMessageCount: z.number(),
+                    globalMessageCountLimit: z.number(),
                 }),
                 500: z.object({ error: z.string() }),
             },
@@ -501,6 +518,9 @@ export function accountRoutes(app: Fastify) {
         const userId = request.userId;
         const windowDays = request.query.windowDays ?? DEFAULT_USAGE_WINDOW_DAYS;
         const createdAfter = new Date(Date.now() - windowDays * 86400 * 1000);
+        const voiceFreeLimitSeconds = parsePositiveInt(process.env.VOICE_FREE_LIMIT_SECONDS, DEFAULT_VOICE_FREE_LIMIT_SECONDS);
+        const voiceAsrCountLimit = parsePositiveInt(process.env.VOICE_FREE_ASR_LIMIT_COUNT, DEFAULT_VOICE_FREE_ASR_LIMIT_COUNT);
+        const globalMessageCountLimit = parsePositiveInt(process.env.GLOBAL_MESSAGE_COUNT_LIMIT, DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT);
 
         try {
             const [voiceAggregate, globalMessageCount] = await Promise.all([
@@ -540,7 +560,10 @@ export function accountRoutes(app: Fastify) {
                 windowDays,
                 voiceAsrCount: voiceAggregate._count._all,
                 voiceMinutes: Math.round((voiceUsedSeconds / 60) * 10) / 10,
+                voiceAsrCountLimit,
+                voiceMinutesLimit: Math.round((voiceFreeLimitSeconds / 60) * 10) / 10,
                 globalMessageCount,
+                globalMessageCountLimit,
             });
         } catch (error) {
             log({ module: 'api', level: 'error' }, `Failed to query usage summary: ${error}`);

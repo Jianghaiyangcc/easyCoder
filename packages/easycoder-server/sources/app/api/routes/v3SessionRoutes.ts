@@ -19,6 +19,51 @@ const sendMessagesBodySchema = z.object({
 });
 
 const MESSAGE_USAGE_KEY_PREFIX = 'message_sent:';
+const MESSAGE_USAGE_WINDOW_DAYS = 30;
+const DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT = 10000;
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+    if (!value) {
+        return fallback;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return fallback;
+    }
+    return parsed;
+}
+
+function resolveGlobalMessageCountLimit(): number {
+    return parsePositiveInt(process.env.GLOBAL_MESSAGE_COUNT_LIMIT, DEFAULT_GLOBAL_MESSAGE_COUNT_LIMIT);
+}
+
+async function hasActiveSubscription(userId: string): Promise<boolean> {
+    const revenueCatApiKey = process.env.REVENUECAT_API_KEY;
+    if (!revenueCatApiKey) {
+        return false;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.revenuecat.com/v2/projects/proj493735ad/customers/${userId}/active_entitlements`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${revenueCatApiKey}`,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            return false;
+        }
+
+        const data = (await response.json()) as { items?: Array<{ entitlement_id: string }> };
+        return (data.items?.length ?? 0) > 0;
+    } catch {
+        return false;
+    }
+}
 
 type SelectedMessage = {
     id: string;
@@ -108,12 +153,14 @@ export function v3SessionRoutes(app: Fastify) {
             params: z.object({
                 sessionId: z.string()
             }),
-            body: sendMessagesBodySchema
+            body: sendMessagesBodySchema,
         }
     }, async (request, reply) => {
         const userId = request.userId;
         const { sessionId } = request.params;
         const { messages } = request.body;
+        const globalMessageCountLimit = resolveGlobalMessageCountLimit();
+        const subscribed = await hasActiveSubscription(userId);
 
         const session = await db.session.findFirst({
             where: {
@@ -137,6 +184,7 @@ export function v3SessionRoutes(app: Fastify) {
         const uniqueMessages = Array.from(firstMessageByLocalId.values());
         const contentByLocalId = new Map(uniqueMessages.map((message) => [message.localId, message.content]));
         const kindByLocalId = new Map(uniqueMessages.map((message) => [message.localId, message.kind]));
+        const usageWindowStart = new Date(Date.now() - MESSAGE_USAGE_WINDOW_DAYS * 86400 * 1000);
 
         const txResult = await db.$transaction(async (tx) => {
             const localIds = uniqueMessages.map((message) => message.localId);
@@ -162,6 +210,31 @@ export function v3SessionRoutes(app: Fastify) {
             }
 
             const newMessages = uniqueMessages.filter((message) => !existingByLocalId.has(message.localId));
+
+            if (!subscribed && newMessages.length > 0) {
+                const usedCount = await tx.usageReport.count({
+                    where: {
+                        accountId: userId,
+                        createdAt: {
+                            gte: usageWindowStart,
+                        },
+                        key: {
+                            startsWith: MESSAGE_USAGE_KEY_PREFIX,
+                        },
+                    },
+                });
+
+                if (usedCount + newMessages.length > globalMessageCountLimit) {
+                    return {
+                        overLimit: {
+                            usedCount,
+                        },
+                        responseMessages: existing,
+                        createdMessages: [] as Omit<SelectedMessage, 'content'>[],
+                    };
+                }
+            }
+
             const seqs = await allocateSessionSeqBatch(sessionId, newMessages.length, tx);
 
             const createdMessages: Omit<SelectedMessage, 'content'>[] = [];
@@ -212,10 +285,21 @@ export function v3SessionRoutes(app: Fastify) {
             const responseMessages = [...existing, ...createdMessages].sort((a, b) => a.seq - b.seq);
 
             return {
+                overLimit: null as { usedCount: number } | null,
                 responseMessages,
                 createdMessages
             };
         });
+
+        if (txResult.overLimit) {
+            return reply.code(429).send({
+                error: 'Global message limit reached',
+                reason: 'global_message_limit_reached' as const,
+                usedCount: txResult.overLimit.usedCount,
+                limitCount: globalMessageCountLimit,
+                windowDays: MESSAGE_USAGE_WINDOW_DAYS,
+            });
+        }
 
         for (const message of txResult.createdMessages) {
             const content = message.localId ? contentByLocalId.get(message.localId) : null;

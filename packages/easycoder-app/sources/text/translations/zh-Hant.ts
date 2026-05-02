@@ -1057,7 +1057,7 @@ export const zhHant: TranslationStructure = {
         last7Days: '過去 7 天',
         last30Days: '過去 30 天',
         lastNDays: ({ days }: { days: number }) => `過去 ${days} 天`,
-        freeLimitsFooter: ({ days }: { days: number }) => `過去 ${days} 天 · 免費用戶上限：語音識別 200 次、語音 20 分鐘、消息 10000 次`,
+        freeLimitsFooter: ({ days }: { days: number }) => `過去 ${days} 天 · 免費用戶上限見上方，按各指標分別生效`,
         proLimitsFooter: ({ days }: { days: number }) => `過去 ${days} 天 · Pro 用戶無限制`,
         totalTokens: '總權杖數',
         totalCost: '總費用',

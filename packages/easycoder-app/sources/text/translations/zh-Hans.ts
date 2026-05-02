@@ -1058,7 +1058,7 @@ export const zhHans: TranslationStructure = {
         last7Days: '过去 7 天',
         last30Days: '过去 30 天',
         lastNDays: ({ days }: { days: number }) => `过去 ${days} 天`,
-        freeLimitsFooter: ({ days }: { days: number }) => `过去 ${days} 天 · 免费用户上限：语音识别 200 次、语音 20 分钟、消息 10000 次`,
+        freeLimitsFooter: ({ days }: { days: number }) => `过去 ${days} 天 · 免费用户上限见上方，按各指标分别生效`,
         proLimitsFooter: ({ days }: { days: number }) => `过去 ${days} 天 · Pro 用户无限制`,
         totalTokens: '总令牌数',
         totalCost: '总费用',

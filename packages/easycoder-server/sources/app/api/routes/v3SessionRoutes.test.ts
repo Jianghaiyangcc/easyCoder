@@ -24,6 +24,7 @@ type UsageReportRecord = {
     sessionId: string | null;
     key: string;
     data: unknown;
+    createdAt: Date;
 };
 
 const {
@@ -171,13 +172,35 @@ const {
     });
 
     const usageReportCreate = vi.fn(async (args: any) => {
+        const createdAt = new Date(state.nowMs);
+        state.nowMs += 1;
         state.usageReports.push({
             accountId: args?.data?.accountId,
             sessionId: args?.data?.sessionId ?? null,
             key: args?.data?.key,
             data: args?.data?.data,
+            createdAt,
         });
         return args?.data;
+    });
+
+    const usageReportCount = vi.fn(async (args: any) => {
+        const accountId = args?.where?.accountId;
+        const startsWith = args?.where?.key?.startsWith;
+        const createdAfter = args?.where?.createdAt?.gte as Date | undefined;
+
+        return state.usageReports.filter((record) => {
+            if (accountId && record.accountId !== accountId) {
+                return false;
+            }
+            if (startsWith && !record.key.startsWith(startsWith)) {
+                return false;
+            }
+            if (createdAfter && record.createdAt < createdAfter) {
+                return false;
+            }
+            return true;
+        }).length;
     });
 
     const txClient = {
@@ -190,6 +213,7 @@ const {
         },
         usageReport: {
             create: usageReportCreate,
+            count: usageReportCount,
         },
         account: {
             update: accountUpdate
@@ -210,6 +234,7 @@ const {
         },
         usageReport: {
             create: usageReportCreate,
+            count: usageReportCount,
         },
         $transaction: vi.fn(async (fn: any) => fn(txClient))
     };
@@ -529,5 +554,52 @@ describe("v3SessionRoutes", () => {
             }
         });
         expect(wrongOwner.statusCode).toBe(404);
+    });
+
+    it("blocks sending when global message limit is reached", async () => {
+        seedSession({ id: "session-1", accountId: "user-1", seq: 0 });
+        state.usageReports.push({
+            accountId: "user-1",
+            sessionId: "session-1",
+            key: "message_sent:text:existing-1",
+            data: {},
+            createdAt: new Date(),
+        });
+
+        const previousLimit = process.env.GLOBAL_MESSAGE_COUNT_LIMIT;
+        const previousRevenueCatKey = process.env.REVENUECAT_API_KEY;
+        process.env.GLOBAL_MESSAGE_COUNT_LIMIT = "1";
+        delete process.env.REVENUECAT_API_KEY;
+
+        app = await createApp();
+        const response = await app.inject({
+            method: "POST",
+            url: "/v3/sessions/session-1/messages",
+            headers: { "x-user-id": "user-1" },
+            payload: {
+                messages: [
+                    { localId: "new-1", content: "enc-1", kind: "text" }
+                ]
+            }
+        });
+
+        process.env.GLOBAL_MESSAGE_COUNT_LIMIT = previousLimit;
+        if (previousRevenueCatKey === undefined) {
+            delete process.env.REVENUECAT_API_KEY;
+        } else {
+            process.env.REVENUECAT_API_KEY = previousRevenueCatKey;
+        }
+
+        expect(response.statusCode).toBe(429);
+        expect(response.json()).toEqual({
+            error: "Global message limit reached",
+            reason: "global_message_limit_reached",
+            usedCount: 1,
+            limitCount: 1,
+            windowDays: 30,
+        });
+        expect(state.messages).toHaveLength(0);
+        expect(state.usageReports).toHaveLength(1);
+        expect(emitUpdateMock).toHaveBeenCalledTimes(0);
     });
 });

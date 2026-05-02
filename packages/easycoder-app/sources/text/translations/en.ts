@@ -1072,7 +1072,7 @@ export const en: TranslationStructure = {
         last7Days: 'Last 7 days',
         last30Days: 'Last 30 days',
         lastNDays: ({ days }: { days: number }) => `Last ${days} days`,
-        freeLimitsFooter: ({ days }: { days: number }) => `Last ${days} days · Free limits: 200 voice ASR, 20 voice minutes, 10,000 messages`,
+        freeLimitsFooter: ({ days }: { days: number }) => `Last ${days} days · Free-tier limits are shown above and enforced per metric`,
         proLimitsFooter: ({ days }: { days: number }) => `Last ${days} days · Pro users have no limits`,
         totalTokens: 'Total Tokens',
         totalCost: 'Total Cost',

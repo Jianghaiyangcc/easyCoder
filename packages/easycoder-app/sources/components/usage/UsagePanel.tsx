@@ -10,6 +10,8 @@ import { getUsageSummary, type UsageSummaryResponse } from '@/sync/apiUsage';
 import { useEntitlement } from '@/sync/storage';
 import { UsageBar } from './UsageBar';
 import { t } from '@/text';
+import { sync } from '@/sync/sync';
+import { Modal } from '@/modal';
 
 const styles = StyleSheet.create((theme) => ({
     loadingContainer: {
@@ -38,12 +40,6 @@ const styles = StyleSheet.create((theme) => ({
         marginTop: 4,
     },
 }));
-
-const FREE_USAGE_LIMITS = {
-    voiceAsrCount: 200,
-    voiceMinutes: 20,
-    globalMessageCount: 10000,
-} as const;
 
 function formatCount(value: number): string {
     return Math.max(0, Math.round(value)).toLocaleString();
@@ -84,6 +80,16 @@ export const UsagePanel: React.FC = () => {
         run();
     }, [auth.credentials]);
 
+    const handleUpgrade = React.useCallback(async () => {
+        const result = await sync.presentPaywall('usage_limit_reached');
+        if (!result.success) {
+            Modal.alert(
+                t('common.error'),
+                `${t('errors.operationFailed')}${result.error ? `: ${result.error}` : ''}`,
+            );
+        }
+    }, []);
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -114,25 +120,25 @@ export const UsagePanel: React.FC = () => {
             key: 'voiceAsrCount' as const,
             label: t('usage.voiceAsrCount'),
             value: Math.max(0, summary.voiceAsrCount),
-            limit: FREE_USAGE_LIMITS.voiceAsrCount,
+            limit: Math.max(1, summary.voiceAsrCountLimit),
             formattedValue: formatCount(summary.voiceAsrCount),
-            formattedLimit: formatCount(FREE_USAGE_LIMITS.voiceAsrCount),
+            formattedLimit: formatCount(summary.voiceAsrCountLimit),
         },
         {
             key: 'voiceMinutes' as const,
             label: t('usage.voiceMinutes'),
             value: Math.max(0, summary.voiceMinutes),
-            limit: FREE_USAGE_LIMITS.voiceMinutes,
+            limit: Math.max(0.1, summary.voiceMinutesLimit),
             formattedValue: formatMinutes(summary.voiceMinutes),
-            formattedLimit: formatMinutes(FREE_USAGE_LIMITS.voiceMinutes),
+            formattedLimit: formatMinutes(summary.voiceMinutesLimit),
         },
         {
             key: 'globalMessageCount' as const,
             label: t('usage.globalMessageCount'),
             value: Math.max(0, summary.globalMessageCount),
-            limit: FREE_USAGE_LIMITS.globalMessageCount,
+            limit: Math.max(1, summary.globalMessageCountLimit),
             formattedValue: formatCount(summary.globalMessageCount),
-            formattedLimit: formatCount(FREE_USAGE_LIMITS.globalMessageCount),
+            formattedLimit: formatCount(summary.globalMessageCountLimit),
         },
     ];
 
@@ -178,6 +184,15 @@ export const UsagePanel: React.FC = () => {
                     showChevron={false}
                 />
             ))}
+
+            {!hasPro && reachedFreeLimits.length > 0 && (
+                <Item
+                    title={t('subscription.upgradeToPro')}
+                    subtitle={t('settingsVoice.supportSubtitle')}
+                    icon={<Ionicons name="pricetag-outline" size={29} color="#FF9500" />}
+                    onPress={handleUpgrade}
+                />
+            )}
         </ItemGroup>
     );
 };

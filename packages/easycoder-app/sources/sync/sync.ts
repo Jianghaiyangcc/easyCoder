@@ -51,6 +51,8 @@ import { fetchFeed } from './apiFeed';
 import { FeedItem } from './feedTypes';
 import { UserProfile } from './friendTypes';
 import { resolveMessageModeMeta } from './messageMeta';
+import { Modal } from '@/modal';
+import { t } from '@/text';
 
 type V3GetSessionMessagesResponse = {
     messages: ApiMessage[];
@@ -65,6 +67,14 @@ type V3PostSessionMessagesResponse = {
         createdAt: number;
         updatedAt: number;
     }>;
+};
+
+type V3PostSessionMessagesLimitErrorResponse = {
+    error: string;
+    reason: 'global_message_limit_reached';
+    usedCount: number;
+    limitCount: number;
+    windowDays: number;
 };
 
 type OutboxMessage = {
@@ -410,6 +420,28 @@ class Sync {
         } catch (error) {
             log.log(`Failed to schedule message failure notification: ${error}`);
         }
+    }
+
+    private async showMessageLimitUpgradePrompt(payload: V3PostSessionMessagesLimitErrorResponse) {
+        return await new Promise<boolean>((resolve) => {
+            Modal.alert(
+                t('usage.limitReachedTitle'),
+                t('usage.limitReachedSubtitle', { metric: t('usage.globalMessageCount') }),
+                [
+                    {
+                        text: t('common.cancel'),
+                        style: 'cancel',
+                        onPress: () => resolve(false),
+                    },
+                    {
+                        text: t('subscription.upgradeToPro'),
+                        onPress: () => {
+                            void this.presentPaywall('message_limit_reached').finally(() => resolve(true));
+                        },
+                    },
+                ],
+            );
+        });
     }
 
     private failPendingOutboxMessages(reasonText: string) {
@@ -1626,6 +1658,21 @@ class Sync {
                 signal: controller.signal
             });
             if (!response.ok) {
+                if (response.status === 429) {
+                    try {
+                        const payload = await response.json() as V3PostSessionMessagesLimitErrorResponse;
+                        if (payload.reason === 'global_message_limit_reached') {
+                            pending.splice(0, batch.length);
+                            if (pending.length === 0) {
+                                this.pendingOutbox.delete(sessionId);
+                            }
+                            await this.showMessageLimitUpgradePrompt(payload);
+                            return;
+                        }
+                    } catch {
+                        // Fall through to generic error handling.
+                    }
+                }
                 throw new Error(`Failed to send messages for ${sessionId}: ${response.status}`);
             }
 

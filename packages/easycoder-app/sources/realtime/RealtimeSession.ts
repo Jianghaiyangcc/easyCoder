@@ -42,8 +42,27 @@ async function handleVoiceLimit(reason: VoiceLimitReason, limitSeconds: number):
         return false;
     }
 
-    const result = await sync.presentPaywall('voice_must_pay');
-    return result.purchased === true;
+    return await new Promise<boolean>((resolve) => {
+        Modal.alert(
+            t('errors.voiceLimitReachedTitle'),
+            t('settingsVoice.supportSubtitle'),
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                    onPress: () => resolve(false),
+                },
+                {
+                    text: t('subscription.upgradeToPro'),
+                    onPress: () => {
+                        void sync.presentPaywall('voice_must_pay')
+                            .then((result) => resolve(result.purchased === true))
+                            .catch(() => resolve(false));
+                    },
+                },
+            ],
+        );
+    });
 }
 
 /**

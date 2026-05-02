@@ -25,7 +25,10 @@ export interface UsageSummaryResponse {
     windowDays: number;
     voiceAsrCount: number;
     voiceMinutes: number;
+    voiceAsrCountLimit: number;
+    voiceMinutesLimit: number;
     globalMessageCount: number;
+    globalMessageCountLimit: number;
 }
 
 /**
