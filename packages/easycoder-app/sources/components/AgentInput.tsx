@@ -259,28 +259,66 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingBottom: 4,
+        paddingBottom: 6,
+        minHeight: 24,
     },
     statusRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
+        gap: 10,
+    },
+    statusPrimary: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    cliStatusGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    cliStatusItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
     },
     statusText: {
         fontSize: 11,
         ...Typography.default(),
     },
-    permissionModeContainer: {
-        flexDirection: 'column',
-        alignItems: 'flex-end',
+    statusTag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 999,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderWidth: 1,
+        backgroundColor: theme.colors.surfaceHigh,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.10)' : 'rgba(17,24,39,0.10)',
     },
-    permissionModeText: {
+    statusTagText: {
         fontSize: 11,
         ...Typography.default(),
     },
-    contextWarningText: {
-        fontSize: 11,
-        marginLeft: 8,
-        ...Typography.default(),
+    contextInfoCard: {
+        backgroundColor: theme.colors.surfacePressed,
+        borderRadius: 12,
+        padding: 8,
+        marginBottom: 8,
+        gap: 4,
+    },
+    contextInfoChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: Platform.select({ default: 16, android: 20 }),
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        height: 32,
+        gap: 6,
+    },
+    contextInfoChipPressed: {
+        opacity: 0.72,
     },
 
     // Button styles
@@ -937,109 +975,83 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                 {/* Connection status, context warning, and permission mode */}
                 {(props.connectionStatus || contextWarning || (displayPermissionMode && permissionModeKey !== 'default')) && (
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        paddingHorizontal: 16,
-                        paddingBottom: 4,
-                        minHeight: 20, // Fixed minimum height to prevent jumping
-                    }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 11 }}>
+                    <View style={styles.statusContainer}>
+                        <View style={styles.statusRow}>
                             {props.connectionStatus && (
                                 <>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <View style={styles.statusPrimary}>
                                         <StatusDot
                                             color={props.connectionStatus.dotColor}
                                             isPulsing={props.connectionStatus.isPulsing}
                                             size={6}
                                         />
-                                        <Text style={{
-                                            fontSize: 11,
-                                            color: props.connectionStatus.color,
-                                            ...Typography.default()
-                                        }}>
+                                        <Text style={[styles.statusText, { color: props.connectionStatus.color }]}>
                                             {props.connectionStatus.text}
                                         </Text>
                                     </View>
                                     {/* CLI Status - only shown when provided (wizard only) */}
                                     {props.connectionStatus.cliStatus && (
-                                        <>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                                <Text style={{
-                                                    fontSize: 11,
+                                        <View style={styles.cliStatusGroup}>
+                                            <View style={styles.cliStatusItem}>
+                                                <Text style={[styles.statusText, {
                                                     color: props.connectionStatus.cliStatus.claude
                                                         ? theme.colors.success
                                                         : theme.colors.textDestructive,
-                                                    ...Typography.default()
-                                                }}>
+                                                }]}>
                                                     {props.connectionStatus.cliStatus.claude ? '✓' : '✗'}
                                                 </Text>
-                                                <Text style={{
-                                                    fontSize: 11,
+                                                <Text style={[styles.statusText, {
                                                     color: props.connectionStatus.cliStatus.claude
                                                         ? theme.colors.success
                                                         : theme.colors.textDestructive,
-                                                    ...Typography.default()
-                                                }}>
+                                                }]}>
                                                     claude
                                                 </Text>
                                             </View>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                                <Text style={{
-                                                    fontSize: 11,
+                                            <View style={styles.cliStatusItem}>
+                                                <Text style={[styles.statusText, {
                                                     color: props.connectionStatus.cliStatus.codex
                                                         ? theme.colors.success
                                                         : theme.colors.textDestructive,
-                                                    ...Typography.default()
-                                                }}>
+                                                }]}>
                                                     {props.connectionStatus.cliStatus.codex ? '✓' : '✗'}
                                                 </Text>
-                                                <Text style={{
-                                                    fontSize: 11,
+                                                <Text style={[styles.statusText, {
                                                     color: props.connectionStatus.cliStatus.codex
                                                         ? theme.colors.success
                                                         : theme.colors.textDestructive,
-                                                    ...Typography.default()
-                                                }}>
+                                                }]}>
                                                     codex
                                                 </Text>
                                             </View>
                                             {props.connectionStatus.cliStatus.gemini !== undefined && (
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                                    <Text style={{
-                                                        fontSize: 11,
+                                                <View style={styles.cliStatusItem}>
+                                                    <Text style={[styles.statusText, {
                                                         color: props.connectionStatus.cliStatus.gemini
                                                             ? theme.colors.success
                                                             : theme.colors.textDestructive,
-                                                        ...Typography.default()
-                                                    }}>
+                                                    }]}>
                                                         {props.connectionStatus.cliStatus.gemini ? '✓' : '✗'}
                                                     </Text>
-                                                    <Text style={{
-                                                        fontSize: 11,
+                                                    <Text style={[styles.statusText, {
                                                         color: props.connectionStatus.cliStatus.gemini
                                                             ? theme.colors.success
                                                             : theme.colors.textDestructive,
-                                                        ...Typography.default()
-                                                    }}>
+                                                    }]}>
                                                         gemini
                                                     </Text>
                                                 </View>
                                             )}
-                                        </>
+                                        </View>
                                     )}
                                 </>
                             )}
                             {contextWarning && (
-                                <Text style={{
-                                    fontSize: 11,
-                                    color: contextWarning.color,
-                                    marginLeft: props.connectionStatus ? 8 : 0,
-                                    ...Typography.default()
-                                }}>
-                                    {props.connectionStatus ? '• ' : ''}{contextWarning.text}
-                                </Text>
+                                <View style={styles.statusTag}>
+                                    <Text style={[styles.statusTagText, { color: contextWarning.color }]}>
+                                        {contextWarning.text}
+                                    </Text>
+                                </View>
                             )}
                         </View>
                         {/* Permission badge — only shown when non-default */}
@@ -1056,13 +1068,9 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                 permissionModeKey === 'plan' || permissionModeKey === 'read-only'
                                     ? 'pause' : 'play-forward';
                             return (
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <View style={styles.statusTag}>
                                     <AppIcon name={permIcon} size={11} color={permColor} />
-                                    <Text style={{
-                                        fontSize: 11,
-                                        color: permColor,
-                                        ...Typography.default()
-                                    }}>
+                                    <Text style={[styles.statusTagText, { color: permColor }]}>
                                         {withSandboxSuffix(displayPermissionMode.name, permissionModeKey)}
                                     </Text>
                                 </View>
@@ -1073,13 +1081,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                 {/* Box 1: Context Information (Machine + Path) - Only show if either exists */}
                 {(props.machineName !== undefined || props.currentPath) && (
-                    <View style={{
-                        backgroundColor: theme.colors.surfacePressed,
-                        borderRadius: 12,
-                        padding: 8,
-                        marginBottom: 8,
-                        gap: 4,
-                    }}>
+                    <View style={styles.contextInfoCard}>
                         {/* Machine chip */}
                         {props.machineName !== undefined && props.onMachineClick && (
                             <Pressable
@@ -1088,16 +1090,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     props.onMachineClick?.();
                                 }}
                                 hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                style={(p) => ({
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    borderRadius: Platform.select({ default: 16, android: 20 }),
-                                    paddingHorizontal: 10,
-                                    paddingVertical: 6,
-                                    height: 32,
-                                    opacity: p.pressed ? 0.7 : 1,
-                                    gap: 6,
-                                })}
+                                style={({ pressed }) => [
+                                    styles.contextInfoChip,
+                                    pressed && styles.contextInfoChipPressed,
+                                ]}
                             >
                                 <AppIcon
                                     name="desktop-outline"
@@ -1123,16 +1119,10 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     props.onPathClick?.();
                                 }}
                                 hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
-                                style={(p) => ({
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    borderRadius: Platform.select({ default: 16, android: 20 }),
-                                    paddingHorizontal: 10,
-                                    paddingVertical: 6,
-                                    height: 32,
-                                    opacity: p.pressed ? 0.7 : 1,
-                                    gap: 6,
-                                })}
+                                style={({ pressed }) => [
+                                    styles.contextInfoChip,
+                                    pressed && styles.contextInfoChipPressed,
+                                ]}
                             >
                                 <AppIcon
                                     name="folder-outline"

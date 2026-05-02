@@ -59,6 +59,9 @@ export const SessionView = React.memo((props: { id: string }) => {
     const isTablet = useIsTablet();
     const [sessionActionsAnchor, setSessionActionsAnchor] = React.useState<SessionActionsAnchor | null>(null);
     const [pendingVoiceTranscript, setPendingVoiceTranscript] = React.useState<string | null>(null);
+    const hideHeaderForLandscapePhone = isLandscape && deviceType === 'phone' && Platform.OS !== 'web';
+    const showVoiceStatusBar = !isTablet && realtimeStatus !== 'disconnected';
+    const contentTopPadding = hideHeaderForLandscapePhone ? 0 : safeArea.top + headerHeight + (showVoiceStatusBar ? 32 : 0);
 
     const handleVoiceTranscript = React.useCallback((transcript: string) => {
         const normalized = transcript.trim();
@@ -140,17 +143,23 @@ export const SessionView = React.memo((props: { id: string }) => {
             )}
 
             {/* Header - always shown on desktop/Mac, hidden in landscape mode only on actual phones */}
-            {!(isLandscape && deviceType === 'phone' && Platform.OS !== 'web') && (
+            {!hideHeaderForLandscapePhone && (
                 <View style={{
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
-                    zIndex: 1000
+                    zIndex: 1100
                 }}>
                     <ChatHeaderView
                         {...headerProps}
-                        onBackPress={() => router.back()}
+                        onBackPress={() => {
+                            if ((router as any).canGoBack?.()) {
+                                router.back();
+                                return;
+                            }
+                            router.replace('/');
+                        }}
                         avatarMenuExpanded={Platform.OS === 'web' && !!sessionActionsAnchor}
                         avatarMenuSession={session}
                         onAfterAvatarArchive={() => {
@@ -164,7 +173,7 @@ export const SessionView = React.memo((props: { id: string }) => {
                         onAvatarMenuRequest={Platform.OS === 'web' && session ? setSessionActionsAnchor : undefined}
                     />
                     {/* Voice status bar below header - not on tablet (shown in sidebar) */}
-                    {!isTablet && realtimeStatus !== 'disconnected' && (
+                    {showVoiceStatusBar && (
                         <VoiceAssistantStatusBar
                             variant="full"
                             onStoppedWithTranscript={handleVoiceTranscript}
@@ -174,7 +183,11 @@ export const SessionView = React.memo((props: { id: string }) => {
             )}
 
             {/* Content based on state */}
-            <View style={{ flex: 1, paddingTop: !(isLandscape && deviceType === 'phone' && Platform.OS !== 'web') ? safeArea.top + headerHeight + (!isTablet && realtimeStatus !== 'disconnected' ? 32 : 0) : 0 }}>
+            <View style={{
+                flex: 1,
+                paddingTop: contentTopPadding,
+                backgroundColor: theme.colors.groupped.background,
+            }}>
                 {!isDataReady ? (
                     // Loading state
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -241,6 +254,7 @@ function SessionViewLoaded({
     const { messages, isLoaded } = useSessionMessages(sessionId);
     const acknowledgedCliVersions = useLocalSetting('acknowledgedCliVersions');
     const sessionInputHorizontalPadding = Platform.OS === 'web' || isRunningOnMac() || isTablet ? 12 : 8;
+    const shouldShowLandscapeBackButton = isLandscape && deviceType === 'phone' && Platform.OS !== 'web';
 
     // Check if CLI version is outdated and not already acknowledged
     const cliVersion = session.metadata?.version;
@@ -347,17 +361,6 @@ function SessionViewLoaded({
     const updateEffortLevel = React.useCallback((level: EffortLevel) => {
         storage.getState().updateSessionEffortLevel(sessionId, level.key);
     }, [sessionId]);
-
-    // Memoize header-dependent styles to prevent re-renders
-    const headerDependentStyles = React.useMemo(() => ({
-        contentContainer: {
-            flex: 1
-        },
-        flatListStyle: {
-            marginTop: 0 // No marginTop needed since header is handled by parent
-        },
-    }), []);
-
 
     // Handle microphone button press - memoized to prevent button flashing
     const handleMicrophonePress = React.useCallback(async () => {
@@ -562,7 +565,14 @@ function SessionViewLoaded({
             )}
 
             {/* Main content area - no padding since header is overlay */}
-            <View style={{ flexBasis: 0, flexGrow: 1, paddingBottom: safeArea.bottom + ((isRunningOnMac() || Platform.OS === 'web') ? 8 : 0) }}>
+            <View
+                style={{
+                    flexBasis: 0,
+                    flexGrow: 1,
+                    paddingTop: 2,
+                    paddingBottom: safeArea.bottom + ((isRunningOnMac() || Platform.OS === 'web') ? 10 : 6),
+                }}
+            >
                 <AgentContentView
                     content={content}
                     input={input}
@@ -572,28 +582,36 @@ function SessionViewLoaded({
 
             {/* Back button for landscape phone mode when header is hidden */}
             {
-                isLandscape && deviceType === 'phone' && (
+                shouldShowLandscapeBackButton && (
                     <Pressable
-                        onPress={() => router.back()}
+                        onPress={() => {
+                            if ((router as any).canGoBack?.()) {
+                                router.back();
+                                return;
+                            }
+                            router.replace('/');
+                        }}
                         style={{
                             position: 'absolute',
                             top: safeArea.top + 8,
                             left: 16,
-                            width: 44,
-                            height: 44,
-                            borderRadius: 22,
-                            backgroundColor: `rgba(${theme.dark ? '28, 23, 28' : '255, 255, 255'}, 0.9)`,
+                            width: 42,
+                            height: 42,
+                            borderRadius: 21,
+                            borderWidth: 1,
+                            borderColor: theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(17,24,39,0.10)',
+                            backgroundColor: theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.92)',
                             alignItems: 'center',
                             justifyContent: 'center',
                             ...Platform.select({
                                 ios: {
-                                    shadowColor: '#000',
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.1,
-                                    shadowRadius: 4,
+                                    shadowColor: theme.colors.shadow.color,
+                                    shadowOffset: { width: 0, height: 6 },
+                                    shadowOpacity: theme.dark ? 0.28 : 0.12,
+                                    shadowRadius: 10,
                                 },
                                 android: {
-                                    elevation: 2,
+                                    elevation: 3,
                                 }
                             }),
                         }}
@@ -601,8 +619,8 @@ function SessionViewLoaded({
                     >
                         <AppIcon
                             name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
-                            size={Platform.select({ ios: 28, default: 24 })}
-                            color="#000"
+                            size={Platform.select({ ios: 24, default: 21 })}
+                            color={theme.colors.header.tint}
                         />
                     </Pressable>
                 )

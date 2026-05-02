@@ -204,10 +204,10 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: theme.dark ? 0.2 : 0.08,
     shadowRadius: 10,
     elevation: 2,
-    maxWidth: '100%',
+    maxWidth: '92%',
   },
   agentMessageContainer: {
-    marginHorizontal: 16,
+    marginHorizontal: 14,
     marginBottom: 14,
     borderRadius: 16,
     borderWidth: 1,
@@ -219,7 +219,7 @@ const styles = StyleSheet.create((theme) => ({
   agentEventContainer: {
     marginHorizontal: 12,
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
   agentEventText: {
     color: theme.colors.agentEventText,
@@ -230,8 +230,8 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: 4,
   },
   toolContainer: {
-    marginHorizontal: 10,
-    marginBottom: 8,
+    marginHorizontal: 14,
+    marginBottom: 10,
   },
   debugText: {
     color: theme.colors.agentEventText,

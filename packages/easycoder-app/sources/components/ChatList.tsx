@@ -68,6 +68,7 @@ const ChatListInternal = React.memo((props: {
                 ref={flatListRef}
                 data={props.messages}
                 inverted={true}
+                contentContainerStyle={styles.listContent}
                 keyExtractor={keyExtractor}
                 maintainVisibleContentPosition={{
                     minIndexForVisible: 0,
@@ -81,7 +82,7 @@ const ChatListInternal = React.memo((props: {
                 ListHeaderComponent={<ListFooter sessionId={props.sessionId} />}
                 ListFooterComponent={<ListHeader />}
             />
-            {showScrollButton && (
+            {showScrollButton && props.messages.length > 4 && (
                 <View style={styles.scrollButtonContainer}>
                     <Pressable
                         style={({ pressed }) => [
@@ -99,6 +100,10 @@ const ChatListInternal = React.memo((props: {
 });
 
 const styles = StyleSheet.create((theme) => ({
+    listContent: {
+        paddingTop: 4,
+        paddingBottom: 2,
+    },
     scrollButtonContainer: {
         position: 'absolute',
         left: 0,
