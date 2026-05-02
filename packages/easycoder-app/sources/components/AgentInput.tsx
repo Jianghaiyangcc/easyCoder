@@ -109,7 +109,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         borderColor: theme.dark ? 'rgba(255,255,255,0.12)' : 'rgba(17,24,39,0.08)',
         overflow: 'hidden',
         paddingVertical: 2,
-        paddingBottom: 10,
+        paddingBottom: 6,
         paddingHorizontal: 8,
         shadowColor: theme.colors.shadow.color,
         shadowOffset: { width: 0, height: 8 },
@@ -342,8 +342,8 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingRight: 4,
     },
     mobileConfigRow: {
-        paddingHorizontal: 8,
-        paddingBottom: 6,
+        paddingHorizontal: 0,
+        paddingBottom: 3,
     },
     mobileConfigRowContent: {
         flexDirection: 'row',
