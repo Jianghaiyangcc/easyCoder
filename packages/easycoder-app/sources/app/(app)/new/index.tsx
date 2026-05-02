@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
 import { Ionicons, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Typography } from '@/constants/Typography';
 import { layout } from '@/components/layout';
 import {
@@ -542,13 +542,42 @@ function NewSessionScreen() {
     // Config collapse — auto-collapses when typing, expands when empty
     const [isConfigExpanded, setIsConfigExpanded] = React.useState(true);
 
-    // Auto-select first machine when none selected (first-ever use, no draft)
+    // Run machine initialization once per page focus.
+    // If current selection is missing/offline, prefer the first online machine.
+    const shouldInitializeMachineSelectionRef = React.useRef(false);
+    useFocusEffect(
+        React.useCallback(() => {
+            shouldInitializeMachineSelectionRef.current = true;
+            return () => {
+                shouldInitializeMachineSelectionRef.current = false;
+            };
+        }, []),
+    );
+
     React.useEffect(() => {
-        if (selectedMachineId) return;
-        if (allMachines.length > 0) {
-            setSelectedMachineId(allMachines[0].id);
+        if (!shouldInitializeMachineSelectionRef.current) {
+            return;
         }
-    }, [allMachines, selectedMachineId]);
+        if (allMachines.length === 0) {
+            return;
+        }
+
+        const currentSelection = selectedMachineId
+            ? allMachines.find(machine => machine.id === selectedMachineId) ?? null
+            : null;
+        const firstOnlineMachine = allMachines.find(isMachineOnline) ?? null;
+        const needsReplacement = !currentSelection || !isMachineOnline(currentSelection);
+
+        if (needsReplacement) {
+            if (firstOnlineMachine && firstOnlineMachine.id !== selectedMachineId) {
+                setSelectedMachineId(firstOnlineMachine.id);
+            } else if (!selectedMachineId) {
+                setSelectedMachineId(allMachines[0].id);
+            }
+        }
+
+        shouldInitializeMachineSelectionRef.current = false;
+    }, [allMachines, selectedMachineId, setSelectedMachineId]);
 
     const selectedMachine = React.useMemo(
         () => allMachines.find(m => m.id === selectedMachineId) ?? null,
