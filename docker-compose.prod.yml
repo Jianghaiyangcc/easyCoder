@@ -1,0 +1,88 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: easycoder-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-handy}
+      POSTGRES_USER: ${POSTGRES_USER:-handy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-handy_password_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-handy} -d ${POSTGRES_DB:-handy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: easycoder-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    image: ${SERVER_IMAGE:-easycoder-server:local}
+    container_name: easycoder-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3005}
+      DATA_DIR: /data
+      DATABASE_URL: postgresql://${POSTGRES_USER:-handy}:${POSTGRES_PASSWORD:-handy_password_change_me}@${DB_HOST:-postgres}:${DB_PORT:-5432}/${POSTGRES_DB:-handy}?schema=${DB_SCHEMA:-public}
+      REDIS_URL: redis://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+      HANDY_MASTER_SECRET: ${HANDY_MASTER_SECRET:?set HANDY_MASTER_SECRET in environment}
+      S3_HOST: ${S3_HOST:-}
+      S3_PORT: ${S3_PORT:-}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL:-}
+      S3_USE_SSL: ${S3_USE_SSL:-true}
+    command: >
+      sh -lc "cd /repo &&
+      npx prisma migrate deploy --schema=packages/easycoder-server/prisma/schema.prisma &&
+      pnpm --filter easycoder-server start"
+    ports:
+      - "3005:3005"
+    volumes:
+      - server_data:/data
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+      args:
+        POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
+        REVENUE_CAT_STRIPE: ${REVENUE_CAT_STRIPE:-}
+        EXPO_PUBLIC_SERVER_URL: ${EXPO_PUBLIC_SERVER_URL:-http://localhost:3005}
+        EXPO_PUBLIC_EASYCODER_SERVER_URL: ${EXPO_PUBLIC_EASYCODER_SERVER_URL:-http://localhost:3005}
+        EXPO_PUBLIC_LOG_SERVER_URL: ${EXPO_PUBLIC_LOG_SERVER_URL:-}
+    image: ${WEBAPP_IMAGE:-easycoder-app:local}
+    container_name: easycoder-webapp
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:
+  redis_data:
+  server_data:

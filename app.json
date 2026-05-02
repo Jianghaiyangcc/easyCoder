@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "803bc960-2088-4f6f-8260-b2cc4b06c59e"
+      }
+    },
+    "owner": "qq-organization",
+    "slug": "easycoder",
+    "ios": {
+      "bundleIdentifier": "com.qq80208977tw.easycoder"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+packages:
+  - "packages/easycoder-app"
+  - "packages/easycoder-agent"
+  - "packages/easycoder-cli"
+  - "packages/easycoder-server"
+  - "packages/easycoder-wire"
+  - "packages/easycoder-app-logs"

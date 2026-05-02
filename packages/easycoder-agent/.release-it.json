@@ -1,0 +1,19 @@
+{
+  "git": {
+    "commitMessage": "Release easycoder-agent ${version}",
+    "tagName": "easycoder-agent-v${version}",
+    "push": true,
+    "requireCleanWorkingDir": true,
+    "requireBranch": "main",
+    "addUntrackedFiles": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "easycoder-agent-v${version}",
+    "releaseNotes": "node .release-it.notes.js ${version}"
+  },
+  "npm": {
+    "publish": true
+  },
+  "hooks": {}
+}

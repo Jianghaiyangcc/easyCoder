@@ -1,0 +1,221 @@
+name: CLI Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'packages/easycoder-cli/**'
+      - '.github/workflows/cli-smoke-test.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'packages/easycoder-cli/**'
+      - '.github/workflows/cli-smoke-test.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke-test-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 24]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Build package
+      run: pnpm --filter easycoder-cli build
+
+    - name: Pack package
+      run: pnpm --filter easycoder pack --pack-destination packages/easycoder-cli
+
+    - name: Install packed package globally
+      run: |
+        PACKAGE_FILE=$(ls packages/easycoder-cli/*.tgz)
+        npm install -g "./$PACKAGE_FILE"
+
+    - name: Test binary execution
+      run: |
+        # Test that the binary starts successfully
+        echo "Testing easycoder --help..."
+        timeout 30s easycoder --help || {
+          echo "Error: easycoder --help failed or timed out"
+          exit 1
+        }
+
+        echo "Testing easycoder --version..."
+        timeout 10s easycoder --version || {
+          echo "Error: easycoder --version failed or timed out"
+          exit 1
+        }
+
+        echo "Testing easycoder doctor..."
+        timeout 30s easycoder doctor || {
+          echo "Error: easycoder doctor failed or timed out"
+          exit 1
+        }
+
+        echo "Testing easycoder daemon status..."
+        timeout 10s easycoder daemon status || {
+          echo "Error: easycoder daemon status failed or timed out"
+          exit 1
+        }
+
+        echo "Smoke test passed on Linux!"
+
+  smoke-test-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [20, 24]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Build package
+      run: pnpm --filter easycoder-cli build
+
+    - name: Pack package
+      run: pnpm --filter easycoder pack --pack-destination packages/easycoder-cli
+
+    - name: Install packed package globally
+      shell: cmd
+      run: |
+        for %%f in (packages\easycoder-cli\*.tgz) do npm install -g "%%f"
+
+    - name: Debug npm global installation structure
+      shell: cmd
+      run: |
+        for /f "tokens=*" %%i in ('npm config get prefix') do set NPM_PREFIX=%%i
+        echo NPM_PREFIX: %NPM_PREFIX%
+        echo Listing npm prefix directory:
+        dir "%NPM_PREFIX%" 2>nul || echo Failed to list NPM_PREFIX
+        echo.
+        echo Checking for node_modules in npm prefix:
+        if exist "%NPM_PREFIX%\node_modules" (
+          echo Found node_modules directory
+          dir "%NPM_PREFIX%\node_modules" 2>nul
+          echo.
+          echo Checking for easycoder package:
+          if exist "%NPM_PREFIX%\node_modules\easycoder" (
+            echo Found easycoder package
+            dir "%NPM_PREFIX%\node_modules\easycoder" 2>nul
+            echo.
+            echo Checking for dist directory:
+            if exist "%NPM_PREFIX%\node_modules\easycoder\dist" (
+              echo Found dist directory
+              dir "%NPM_PREFIX%\node_modules\easycoder\dist" 2>nul
+            ) else (
+              echo No dist directory found
+            )
+          ) else (
+            echo No easycoder package found
+          )
+        ) else (
+          echo No node_modules directory found
+        )
+
+    - name: Test binary execution
+      shell: cmd
+      run: |
+        @echo on
+
+        rem Get npm global prefix and add to PATH
+        for /f "tokens=*" %%i in ('npm config get prefix') do set NPM_PREFIX=%%i
+        set PATH=%NPM_PREFIX%;%PATH%
+        echo NPM_PREFIX: %NPM_PREFIX%
+        echo Current PATH: %PATH%
+
+        rem Debug: Check if easycoder exists in various locations
+        echo Checking for easycoder binary...
+        where easycoder 2>nul && echo Found easycoder in PATH || echo easycoder not found in PATH
+        if exist "%NPM_PREFIX%\easycoder.cmd" echo Found easycoder.cmd in NPM_PREFIX
+        if exist "%NPM_PREFIX%\node_modules\.bin\easycoder.cmd" echo Found easycoder.cmd in .bin directory
+        dir "%NPM_PREFIX%\*easycoder*" 2>nul || echo No easycoder files found in NPM_PREFIX
+
+        rem Debug: Check the actual contents and encoding of the installed file
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          echo File size and type:
+          dir "%NPM_PREFIX%\easycoder.cmd"
+          echo.
+          echo First few lines of the file:
+          type "%NPM_PREFIX%\easycoder.cmd" | head -5
+          echo.
+          echo Hex dump of first 50 bytes to check line endings:
+          powershell -Command "Get-Content '%NPM_PREFIX%\easycoder.cmd' -Encoding Byte -TotalCount 50 | ForEach-Object { '{0:X2}' -f $_ } | Join-String -Separator ' '"
+          echo.
+          echo Testing with direct path...
+          "%NPM_PREFIX%\easycoder.cmd" --help
+        ) else (
+          echo Testing easycoder --help...
+          easycoder --help
+        )
+        if errorlevel 1 (
+          echo Error: easycoder --help failed
+          exit /b 1
+        )
+
+        rem Test version
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" --version
+        ) else (
+          easycoder --version
+        )
+        if errorlevel 1 (
+          echo Error: easycoder --version failed
+          exit /b 1
+        )
+
+        rem Test doctor
+        echo Testing easycoder doctor...
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" doctor
+        ) else (
+          easycoder doctor
+        )
+        if errorlevel 1 (
+          echo Error: easycoder doctor failed
+          exit /b 1
+        )
+
+        rem Test daemon status
+        echo Testing easycoder daemon status...
+        if exist "%NPM_PREFIX%\easycoder.cmd" (
+          "%NPM_PREFIX%\easycoder.cmd" daemon status
+        ) else (
+          easycoder daemon status
+        )
+        if errorlevel 1 (
+          echo Error: easycoder daemon status failed
+          exit /b 1
+        )
+
+        echo Smoke test passed on Windows!
+
+# We don't need a smoke test for macOS because most contributors are developing on macOS.

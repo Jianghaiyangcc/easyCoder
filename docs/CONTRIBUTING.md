@@ -1,0 +1,146 @@
+# Contributing to EasyCoder
+
+EasyCoder is built by engineers who use AI coding tools all day — and we built EasyCoder so we could use them from anywhere. Contributions that make EasyCoder better for that workflow are welcome.
+
+If you don't get a response on your PR or issue, tag **@bra1ndump**.
+
+## Contribution Priorities
+
+We review contributions in this order:
+
+1. **Bug fixes** — crashes, broken flows, data loss
+2. **UI touchups** — polish, layout fixes, visual consistency
+3. **New features** — new capabilities that serve the core use case
+4. **Refactors** — code quality improvements, test coverage
+5. **Core refactors** — sync engine, RPC layer, server changes (discuss first)
+
+If your contribution is lower on this list, it may take longer to get reviewed. That's not a reflection of its value — it's just how we triage.
+
+## Issues
+
+We currently can't reply to every issue individually. We review them in bulk using AI-assisted triage. They're useful — keep filing them — but PRs with clear fixes will always get priority.
+
+Every issue should start with a **one-paragraph summary** of the problem. Don't bury the lede in reproduction steps or logs. Lead with what's broken and what you expected.
+
+## Pull Requests
+
+### The Rules
+
+1. **Start with a one-paragraph summary.** What was broken or missing? What does this PR do about it? A human skimming 20 PRs needs to understand yours in 10 seconds.
+
+2. **Show proof it works.** Include a video, screenshots, or actual log output demonstrating the fix in a real running app. The "before" state can be described with words. The "after" must be shown visually. Unit tests passing is not enough — show it working end-to-end.
+
+3. **Address Codex review comments before requesting human review.** We use automated Codex reviews on all PRs. Resolve those first — they catch the obvious stuff so human reviewers can focus on the important stuff.
+
+4. **Keep PRs focused.** One fix per PR. One feature per PR. If you touched something unrelated, split it out.
+
+5. **Core changes need a discussion first.** If your PR touches the sync engine, RPC protocol, encryption, or server — open an issue or Discord thread before writing code. These areas affect every user and need design alignment.
+
+### What Makes a Good PR
+
+- **Show proof it works.** Screenshots, screen recordings, or actual log output demonstrating the fix in a real running app. Unit tests passing is not enough — show it working end-to-end.
+- Links to the issue it fixes (if one exists)
+- Short, clear title (`fix: voice session stuck in connecting state` not `Update voice.ts`)
+- No unrelated changes, no drive-by refactors
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js >= 20
+- pnpm (`npm install -g pnpm`)
+- Git
+
+### Getting Started
+
+```bash
+git clone https://github.com/Jianghaiyangcc/easyCoder.git
+cd easycoder
+pnpm install
+```
+
+### EasyCoder App (Mobile + Web)
+
+```bash
+pnpm --filter easycoder-app start          # Expo dev server
+pnpm --filter easycoder-app ios:dev        # iOS simulator
+pnpm --filter easycoder-app android:dev    # Android emulator
+pnpm web                                # Browser (shortcut)
+pnpm --filter easycoder-app typecheck      # Run after all changes
+```
+
+The app has three build variants — all can be installed simultaneously on the same device:
+
+| Variant | Bundle ID | App Name | Use Case |
+|---------|-----------|----------|----------|
+| Development | `club.daima.code.dev` | EasyCoder (dev) | Local development with hot reload |
+| Preview | `club.daima.code.preview` | EasyCoder (preview) | Beta testing & OTA updates |
+| Production | `club.daima.code` | EasyCoder | App Store release |
+
+Swap `ios:dev` for `ios:preview` or `ios:production` (same for `android:`).
+
+#### macOS Desktop (Tauri)
+
+```bash
+pnpm --filter easycoder-app tauri:dev      # Run with hot reload
+pnpm --filter easycoder-app tauri:build:dev
+```
+
+### EasyCoder CLI
+
+```bash
+pnpm --filter happy build
+pnpm --filter happy test
+pnpm --filter happy dev                # Run without building (uses tsx)
+```
+
+#### Local `easycoder-dev` Command
+
+To test your local build without overwriting the global `easycoder`:
+
+```bash
+cd packages/easycoder-cli
+pnpm link:dev       # Creates global easycoder-dev symlink
+pnpm unlink:dev     # Removes it
+```
+
+Now `easycoder` runs the stable npm version, `easycoder-dev` runs your local build.
+
+#### Stable vs Dev Data Isolation
+
+The CLI keeps stable and dev data completely separate:
+
+| | Stable | Development |
+|-|--------|-------------|
+| Data | `~/.easycoder/` | `~/.easycoder-dev/` |
+| Start daemon | `npm run stable:daemon:start` | `npm run dev:daemon:start` |
+
+First time? Run `npm run setup:dev` to create the dev data directory.
+
+### EasyCoder Server
+
+```bash
+pnpm --filter easycoder-server standalone:dev   # Local server (no Docker needed)
+```
+
+Runs on `localhost:3005` with embedded PGlite. To point the app at your local server:
+
+```bash
+EXPO_PUBLIC_EASYCODER_SERVER_URL=http://localhost:3005 pnpm --filter easycoder-app start
+```
+
+## Project Structure
+
+This is a monorepo with four packages:
+
+- **easycoder-app** — React Native + Expo mobile/web client
+- **easycoder-cli** — Node.js CLI that wraps Claude Code and Codex
+- **easycoder-agent** — Remote agent control
+- **easycoder-server** — Backend for encrypted sync
+
+For architecture details, check the [docs/](.) folder or ask EasyCoder itself — it knows how the project is set up.
+
+## Community
+
+- [Discord](https://discord.gg/fX9WBAhyfD) — best place for questions and discussion
+- [Documentation](https://code.daima.club/docs/)

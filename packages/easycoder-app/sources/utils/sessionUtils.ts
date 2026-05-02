@@ -1,0 +1,292 @@
+import { Session } from '@/sync/storageTypes';
+import { t } from '@/text';
+import { buildResumeCommand, buildResumeCommandBlock, ResumeCommandBlock } from './resumeCommand';
+
+export type SessionState = 'disconnected' | 'thinking' | 'waiting' | 'permission_required';
+
+export interface SessionStatus {
+    state: SessionState;
+    isConnected: boolean;
+    statusText: string;
+    shouldShowStatus: boolean;
+    statusColor: string;
+    statusDotColor: string;
+    isPulsing?: boolean;
+}
+
+export function getSessionStateText(state: SessionState, activeAt?: number): string {
+    switch (state) {
+        case 'disconnected':
+            return t('status.lastSeen', { time: formatLastSeen(activeAt ?? Date.now(), false) });
+        case 'permission_required':
+            return t('status.permissionRequired');
+        case 'thinking':
+            return t('status.processing');
+        case 'waiting':
+        default:
+            return t('status.online');
+    }
+}
+
+interface VibingMessage {
+    en: string;
+    zh: string;
+}
+
+export function getRandomVibingMessage(): VibingMessage {
+    return vibingMessages[Math.floor(Math.random() * vibingMessages.length)];
+}
+
+export function formatVibingMessage(options?: {
+    lowercaseEnglish?: boolean;
+    suffix?: string;
+}): string {
+    const message = getRandomVibingMessage();
+    const english = options?.lowercaseEnglish ? message.en.toLowerCase() : message.en;
+    const suffix = options?.suffix ?? '';
+    return `${english} ${message.zh}${suffix}`;
+}
+
+/**
+ * Get the current state of a session based on presence and thinking status.
+ * Uses centralized session state from storage.ts
+ */
+export function useSessionStatus(session: Session): SessionStatus {
+    const isOnline = session.presence === "online";
+    const hasPermissions = (session.agentState?.requests && Object.keys(session.agentState.requests).length > 0 ? true : false);
+
+    if (!isOnline) {
+        return {
+            state: 'disconnected',
+            isConnected: false,
+            statusText: getSessionStateText('disconnected', session.activeAt),
+            shouldShowStatus: true,
+            statusColor: '#999',
+            statusDotColor: '#999'
+        };
+    }
+
+    // Check if permission is required
+    if (hasPermissions) {
+        return {
+            state: 'permission_required',
+            isConnected: true,
+            statusText: getSessionStateText('permission_required'),
+            shouldShowStatus: true,
+            statusColor: '#FF9500',
+            statusDotColor: '#FF9500',
+            isPulsing: true
+        };
+    }
+
+    if (session.thinking === true) {
+        return {
+            state: 'thinking',
+            isConnected: true,
+            statusText: getSessionStateText('thinking'),
+            shouldShowStatus: true,
+            statusColor: '#007AFF',
+            statusDotColor: '#007AFF',
+            isPulsing: true
+        };
+    }
+
+    return {
+        state: 'waiting',
+        isConnected: true,
+        statusText: getSessionStateText('waiting'),
+        shouldShowStatus: false,
+        statusColor: '#34C759',
+        statusDotColor: '#34C759'
+    };
+}
+
+/**
+ * Extracts a display name from a session's metadata path.
+ * Returns the last segment of the path, or 'unknown' if no path is available.
+ */
+export function getSessionName(session: Session): string {
+    if (session.metadata?.summary) {
+        return session.metadata.summary.text;
+    } else if (session.metadata) {
+        const segments = session.metadata.path.split('/').filter(Boolean);
+        const lastSegment = segments.pop();
+        if (!lastSegment) {
+            return t('status.unknown');
+        }
+        return lastSegment;
+    }
+    return t('status.unknown');
+}
+
+/**
+ * Generates a deterministic avatar ID from machine ID and path.
+ * This ensures the same machine + path combination always gets the same avatar.
+ */
+export function getSessionAvatarId(session: Session): string {
+    if (session.metadata?.machineId && session.metadata?.path) {
+        // Combine machine ID and path for a unique, deterministic avatar
+        return `${session.metadata.machineId}:${session.metadata.path}`;
+    }
+    // Fallback to session ID if metadata is missing
+    return session.id;
+}
+
+/**
+ * Returns the CLI command to resume a disconnected session, or null if not resumable.
+ * Uses flavor-specific commands which work without easycoder-agent auth.
+ */
+export function getResumeCommand(session: Session): string | null {
+    return buildResumeCommand(session.metadata ?? {});
+}
+
+export function getResumeCommandBlock(session: Session): ResumeCommandBlock | null {
+    return buildResumeCommandBlock(session.metadata ?? {});
+}
+
+/**
+ * Formats a path relative to home directory if possible.
+ * If the path starts with the home directory, replaces it with ~
+ * Otherwise returns the full path.
+ */
+export function formatPathRelativeToHome(path: string, homeDir?: string): string {
+    if (!homeDir) return path;
+    
+    // Normalize paths to handle trailing slashes
+    const normalizedHome = homeDir.endsWith('/') ? homeDir.slice(0, -1) : homeDir;
+    const normalizedPath = path;
+    
+    // Check if path starts with home directory
+    if (normalizedPath.startsWith(normalizedHome)) {
+        // Replace home directory with ~
+        const relativePath = normalizedPath.slice(normalizedHome.length);
+        // Add ~ and ensure there's a / after it if needed
+        if (relativePath.startsWith('/')) {
+            return '~' + relativePath;
+        } else if (relativePath === '') {
+            return '~';
+        } else {
+            return '~/' + relativePath;
+        }
+    }
+    
+    return path;
+}
+
+/**
+ * Returns the session path for the subtitle.
+ */
+export function getSessionSubtitle(session: Session): string {
+    if (session.metadata) {
+        return formatPathRelativeToHome(session.metadata.path, session.metadata.homeDir);
+    }
+    return t('status.unknown');
+}
+
+/**
+ * Checks if a session is currently online based on the active flag.
+ * A session is considered online if the active flag is true.
+ */
+export function isSessionOnline(session: Session): boolean {
+    return session.active;
+}
+
+/**
+ * Checks if a session should be shown in the active sessions group.
+ * Uses the active flag directly.
+ */
+export function isSessionActive(session: Session): boolean {
+    return session.active;
+}
+
+/**
+ * Formats OS platform string into a more readable format
+ */
+export function formatOSPlatform(platform?: string): string {
+    if (!platform) return '';
+
+    const osMap: Record<string, string> = {
+        'darwin': 'macOS',
+        'win32': 'Windows',
+        'linux': 'Linux',
+        'android': 'Android',
+        'ios': 'iOS',
+        'aix': 'AIX',
+        'freebsd': 'FreeBSD',
+        'openbsd': 'OpenBSD',
+        'sunos': 'SunOS'
+    };
+
+    return osMap[platform.toLowerCase()] || platform;
+}
+
+/**
+ * Formats the last seen time of a session into a human-readable relative time.
+ * @param activeAt - Timestamp when the session was last active
+ * @param isActive - Whether the session is currently active
+ * @returns Formatted string like "Active now", "5 minutes ago", "2 hours ago", or a date
+ */
+export function formatLastSeen(activeAt: number, isActive: boolean = false): string {
+    if (isActive) {
+        return t('status.activeNow');
+    }
+
+    const now = Date.now();
+    const diffMs = now - activeAt;
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSeconds < 60) {
+        return t('time.justNow');
+    } else if (diffMinutes < 60) {
+        return t('time.minutesAgo', { count: diffMinutes });
+    } else if (diffHours < 24) {
+        return t('time.hoursAgo', { count: diffHours });
+    } else if (diffDays < 7) {
+        return t('sessionHistory.daysAgo', { count: diffDays });
+    } else {
+        // Format as date
+        const date = new Date(activeAt);
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric',
+            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+        };
+        return date.toLocaleDateString(undefined, options);
+    }
+}
+
+export const vibingMessages: VibingMessage[] = [
+    { en: "Thinking", zh: "思考中" },
+    { en: "Processing", zh: "处理中" },
+    { en: "Working", zh: "工作中" },
+    { en: "Calculating", zh: "计算中" },
+    { en: "Analyzing", zh: "分析中" },
+    { en: "Considering", zh: "考虑中" },
+    { en: "Pondering", zh: "沉思中" },
+    { en: "Planning", zh: "计划中" },
+    { en: "Preparing", zh: "准备中" },
+    { en: "Creating", zh: "创建中" },
+    { en: "Generating", zh: "生成中" },
+    { en: "Building", zh: "构建中" },
+    { en: "Designing", zh: "设计中" },
+    { en: "Cooking", zh: "烹饪中" },
+    { en: "Brewing", zh: "酝酿中" },
+    { en: "Crafting", zh: "制作中" },
+    { en: "Forming", zh: "形成中" },
+    { en: "Making", zh: "制作中" },
+    { en: "Doing", zh: "行动中" },
+    { en: "Developing", zh: "开发中" },
+    { en: "Organizing", zh: "整理中" },
+    { en: "Arranging", zh: "安排中" },
+    { en: "Structuring", zh: "组织中" },
+    { en: "Evaluating", zh: "评估中" },
+    { en: "Investigating", zh: "调查中" },
+    { en: "Exploring", zh: "探索中" },
+    { en: "Discovering", zh: "发现中" },
+    { en: "Solving", zh: "解决中" },
+    { en: "Figuring", zh: "琢磨中" },
+    { en: "Determining", zh: "确定中" }
+];

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "EasyCoder (dev)",
+  "identifier": "club.daima.code.dev",
+  "app": {
+    "windows": [
+      {
+        "title": "EasyCoder (dev)"
+      }
+    ]
+  }
+}

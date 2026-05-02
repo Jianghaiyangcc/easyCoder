@@ -1,0 +1,203 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: easycoder-server
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+  replicas: 3
+  selector:
+    matchLabels:
+      app: easycoder-server
+  template:
+    metadata:
+      labels:
+        app: easycoder-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: easycoder-server
+        image: docker.korshakov.com/easycoder-server:{version}
+        ports:
+        - containerPort: 3005
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: PORT
+          value: "3005"
+        - name: REDIS_URL
+          value: redis://easycoder-redis:6379
+        - name: S3_PUBLIC_URL
+          value: https://files.cluster-fluster.com/happy
+        envFrom:
+        - secretRef:
+            name: easycoder-server-secrets
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: easycoder-server-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: easycoder-server
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: easycoder-server-secrets
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: vault-backend
+    kind: SecretStore
+  target:
+    name: easycoder-server-secrets
+    creationPolicy: Owner
+  dataFrom:
+    - extract:
+        key: /handy-db
+    - extract:
+        key: /handy-master
+    - extract:
+        key: /handy-github
+    - extract:
+        key: /handy-files
+    - extract:
+        key: /handy-e2b
+    - extract:
+        key: /handy-revenuecat
+    - extract:
+        key: /handy-elevenlabs
+    - extract:
+        key: /handy-dashscope
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easycoder-server
+spec:
+  selector:
+    app: easycoder-server
+  ports:
+  - port: 3000
+    targetPort: 3005
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easycoder-redis
+  labels:
+    app: easycoder-redis
+spec:
+  ports:
+  - port: 6379
+    name: redis
+  selector:
+    app: easycoder-redis
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: easycoder-redis-config
+data:
+  redis.conf: |
+    dir /data
+    appendonly yes
+    appendfsync everysec
+    save 900 1
+    save 300 10
+    save 60 10000
+    maxmemory-policy noeviction
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: easycoder-redis
+spec:
+  serviceName: easycoder-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easycoder-redis
+  template:
+    metadata:
+      labels:
+        app: easycoder-redis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        command:
+          - redis-server
+          - "/etc/redis/redis.conf"
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        - name: redis-config
+          mountPath: /etc/redis
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 2Gi
+      - name: redis-exporter
+        image: oliver006/redis_exporter:v1.67.0-alpine
+        ports:
+        - containerPort: 9121
+          name: metrics
+        env:
+        - name: REDIS_ADDR
+          value: "redis://localhost:6379"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+      volumes:
+      - name: redis-config
+        configMap:
+          name: easycoder-redis-config
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
