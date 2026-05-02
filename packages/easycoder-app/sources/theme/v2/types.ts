@@ -150,6 +150,14 @@ export interface ThemeColors {
   deleteAction: string;
   warningCritical: string;
   warning: string;
+  icon?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    success: string;
+    warning: string;
+    danger: string;
+  };
   successLegacy: string;
   surfaceRipple: string;
   surfacePressed: string;

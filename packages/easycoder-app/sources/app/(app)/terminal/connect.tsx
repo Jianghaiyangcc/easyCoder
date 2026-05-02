@@ -6,13 +6,23 @@ import { Typography } from '@/constants/Typography';
 import { RoundButton } from '@/components/RoundButton';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
 import { useAuth } from '@/auth/AuthContext';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
+import { useUnistyles } from 'react-native-unistyles';
 import { ItemList } from '@/components/ItemList';
 import { ItemGroup } from '@/components/ItemGroup';
 import { Item } from '@/components/Item';
 import { t } from '@/text';
 
 export default function TerminalConnectScreen() {
+    const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const router = useRouter();
     const auth = useAuth();
     const [publicKey, setPublicKey] = useState<string | null>(null);
@@ -69,10 +79,10 @@ export default function TerminalConnectScreen() {
                         paddingVertical: 32,
                         paddingHorizontal: 16
                     }}>
-                        <Ionicons 
+                        <AppIcon 
                             name="laptop-outline" 
                             size={64} 
-                            color="#8E8E93" 
+                            color={iconColor.secondary}
                             style={{ marginBottom: 16 }} 
                         />
                         <Text style={{ 
@@ -86,7 +96,7 @@ export default function TerminalConnectScreen() {
                         <Text style={{ 
                             ...Typography.default(), 
                             fontSize: 14, 
-                            color: '#666', 
+                            color: theme.colors.textSecondary,
                             textAlign: 'center',
                             lineHeight: 20 
                         }}>
@@ -108,7 +118,7 @@ export default function TerminalConnectScreen() {
                         paddingVertical: 32,
                         paddingHorizontal: 16
                     }}>
-                        <Text style={{ ...Typography.default(), color: '#666' }}>
+                        <Text style={{ ...Typography.default(), color: theme.colors.textSecondary }}>
                             {t('terminal.processingConnection')}
                         </Text>
                     </View>
@@ -127,16 +137,16 @@ export default function TerminalConnectScreen() {
                         paddingVertical: 32,
                         paddingHorizontal: 16
                     }}>
-                        <Ionicons 
+                        <AppIcon 
                             name="warning-outline" 
                             size={48} 
-                            color="#FF3B30" 
+                            color={iconColor.danger}
                             style={{ marginBottom: 16 }} 
                         />
                         <Text style={{ 
                             ...Typography.default('semiBold'), 
                             fontSize: 16, 
-                            color: '#FF3B30',
+                            color: iconColor.danger,
                             textAlign: 'center',
                             marginBottom: 8 
                         }}>
@@ -145,7 +155,7 @@ export default function TerminalConnectScreen() {
                         <Text style={{ 
                             ...Typography.default(), 
                             fontSize: 14, 
-                            color: '#666', 
+                            color: theme.colors.textSecondary,
                             textAlign: 'center',
                             lineHeight: 20 
                         }}>
@@ -167,10 +177,10 @@ export default function TerminalConnectScreen() {
                     paddingVertical: 24,
                     paddingHorizontal: 16
                 }}>
-                    <Ionicons 
+                    <AppIcon 
                         name="terminal-outline" 
                         size={48} 
-                        color="#007AFF" 
+                        color={iconColor.accent}
                         style={{ marginBottom: 16 }} 
                     />
                     <Text style={{ 
@@ -184,7 +194,7 @@ export default function TerminalConnectScreen() {
                     <Text style={{ 
                         ...Typography.default(), 
                         fontSize: 14, 
-                        color: '#666', 
+                        color: theme.colors.textSecondary,
                         textAlign: 'center',
                         lineHeight: 20 
                     }}>
@@ -198,13 +208,13 @@ export default function TerminalConnectScreen() {
                 <Item
                     title={t('terminal.publicKey')}
                     detail={`${publicKey.substring(0, 12)}...`}
-                    icon={<Ionicons name="key-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="key-outline" size={29} color={iconColor.accent} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('terminal.encryption')}
                     detail={t('terminal.endToEndEncrypted')}
-                    icon={<Ionicons name="lock-closed-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="lock-closed-outline" size={29} color={iconColor.success} />}
                     showChevron={false}
                 />
             </ItemGroup>
@@ -220,7 +230,7 @@ export default function TerminalConnectScreen() {
                         <Item
                             title={t('settingsAccount.statusNotAuthenticated')}
                             subtitle={t('welcome.loginWithMobileApp')}
-                            icon={<Ionicons name="person-circle-outline" size={29} color="#FF9500" />}
+                            icon={<AppIcon name="person-circle-outline" size={29} color={iconColor.warning} />}
                             showChevron={false}
                         />
                     )}
@@ -249,7 +259,7 @@ export default function TerminalConnectScreen() {
                 <Item
                     title={t('terminal.clientSideProcessing')}
                     subtitle={t('terminal.linkProcessedLocally')}
-                    icon={<Ionicons name="shield-checkmark-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="shield-checkmark-outline" size={29} color={iconColor.success} />}
                     showChevron={false}
                 />
             </ItemGroup>

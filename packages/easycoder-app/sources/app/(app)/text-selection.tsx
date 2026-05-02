@@ -8,7 +8,7 @@ import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
 import * as Clipboard from 'expo-clipboard';
 import { Modal } from '@/modal';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 
 export default function TextSelectionScreen() {
     const router = useRouter();
@@ -46,7 +46,7 @@ export default function TextSelectionScreen() {
                     ]}
                     disabled={loading || !fullText}
                 >
-                    <Ionicons 
+                    <AppIcon 
                         name="copy-outline" 
                         size={24} 
                         color={loading || !fullText ? theme.colors.textSecondary : theme.colors.header.tint} 

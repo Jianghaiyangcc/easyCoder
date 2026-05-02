@@ -5,7 +5,7 @@ import { ToolViewProps } from './_all';
 import { ToolSectionView } from '../ToolSectionView';
 import { sessionAllow } from '@/sync/ops';
 import { t } from '@/text';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 
 interface QuestionOption {
     label: string;
@@ -307,7 +307,7 @@ export const AskUserQuestionView = React.memo<ToolViewProps>(({ tool, sessionId 
                                                     isSelected && styles.checkboxOuterSelected,
                                                 ]}>
                                                     {isSelected && (
-                                                        <Ionicons name="checkmark" size={14} color="#fff" />
+                                                        <AppIcon name="checkmark" size={14} color="#fff" />
                                                     )}
                                                 </View>
                                             ) : (

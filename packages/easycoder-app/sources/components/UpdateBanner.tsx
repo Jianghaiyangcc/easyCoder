@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Item } from './Item';
 import { ItemGroup } from './ItemGroup';
 import { useUnistyles } from 'react-native-unistyles';
@@ -35,7 +35,7 @@ export const UpdateBanner = React.memo(() => {
                 <Item
                     title={t('updateBanner.nativeUpdateAvailable')}
                     subtitle={Platform.OS === 'ios' ? t('updateBanner.tapToUpdateAppStore') : t('updateBanner.tapToUpdatePlayStore')}
-                    icon={<Ionicons name="download-outline" size={28} color={theme.colors.success} />}
+                    icon={<AppIcon name="download-outline" size={28} color={theme.colors.success} />}
                     showChevron={true}
                     onPress={handleOpenStore}
                 />
@@ -50,7 +50,7 @@ export const UpdateBanner = React.memo(() => {
                 <Item
                     title={t('updateBanner.updateAvailable')}
                     subtitle={t('updateBanner.pressToApply')}
-                    icon={<Ionicons name="download-outline" size={28} color={theme.colors.success} />}
+                    icon={<AppIcon name="download-outline" size={28} color={theme.colors.success} />}
                     showChevron={false}
                     onPress={reloadApp}
                 />
@@ -65,7 +65,7 @@ export const UpdateBanner = React.memo(() => {
                 <Item
                     title={t('updateBanner.whatsNew')}
                     subtitle={t('updateBanner.seeLatest')}
-                    icon={<Ionicons name="sparkles-outline" size={28} color={theme.colors.text} />}
+                    icon={<AppIcon name="sparkles-outline" size={28} color={theme.colors.text} />}
                     showChevron={true}
                     onPress={() => {
                         router.push('/changelog');

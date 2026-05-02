@@ -3,7 +3,7 @@ import { View, Pressable, FlatList, Platform } from 'react-native';
 import { Text } from '@/components/StyledText';
 import { usePathname } from 'expo-router';
 import { SessionListViewItem, SessionRowData } from '@/sync/storage';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { type SessionState, getSessionStateText } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
 import { ActiveSessionsGroup } from './ActiveSessionsGroup';
@@ -400,7 +400,7 @@ const SessionItem = React.memo(({ session, selected, isFirst, isLast, isSingle }
                 <Avatar id={session.avatarId} size={48} monochrome={!status.isConnected} flavor={session.flavor} />
                 {session.hasDraft && (
                     <View style={styles.draftIconContainer}>
-                        <Ionicons
+                        <AppIcon
                             name="create-outline"
                             size={12}
                             style={styles.draftIconOverlay}

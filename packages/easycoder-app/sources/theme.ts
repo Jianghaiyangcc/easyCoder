@@ -134,6 +134,14 @@ export const lightTheme = {
             error: '#FF3B30',
             default: '#8E8E93',
         },
+        icon: {
+            primary: '#18171C',
+            secondary: '#6B7280',
+            accent: '#2BACCC',
+            success: '#34C759',
+            warning: '#FF9500',
+            danger: '#FF3B30',
+        },
 
         // Permission mode colors
         permission: {
@@ -344,6 +352,14 @@ export const darkTheme = {
             error: '#FF453A',
             default: '#8E8E93',
         },
+        icon: {
+            primary: '#FFFFFF',
+            secondary: '#A1A1AA',
+            accent: '#7CCBA0',
+            success: '#32D74B',
+            warning: '#FF9F0A',
+            danger: '#FF453A',
+        },
 
         // Permission mode colors
         permission: {
@@ -489,6 +505,10 @@ function createDarkThemeVariant(config: DarkThemeVariantConfig) {
             status: {
                 ...darkTheme.colors.status,
                 connecting: config.accent,
+            },
+            icon: {
+                ...darkTheme.colors.icon,
+                accent: config.accent,
             },
             diff: {
                 ...darkTheme.colors.diff,

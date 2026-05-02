@@ -36,7 +36,7 @@ import { useDeviceType, useHeaderHeight, useIsLandscape, useIsTablet } from '@/u
 import { formatPathRelativeToHome, getResumeCommandBlock, getSessionAvatarId, getSessionName, useSessionStatus } from '@/utils/sessionUtils';
 import { isVersionSupported, MINIMUM_CLI_VERSION } from '@/utils/versionUtils';
 import * as Clipboard from 'expo-clipboard';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -183,7 +183,7 @@ export const SessionView = React.memo((props: { id: string }) => {
                 ) : !session ? (
                     // Deleted state
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <Ionicons name="trash-outline" size={48} color={theme.colors.textSecondary} />
+                        <AppIcon name="trash-outline" size={48} color={theme.colors.textSecondary} />
                         <Text style={{ color: theme.colors.text, fontSize: 20, marginTop: 16, fontWeight: '600' }}>{t('errors.sessionDeleted')}</Text>
                         <Text style={{ color: theme.colors.textSecondary, fontSize: 15, marginTop: 8, textAlign: 'center', paddingHorizontal: 32 }}>{t('errors.sessionDeletedDescription')}</Text>
                     </View>
@@ -549,7 +549,7 @@ function SessionViewLoaded({
                         elevation: 4,
                     }}
                 >
-                    <Ionicons name="warning-outline" size={14} color="#FF9500" style={{ marginRight: 6 }} />
+                    <AppIcon name="warning-outline" size={14} color="#FF9500" style={{ marginRight: 6 }} />
                     <Text style={{
                         fontSize: 12,
                         color: '#856404',
@@ -557,7 +557,7 @@ function SessionViewLoaded({
                     }}>
                         {t('sessionInfo.cliVersionOutdated')}
                     </Text>
-                    <Ionicons name="close" size={14} color="#856404" style={{ marginLeft: 8 }} />
+                    <AppIcon name="close" size={14} color="#856404" style={{ marginLeft: 8 }} />
                 </Pressable>
             )}
 
@@ -599,7 +599,7 @@ function SessionViewLoaded({
                         }}
                         hitSlop={15}
                     >
-                        <Ionicons
+                        <AppIcon
                             name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
                             size={Platform.select({ ios: 28, default: 24 })}
                             color="#000"
@@ -706,7 +706,7 @@ function ResumeCommandCopyBlock({ resumeCommandBlock }: {
                     </Text>
                 ))}
             </View>
-            <Ionicons
+            <AppIcon
                 name={copied ? 'checkmark' : 'copy-outline'}
                 size={16}
                 color={copied ? '#30D158' : theme.colors.textSecondary}

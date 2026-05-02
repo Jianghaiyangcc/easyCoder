@@ -1,4 +1,5 @@
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import * as React from 'react';
 import { View, Platform, useWindowDimensions, Text, ActivityIndicator, TouchableWithoutFeedback, Pressable, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
@@ -1045,7 +1046,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     ? 'pause' : 'play-forward';
                             return (
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                    <Ionicons name={permIcon} size={11} color={permColor} />
+                                    <AppIcon name={permIcon} size={11} color={permColor} />
                                     <Text style={{
                                         fontSize: 11,
                                         color: permColor,
@@ -1087,7 +1088,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     gap: 6,
                                 })}
                             >
-                                <Ionicons
+                                <AppIcon
                                     name="desktop-outline"
                                     size={14}
                                     color={theme.colors.textSecondary}
@@ -1122,7 +1123,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                     gap: 6,
                                 })}
                             >
-                                <Ionicons
+                                <AppIcon
                                     name="folder-outline"
                                     size={14}
                                     color={theme.colors.textSecondary}
@@ -1174,11 +1175,11 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             pressed && styles.selectorChipPressed,
                                         ]}
                                     >
-                                        <Ionicons name="shield-outline" size={14} color={theme.colors.textSecondary} />
+                                        <AppIcon name="shield-outline" size={14} color={theme.colors.textSecondary} />
                                         <Text style={styles.selectorChipValue} numberOfLines={1}>
                                             {withSandboxSuffix(selectedPermissionMode.name, selectedPermissionMode.key)}
                                         </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                     </Pressable>
                                 )}
 
@@ -1195,7 +1196,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                         <Text style={styles.selectorChipValue} numberOfLines={1}>
                                             {selectedModel.name}
                                         </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                     </Pressable>
                                 )}
 
@@ -1208,11 +1209,11 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             pressed && styles.selectorChipPressed,
                                         ]}
                                     >
-                                        <Ionicons name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
+                                        <AppIcon name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
                                         <Text style={styles.selectorChipValue} numberOfLines={1}>
                                             {selectedEffort.name}
                                         </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                     </Pressable>
                                 )}
                             </ScrollView>
@@ -1238,11 +1239,11 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     pressed && styles.selectorChipPressed,
                                                 ]}
                                             >
-                                                <Ionicons name="shield-outline" size={14} color={theme.colors.textSecondary} />
+                                                <AppIcon name="shield-outline" size={14} color={theme.colors.textSecondary} />
                                                 <Text style={styles.selectorChipValue} numberOfLines={1}>
                                                     {withSandboxSuffix(selectedPermissionMode.name, selectedPermissionMode.key)}
                                                 </Text>
-                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                                <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                             </Pressable>
                                         )}
 
@@ -1259,7 +1260,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                 <Text style={styles.selectorChipValue} numberOfLines={1}>
                                                     {selectedModel.name}
                                                 </Text>
-                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                                <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                             </Pressable>
                                         )}
 
@@ -1272,11 +1273,11 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     pressed && styles.selectorChipPressed,
                                                 ]}
                                             >
-                                                <Ionicons name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
+                                                <AppIcon name="speedometer-outline" size={14} color={theme.colors.textSecondary} />
                                                 <Text style={styles.selectorChipValue} numberOfLines={1}>
                                                     {selectedEffort.name}
                                                 </Text>
-                                                <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                                <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                             </Pressable>
                                         )}
 
@@ -1295,7 +1296,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                 >
                                                     <Octicons name="cpu" size={13} color={theme.colors.textSecondary} />
                                                     <Text style={styles.selectorChipValue} numberOfLines={1}>{agentDisplayName}</Text>
-                                                    <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                                    <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                                 </Pressable>
                                             ) : (
                                                 <View style={[styles.selectorChip, { opacity: 0.85 }]}>
@@ -1321,11 +1322,11 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                             pressed && styles.selectorChipPressed,
                                         ]}
                                     >
-                                        <Ionicons name="flash-outline" size={14} color={theme.colors.textSecondary} />
+                                        <AppIcon name="flash-outline" size={14} color={theme.colors.textSecondary} />
                                         <Text style={styles.selectorChipValue} numberOfLines={1}>
                                             {t('agentInput.quickPhrases')}
                                         </Text>
-                                        <Ionicons name="chevron-down" size={12} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-down" size={12} color={theme.colors.textSecondary} />
                                     </Pressable>
 
                                     {/* 语音按钮 - 始终显示 */}
@@ -1389,7 +1390,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     color={theme.colors.button.primary.tint}
                                                 />
                                             ) : isAgentWorking ? (
-                                                <Ionicons
+                                                <AppIcon
                                                     name="stop-circle"
                                                     size={16}
                                                     color={theme.colors.button.primary.tint}
@@ -1399,7 +1400,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                                                     ]}
                                                 />
                                             ) : isSendBlocked ? (
-                                                <Ionicons
+                                                <AppIcon
                                                     name="lock-closed"
                                                     size={15}
                                                     color={theme.colors.textSecondary}

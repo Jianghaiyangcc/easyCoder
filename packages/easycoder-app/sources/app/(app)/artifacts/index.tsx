@@ -3,7 +3,7 @@ import { View, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/StyledText';
 import { useArtifacts } from '@/sync/storage';
 import { DecryptedArtifact } from '@/sync/artifactTypes';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -201,7 +201,7 @@ export default function ArtifactsScreen() {
                         </Text>
                     </View>
                 </View>
-                <Ionicons 
+                <AppIcon 
                     name="chevron-forward" 
                     size={18} 
                     style={styles.artifactChevron}
@@ -227,7 +227,7 @@ export default function ArtifactsScreen() {
 
         return (
             <View style={styles.emptyContainer}>
-                <Ionicons 
+                <AppIcon 
                     name="document-text-outline" 
                     size={64} 
                     style={styles.emptyIcon}

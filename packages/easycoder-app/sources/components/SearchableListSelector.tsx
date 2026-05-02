@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Typography } from '@/constants/Typography';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -431,7 +431,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: ITEM_SPACING_GAP }}>
                         {renderStatus(status)}
                         {isSelected && (
-                            <Ionicons
+                            <AppIcon
                                 name="checkmark-circle"
                                 size={20}
                                 color={theme.colors.button.primary.tint}
@@ -483,7 +483,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                                         { opacity: pressed ? 0.6 : 0.8 }
                                     ])}
                                 >
-                                    <Ionicons name="close" size={14} color={theme.colors.input.background} />
+                                    <AppIcon name="close" size={14} color={theme.colors.input.background} />
                                 </Pressable>
                             )}
                         </View>
@@ -502,7 +502,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                                 }
                             ])}
                         >
-                            <Ionicons
+                            <AppIcon
                                 name="star"
                                 size={20}
                                 color={canAddToFavorites ? theme.colors.button.primary.tint : theme.colors.textSecondary}
@@ -520,7 +520,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                         onPress={toggleRecentSection}
                     >
                         <Text style={styles.sectionHeaderText}>{config.recentSectionTitle}</Text>
-                        <Ionicons
+                        <AppIcon
                             name={showRecentSection ? "chevron-up" : "chevron-down"}
                             size={20}
                             color={theme.colors.text}
@@ -571,7 +571,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                         onPress={toggleFavoritesSection}
                     >
                         <Text style={styles.sectionHeaderText}>{config.favoritesSectionTitle}</Text>
-                        <Ionicons
+                        <AppIcon
                             name={showFavoritesSection ? "chevron-up" : "chevron-down"}
                             size={20}
                             color={theme.colors.text}
@@ -603,7 +603,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: ITEM_SPACING_GAP }}>
                                                 {renderStatus(status)}
                                                 {isSelected && (
-                                                    <Ionicons
+                                                    <AppIcon
                                                         name="checkmark-circle"
                                                         size={20}
                                                         color={theme.colors.button.primary.tint}
@@ -617,7 +617,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                                                             handleRemoveFavorite(item);
                                                         }}
                                                     >
-                                                        <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
+                                                        <AppIcon name="trash-outline" size={20} color={theme.colors.textDestructive} />
                                                     </Pressable>
                                                 )}
                                             </View>
@@ -649,7 +649,7 @@ export function SearchableListSelector<T>(props: SearchableListSelectorProps<T>)
                         <Text style={styles.sectionHeaderText}>
                             {config.recentSectionTitle.replace('Recent ', 'All ')}
                         </Text>
-                        <Ionicons
+                        <AppIcon
                             name={showAllItemsSection ? "chevron-up" : "chevron-down"}
                             size={20}
                             color={theme.colors.text}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FeedItem } from '@/sync/feedTypes';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { t } from '@/text';
 import { useRouter } from 'expo-router';
 import { useUser } from '@/sync/storage';
@@ -46,7 +46,7 @@ export const FeedItemCard = React.memo(({ item }: FeedItemCardProps) => {
                     size={40}
                 />
             ) : (
-                <Ionicons name="person" size={20} color={theme.colors.textSecondary} />
+                <AppIcon name="person" size={20} color={theme.colors.textSecondary} />
             );
             
             return (
@@ -68,7 +68,7 @@ export const FeedItemCard = React.memo(({ item }: FeedItemCardProps) => {
                     size={40}
                 />
             ) : (
-                <Ionicons name="checkmark-circle" size={20} color={theme.colors.status.connected} />
+                <AppIcon name="checkmark-circle" size={20} color={theme.colors.status.connected} />
             );
             
             return (
@@ -87,7 +87,7 @@ export const FeedItemCard = React.memo(({ item }: FeedItemCardProps) => {
                 <Item
                     title={item.body.text}
                     subtitle={getTimeAgo(item.createdAt)}
-                    icon={<Ionicons name="information-circle" size={20} color={theme.colors.textSecondary} />}
+                    icon={<AppIcon name="information-circle" size={20} color={theme.colors.textSecondary} />}
                     showChevron={false}
                 />
             );

@@ -5,7 +5,7 @@ import { Text } from '@/components/StyledText';
 import { useRouter } from 'expo-router';
 import { Machine } from '@/sync/storageTypes';
 import { SessionRowData } from '@/sync/storage';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { type SessionState, formatPathRelativeToHome, getSessionStateText } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
 import { Typography } from '@/constants/Typography';
@@ -428,7 +428,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, transform: [{ translateY: 1 }] }}>
                         {session.hasDraft && (
                             <View style={styles.taskStatusContainer}>
-                                <Ionicons
+                                <AppIcon
                                     name="create-outline"
                                     size={10}
                                     color={styles.taskStatusText.color}
@@ -438,7 +438,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
 
                         {session.totalTodosCount > 0 && session.completedTodosCount < session.totalTodosCount && (
                             <View style={styles.taskStatusContainer}>
-                                <Ionicons
+                                <AppIcon
                                     name="bulb-outline"
                                     size={10}
                                     color={styles.taskStatusText.color}
@@ -475,7 +475,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
             onPress={handleArchive}
             disabled={archivingSession}
         >
-            <Ionicons name="archive-outline" size={20} color="#FFFFFF" />
+            <AppIcon name="archive-outline" size={20} color="#FFFFFF" />
             <Text style={styles.swipeActionText} numberOfLines={2}>
                 {t('sessionInfo.archiveSession')}
             </Text>

@@ -6,7 +6,8 @@ import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { Typography } from '@/constants/Typography';
 import { useSessions, useAllMachines, useMachine } from '@/sync/storage';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import type { Session } from '@/sync/storageTypes';
 import { machineStopDaemon, machineUpdateMetadata, machineDelete } from '@/sync/ops';
 import { Modal } from '@/modal';
@@ -310,7 +311,7 @@ export default function MachineDetailScreen() {
                     headerTitle: () => (
                         <View style={{ alignItems: 'center' }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons
+                                <AppIcon
                                     name="desktop-outline"
                                     size={18}
                                     color={theme.colors.header.tint}
@@ -400,7 +401,7 @@ export default function MachineDetailScreen() {
                                             spawnButtonDisabled ? styles.inlineSendInactive : styles.inlineSendActive
                                         ]}
                                     >
-                                        <Ionicons
+                                        <AppIcon
                                             name="play"
                                             size={16}
                                             color={spawnButtonDisabled ? theme.colors.textSecondary : theme.colors.button.primary.tint}
@@ -419,7 +420,7 @@ export default function MachineDetailScreen() {
                                     <Item
                                         key={path}
                                         title={display}
-                                        leftElement={<Ionicons name="folder-outline" size={18} color={theme.colors.textSecondary} />}
+                                        leftElement={<AppIcon name="folder-outline" size={18} color={theme.colors.textSecondary} />}
                                         onPress={isMachineOnline(machine) ? () => {
                                             setCustomPath(display);
                                             setTimeout(() => inputRef.current?.focus(), 50);
@@ -470,7 +471,7 @@ export default function MachineDetailScreen() {
                                 isStoppingDaemon ? (
                                     <ActivityIndicator size="small" color={theme.colors.textSecondary} />
                                 ) : (
-                                    <Ionicons 
+                                    <AppIcon 
                                         name="stop-circle" 
                                         size={20} 
                                         color={daemonStatus === 'stopped' ? '#999' : '#FF9500'} 
@@ -580,7 +581,7 @@ export default function MachineDetailScreen() {
                                 title={getSessionName(session)}
                                 subtitle={getSessionSubtitle(session)}
                                 onPress={() => navigateToSession(session.id)}
-                                rightElement={<Ionicons name="chevron-forward" size={20} color="#C7C7CC" />}
+                                rightElement={<AppIcon name="chevron-forward" size={20} color={theme.colors.groupped.chevron} />}
                             />
                         ))}
                     </ItemGroup>
@@ -636,7 +637,7 @@ export default function MachineDetailScreen() {
                 <ItemGroup title={t('machine.dangerZone')} footer={t('machine.deleteFooter')}>
                     <Item
                         title={t('machine.delete')}
-                        titleStyle={{ color: '#FF3B30' }}
+                        titleStyle={{ color: theme.colors.textDestructive }}
                         onPress={handleDeleteMachine}
                         disabled={isDeletingMachine}
                         showChevron={false}
@@ -644,7 +645,7 @@ export default function MachineDetailScreen() {
                             isDeletingMachine ? (
                                 <ActivityIndicator size="small" color={theme.colors.textSecondary} />
                             ) : (
-                                <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                                <AppIcon name="trash-outline" size={20} color={theme.colors.textDestructive} />
                             )
                         }
                     />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { BaseModal } from '@/modal/components/BaseModal';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { useUnistyles } from 'react-native-unistyles';
 import { Image } from 'expo-image';
@@ -34,7 +34,7 @@ export function WeChatQRCodeModal({ onClose }: WeChatQRCodeModalProps) {
                         ]}
                         hitSlop={8}
                     >
-                        <Ionicons name="close" size={22} color={theme.colors.textSecondary} />
+                        <AppIcon name="close" size={22} color={theme.colors.textSecondary} />
                     </Pressable>
                 </View>
 

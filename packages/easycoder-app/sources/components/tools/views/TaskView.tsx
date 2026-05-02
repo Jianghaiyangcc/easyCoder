@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ToolViewProps } from './_all';
 import { Text, View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { knownTools } from '../../tools/knownTools';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { ToolCall } from '@/sync/typesMessage';
 import { useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
@@ -109,10 +109,10 @@ export const TaskView = React.memo<ToolViewProps>(({ tool, metadata, messages })
                             <ActivityIndicator size={Platform.OS === 'ios' ? "small" : 14 as any} color={theme.colors.warning} />
                         )}
                         {item.state === 'completed' && (
-                            <Ionicons name="checkmark-circle" size={16} color={theme.colors.success} />
+                            <AppIcon name="checkmark-circle" size={16} color={theme.colors.success} />
                         )}
                         {item.state === 'error' && (
-                            <Ionicons name="close-circle" size={16} color={theme.colors.textDestructive} />
+                            <AppIcon name="close-circle" size={16} color={theme.colors.textDestructive} />
                         )}
                     </View>
                 </View>

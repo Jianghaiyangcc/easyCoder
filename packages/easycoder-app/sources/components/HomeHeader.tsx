@@ -4,7 +4,7 @@ import { useSocketStatus } from '@/sync/storage';
 import { Platform, Pressable, Text, View } from 'react-native';
 import { Typography } from '@/constants/Typography';
 import { StatusDot } from './StatusDot';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useRouter, useSegments } from 'expo-router';
 import { getServerInfo } from '@/sync/serverConfig';
 import { Image } from 'expo-image';
@@ -125,7 +125,7 @@ function HeaderRight() {
             hitSlop={15}
             style={styles.headerButton}
         >
-            <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
+            <AppIcon name="add-outline" size={28} color={theme.colors.header.tint} />
         </Pressable>
     );
 }
@@ -142,7 +142,7 @@ function HeaderRightNotAuth() {
             hitSlop={15}
             style={styles.headerButton}
         >
-            <Ionicons name="server-outline" size={24} color={theme.colors.header.tint} />
+            <AppIcon name="server-outline" size={24} color={theme.colors.header.tint} />
         </Pressable>
     );
 }

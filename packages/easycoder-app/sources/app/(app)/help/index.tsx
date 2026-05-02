@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Text } from '@/components/StyledText';
 import { Item } from '@/components/Item';
@@ -66,6 +66,14 @@ const clientTypeLabelByPlatform = {
 
 export default function HelpStatusScreen() {
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const styles = stylesheet;
     const router = useRouter();
     const auth = useAuth();
@@ -130,7 +138,7 @@ export default function HelpStatusScreen() {
             <View style={styles.summaryCard}>
                 <Text style={styles.summaryHeader}>{t('help.overallStatus')}</Text>
                 <View style={styles.summaryStatusRow}>
-                    <Ionicons
+                    <AppIcon
                         name={
                             overallStatus === 'available'
                                 ? 'checkmark-circle'
@@ -150,19 +158,19 @@ export default function HelpStatusScreen() {
                 <Item
                     title={t('help.clientType')}
                     detail={t(clientTypeKey)}
-                    icon={<Ionicons name="phone-portrait-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="phone-portrait-outline" size={29} color={iconColor.accent} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('help.appVersion')}
                     detail={appVersion}
-                    icon={<Ionicons name="pricetag-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="pricetag-outline" size={29} color={iconColor.secondary} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('help.accountStatus')}
                     detail={auth.isAuthenticated ? t('help.accountConnected') : t('help.accountNotConnected')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color={auth.isAuthenticated ? theme.colors.status.connected : theme.colors.status.disconnected} />}
+                    icon={<AppIcon name="person-circle-outline" size={29} color={auth.isAuthenticated ? theme.colors.status.connected : theme.colors.status.disconnected} />}
                     showChevron={false}
                 />
             </ItemGroup>
@@ -174,20 +182,20 @@ export default function HelpStatusScreen() {
                     detail={serverInfo.isCustom
                         ? (serverInfo.port ? `${serverInfo.hostname}:${serverInfo.port}` : serverInfo.hostname)
                         : t('help.gatewayAddressOfficial')}
-                    icon={<Ionicons name="server-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="server-outline" size={29} color={iconColor.success} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('help.gatewayMode')}
                     detail={customServerEnabled ? t('help.gatewayModeCustom') : t('help.gatewayModeDefault')}
-                    icon={<Ionicons name="options-outline" size={29} color="#FF9500" />}
+                    icon={<AppIcon name="options-outline" size={29} color={iconColor.warning} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('help.gatewayConnection')}
                     detail={socketStatusLabel}
                     subtitle={gatewayDisconnected ? t('help.openServerConfig') : undefined}
-                    icon={<Ionicons name={gatewayDisconnected ? 'alert-circle-outline' : 'radio-outline'} size={29} color={socketStatus.status === 'connected' ? theme.colors.status.connected : theme.colors.status.disconnected} />}
+                    icon={<AppIcon name={gatewayDisconnected ? 'alert-circle-outline' : 'radio-outline'} size={29} color={socketStatus.status === 'connected' ? theme.colors.status.connected : theme.colors.status.disconnected} />}
                     onPress={gatewayDisconnected ? () => router.push('/server') : undefined}
                     showChevron={gatewayDisconnected}
                 />
@@ -197,13 +205,13 @@ export default function HelpStatusScreen() {
                 <Item
                     title={t('help.machinesTotal')}
                     detail={String(machines.length)}
-                    icon={<Ionicons name="desktop-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="desktop-outline" size={29} color={iconColor.secondary} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('help.machinesOnline')}
                     detail={String(onlineMachines.length)}
-                    icon={<Ionicons name="ellipse" size={14} color={theme.colors.status.connected} />}
+                    icon={<AppIcon name="ellipse" size={14} color={theme.colors.status.connected} />}
                     subtitle={showNoOnlineMachinesHint ? t('help.noMachines') : undefined}
                     onPress={
                         showNoOnlineMachinesHint
@@ -220,14 +228,14 @@ export default function HelpStatusScreen() {
                 <Item
                     title={t('help.machinesOffline')}
                     detail={String(offlineMachines.length)}
-                    icon={<Ionicons name="ellipse" size={14} color={theme.colors.status.disconnected} />}
+                    icon={<AppIcon name="ellipse" size={14} color={theme.colors.status.disconnected} />}
                     showChevron={false}
                 />
 
                 {machines.length === 0 && (
                     <Item
                         title={t('help.noMachines')}
-                        icon={<Ionicons name="alert-circle-outline" size={29} color="#FF9500" />}
+                        icon={<AppIcon name="alert-circle-outline" size={29} color={iconColor.warning} />}
                         showChevron={false}
                     />
                 )}
@@ -244,7 +252,7 @@ export default function HelpStatusScreen() {
                             key={machine.id}
                             title={displayName}
                             subtitle={subtitle}
-                            icon={<Ionicons name="desktop-outline" size={29} color={online ? theme.colors.status.connected : theme.colors.status.disconnected} />}
+                            icon={<AppIcon name="desktop-outline" size={29} color={online ? theme.colors.status.connected : theme.colors.status.disconnected} />}
                             onPress={() => router.push(`/machine/${machine.id}`)}
                         />
                     );
@@ -255,7 +263,7 @@ export default function HelpStatusScreen() {
                 {Platform.OS !== 'web' && (
                     <Item
                         title={t('help.connectTerminal')}
-                        icon={<Ionicons name="qr-code-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="qr-code-outline" size={29} color={iconColor.accent} />}
                         onPress={connectTerminal}
                         loading={isLoading}
                         showChevron={false}
@@ -263,7 +271,7 @@ export default function HelpStatusScreen() {
                 )}
                 <Item
                     title={t('help.enterUrlManually')}
-                    icon={<Ionicons name="link-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="link-outline" size={29} color={iconColor.accent} />}
                     onPress={async () => {
                         const url = await Modal.prompt(
                             t('modals.authenticateTerminal'),
@@ -281,12 +289,12 @@ export default function HelpStatusScreen() {
                 />
                 <Item
                     title={t('help.openServerConfig')}
-                    icon={<Ionicons name="server-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="server-outline" size={29} color={iconColor.success} />}
                     onPress={() => router.push('/server')}
                 />
                 <Item
                     title={t('help.startNewSession')}
-                    icon={<Ionicons name="add-circle-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="add-circle-outline" size={29} color={iconColor.secondary} />}
                     onPress={() => router.push('/new')}
                 />
             </ItemGroup>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar } from '@/components/Avatar';
 import { SessionActionsNativeMenu } from '@/components/SessionActionsNativeMenu';
@@ -118,7 +118,7 @@ export const ChatHeaderView: React.FC<ChatHeaderViewProps> = ({
             <View style={styles.contentWrapper}>
                 <View style={[styles.content, { height: headerHeight }]}>
                     <Pressable onPress={handleBackPress} style={styles.backButton} hitSlop={15}>
-                        <Ionicons
+                        <AppIcon
                             name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
                             size={Platform.select({ ios: 28, default: 24 })}
                             color={theme.colors.header.tint}

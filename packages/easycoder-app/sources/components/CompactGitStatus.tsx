@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { useSessionGitStatus, useSessionProjectGitStatus } from '@/sync/storage';
 import { GitStatus } from '@/sync/storageTypes';
 import { StyleSheet } from 'react-native-unistyles';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
@@ -56,7 +56,7 @@ export function CompactGitStatus({ sessionId }: CompactGitStatusProps) {
 
     return (
         <View style={styles.container}>
-            <Ionicons
+            <AppIcon
                 name="git-branch-outline"
                 size={10}
                 color={styles.fileCountText.color}

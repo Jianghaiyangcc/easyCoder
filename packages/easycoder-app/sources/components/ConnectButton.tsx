@@ -3,7 +3,7 @@ import { View, TextInput, Text, TouchableOpacity } from 'react-native';
 import { RoundButton } from './RoundButton';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
 import { trackConnectAttempt } from '@/track';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { t } from '@/text';
 
 export const ConnectButton = React.memo(() => {
@@ -42,7 +42,7 @@ export const ConnectButton = React.memo(() => {
                     justifyContent: 'center',
                 }}
             >
-                <Ionicons 
+                <AppIcon 
                     name="link-outline" 
                     size={16} 
                     color="#666" 
@@ -103,7 +103,7 @@ export const ConnectButton = React.memo(() => {
                                 opacity: manualUrl.trim() ? 1 : 0.5,
                             }}
                         >
-                            <Ionicons 
+                            <AppIcon 
                                 name="checkmark-circle" 
                                 size={24} 
                                 color="#007AFF" 

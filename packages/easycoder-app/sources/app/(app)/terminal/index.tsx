@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Typography } from '@/constants/Typography';
 import { RoundButton } from '@/components/RoundButton';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { ItemList } from '@/components/ItemList';
 import { ItemGroup } from '@/components/ItemGroup';
 import { Item } from '@/components/Item';
@@ -16,6 +16,14 @@ export default function TerminalScreen() {
     const router = useRouter();
     const searchParams = useLocalSearchParams();
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
 
     // const [urlProcessed, setUrlProcessed] = useState(false);
     const publicKey = React.useMemo(() => {
@@ -57,7 +65,7 @@ export default function TerminalScreen() {
                             paddingVertical: 32,
                             paddingHorizontal: 16
                         }}>
-                            <Ionicons
+                            <AppIcon
                                 name="warning-outline"
                                 size={48}
                                 color={theme.colors.textDestructive}
@@ -99,12 +107,12 @@ export default function TerminalScreen() {
                         paddingVertical: 24,
                         paddingHorizontal: 16
                     }}>
-                        <Ionicons
-                            name="terminal-outline"
-                            size={48}
-                            color={theme.colors.radio.active}
-                            style={{ marginBottom: 16 }}
-                        />
+                            <AppIcon
+                                name="terminal-outline"
+                                size={48}
+                                color={iconColor.accent}
+                                style={{ marginBottom: 16 }}
+                            />
                         <Text style={{
                             ...Typography.default('semiBold'),
                             fontSize: 20,
@@ -131,13 +139,13 @@ export default function TerminalScreen() {
                     <Item
                         title={t('terminal.publicKey')}
                         detail={`${publicKey.substring(0, 12)}...`}
-                        icon={<Ionicons name="key-outline" size={29} color={theme.colors.radio.active} />}
+                        icon={<AppIcon name="key-outline" size={29} color={iconColor.accent} />}
                         showChevron={false}
                     />
                     <Item
                         title={t('terminal.encryption')}
                         detail={t('terminal.endToEndEncrypted')}
-                        icon={<Ionicons name="lock-closed-outline" size={29} color={theme.colors.success} />}
+                        icon={<AppIcon name="lock-closed-outline" size={29} color={iconColor.success} />}
                         showChevron={false}
                     />
                 </ItemGroup>
@@ -174,7 +182,7 @@ export default function TerminalScreen() {
                     <Item
                         title={t('terminal.clientSideProcessing')}
                         subtitle={t('terminal.linkProcessedOnDevice')}
-                        icon={<Ionicons name="shield-checkmark-outline" size={29} color={theme.colors.success} />}
+                        icon={<AppIcon name="shield-checkmark-outline" size={29} color={iconColor.success} />}
                         showChevron={false}
                     />
                 </ItemGroup>

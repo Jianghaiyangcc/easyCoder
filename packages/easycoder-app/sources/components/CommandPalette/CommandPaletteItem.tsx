@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
 import { Command } from './types';
 import { Typography } from '@/constants/Typography';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 
 interface CommandPaletteItemProps {
     command: Command;
@@ -48,7 +48,7 @@ export function CommandPaletteItem({ command, isSelected, onPress, onHover }: Co
             <View style={styles.content}>
                 {command.icon && (
                     <View style={styles.iconContainer}>
-                        <Ionicons 
+                        <AppIcon 
                             name={command.icon as any} 
                             size={20} 
                             color={isSelected ? '#007AFF' : '#666'} 

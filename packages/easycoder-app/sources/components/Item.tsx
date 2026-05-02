@@ -9,7 +9,7 @@ import {
     Platform,
     ActivityIndicator
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import * as Clipboard from 'expo-clipboard';
 import { Modal } from '@/modal';
@@ -261,7 +261,7 @@ export const Item = React.memo<ItemProps>((props) => {
                     )}
                     {rightElement}
                     {showAccessory && (
-                        <Ionicons 
+                        <AppIcon 
                             name="chevron-forward" 
                             size={chevronSize} 
                             color={theme.colors.groupped.chevron}

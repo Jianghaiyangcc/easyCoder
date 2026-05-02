@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRealtimeStatus, useRealtimeMode, useSetting } from '@/sync/storage';
 import { StatusDot } from './StatusDot';
 import { Typography } from '@/constants/Typography';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { stopRealtimeSession } from '@/realtime/RealtimeSession';
 import { useUnistyles } from 'react-native-unistyles';
 import { VoiceBars } from './VoiceBars';
@@ -120,7 +120,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                                 size={8}
                                 style={styles.statusDot}
                             />
-                            <Ionicons
+                            <AppIcon
                                 name="mic"
                                 size={16}
                                 color={statusInfo.textColor}
@@ -177,7 +177,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                             size={8}
                             style={styles.statusDot}
                         />
-                        <Ionicons
+                        <AppIcon
                             name="mic"
                             size={16}
                             color={statusInfo.textColor}
@@ -200,7 +200,7 @@ export const VoiceAssistantStatusBar = React.memo(({ variant = 'full', style, on
                         />
                     )}
                     
-                    <Ionicons
+                    <AppIcon
                         name="close"
                         size={14}
                         color={statusInfo.textColor}

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import { Typography } from '@/constants/Typography';
@@ -113,6 +113,14 @@ function buildPushTokenSubtitle(pushToken: PushToken, options: {
 
 export default React.memo(() => {
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const auth = useAuth();
     const [showSecret, setShowSecret] = useState(false);
     const [copiedRecently, setCopiedRecently] = useState(false);
@@ -481,7 +489,7 @@ export default React.memo(() => {
                     <Item
                         title={phoneBound ? t('settingsAccount.changePhone') : t('settingsAccount.bindPhone')}
                         subtitle={t('settingsAccount.bindPhoneSubtitle')}
-                        icon={<Ionicons name="phone-portrait-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="phone-portrait-outline" size={29} color={iconColor.accent} />}
                         onPress={handleBindOrChangePhone}
                         loading={phoneActionLoading === 'bind'}
                         disabled={phoneActionLoading !== null}
@@ -491,7 +499,7 @@ export default React.memo(() => {
                         <Item
                             title={t('settingsAccount.unbindPhone')}
                             subtitle={t('settingsAccount.unbindPhoneSubtitle')}
-                            icon={<Ionicons name="close-circle-outline" size={29} color="#FF3B30" />}
+                            icon={<AppIcon name="close-circle-outline" size={29} color={iconColor.danger} />}
                             onPress={handleUnbindPhone}
                             loading={phoneActionLoading === 'unbind'}
                             disabled={phoneActionLoading !== null}
@@ -529,7 +537,7 @@ export default React.memo(() => {
                                         cachePolicy="memory-disk"
                                     />
                                 ) : (
-                                    <Ionicons name="logo-github" size={29} color={theme.colors.textSecondary} />
+                                    <AppIcon name="logo-github" size={29} color={theme.colors.textSecondary} />
                                 )}
                             />
                         )}
@@ -590,7 +598,7 @@ export default React.memo(() => {
                     <Item
                         title={t('settingsAccount.secretKey')}
                         subtitle={showSecret ? t('settingsAccount.tapToHide') : t('settingsAccount.tapToReveal')}
-                        icon={<Ionicons name={showSecret ? "eye-off-outline" : "eye-outline"} size={29} color="#FF9500" />}
+                        icon={<AppIcon name={showSecret ? "eye-off-outline" : "eye-outline"} size={29} color={iconColor.warning} />}
                         onPress={handleShowSecret}
                         showChevron={false}
                     />
@@ -618,10 +626,10 @@ export default React.memo(() => {
                                     }}>
                                         {t('settingsAccount.secretKeyLabel')}
                                     </Text>
-                                    <Ionicons
+                                    <AppIcon
                                         name={copiedRecently ? "checkmark-circle" : "copy-outline"}
                                         size={18}
-                                        color={copiedRecently ? "#34C759" : theme.colors.textSecondary}
+                                        color={copiedRecently ? iconColor.success : theme.colors.textSecondary}
                                     />
                                 </View>
                                 <Text style={{
@@ -654,8 +662,8 @@ export default React.memo(() => {
                                         const optOut = !value;
                                         setAnalyticsOptOut(optOut);
                                     }}
-                                    trackColor={{ false: '#767577', true: '#34C759' }}
-                                    thumbColor="#FFFFFF"
+                                    trackColor={{ false: theme.colors.switch.track.inactive, true: iconColor.success }}
+                                    thumbColor={theme.colors.switch.thumb.active}
                                 />
                             }
                             showChevron={false}
@@ -671,7 +679,7 @@ export default React.memo(() => {
                         title="Permission"
                         detail={formatPushPermissionLabel(pushPermission)}
                         subtitle={formatPushPermissionSubtitle(pushPermission)}
-                        icon={<Ionicons name="notifications-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="notifications-outline" size={29} color={iconColor.accent} />}
                         loading={loadingPushSettings}
                         showChevron={false}
                     />
@@ -682,7 +690,7 @@ export default React.memo(() => {
                             : pushPermission?.canAskAgain
                             ? 'Shows the system prompt again if iOS still allows it.'
                             : 'Opens system settings when iOS will not prompt again.'}
-                        icon={<Ionicons name="shield-checkmark-outline" size={29} color="#34C759" />}
+                        icon={<AppIcon name="shield-checkmark-outline" size={29} color={iconColor.success} />}
                         onPress={handlePushPermissionRequest}
                         loading={requestingPushPermission}
                         disabled={requestingPushPermission || loadingPushSettings || pushPermission?.status === 'unsupported' || !auth.credentials || !remotePushEnabled}
@@ -693,7 +701,7 @@ export default React.memo(() => {
                         subtitle={currentPushToken
                             ? `Current token ${formatPushTokenFingerprint(currentPushToken)}`
                             : 'Fetches the current Expo token and registers it again.'}
-                        icon={<Ionicons name="refresh-outline" size={29} color="#FF9500" />}
+                        icon={<AppIcon name="refresh-outline" size={29} color={iconColor.warning} />}
                         onPress={handleRefreshCurrentPushToken}
                         loading={refreshingPushToken}
                         disabled={refreshingPushToken || loadingPushSettings || pushPermission?.status === 'unsupported' || !auth.credentials || !remotePushEnabled}
@@ -727,10 +735,10 @@ export default React.memo(() => {
                                         })}
                                         subtitleLines={0}
                                         icon={(
-                                            <Ionicons
+                                            <AppIcon
                                                 name={isCurrentDevice ? 'phone-portrait-outline' : 'trash-outline'}
                                                 size={29}
-                                                color={isCurrentDevice ? theme.colors.textSecondary : '#FF3B30'}
+                                                color={isCurrentDevice ? theme.colors.textSecondary : iconColor.danger}
                                             />
                                         )}
                                         onPress={isCurrentDevice ? undefined : () => handleDeletePushToken(pushToken)}
@@ -750,7 +758,7 @@ export default React.memo(() => {
                     <Item
                         title={t('settingsAccount.logout')}
                         subtitle={t('settingsAccount.logoutSubtitle')}
-                        icon={<Ionicons name="log-out-outline" size={29} color="#FF3B30" />}
+                        icon={<AppIcon name="log-out-outline" size={29} color={iconColor.danger} />}
                         destructive
                         onPress={handleLogout}
                     />

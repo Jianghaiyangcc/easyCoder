@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, TextInput, FlatList } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -12,6 +12,14 @@ import { t } from '@/text';
 
 export default function LanguageSelectionScreen() {
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const router = useRouter();
     const [voiceAssistantLanguage, setVoiceAssistantLanguage] = useSettingMutable('voiceAssistantLanguage');
     const [searchQuery, setSearchQuery] = useState('');
@@ -53,7 +61,7 @@ export default function LanguageSelectionScreen() {
                     paddingHorizontal: 12,
                     paddingVertical: 8,
                 }}>
-                    <Ionicons 
+                    <AppIcon 
                         name="search-outline" 
                         size={20} 
                         color={theme.colors.textSecondary} 
@@ -73,7 +81,7 @@ export default function LanguageSelectionScreen() {
                         autoCorrect={false}
                     />
                     {searchQuery.length > 0 && (
-                        <Ionicons 
+                        <AppIcon 
                             name="close-circle" 
                             size={20} 
                             color={theme.colors.textSecondary}
@@ -96,10 +104,10 @@ export default function LanguageSelectionScreen() {
                         <Item
                             title={getLanguageDisplayName(item)}
                             subtitle={item.code || t('settingsVoice.language.autoDetect')}
-                            icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                            icon={<AppIcon name="language-outline" size={29} color={iconColor.accent} />}
                             rightElement={
                                 voiceAssistantLanguage === item.code ? (
-                                    <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+                                    <AppIcon name="checkmark-circle" size={24} color={iconColor.accent} />
                                 ) : null
                             }
                             onPress={() => handleLanguageSelect(item.code)}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useUnistyles } from 'react-native-unistyles';
 import { Typography } from '@/constants/Typography';
 import { Item } from '@/components/Item';
@@ -183,6 +183,14 @@ const MOCK_PRODUCTS = [
 
 export default function SubscriptionScreen() {
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const styles = stylesheet;
     const hasPro = useEntitlement('pro');
     const [isPurchasing, setIsPurchasing] = useState(false);
@@ -274,10 +282,10 @@ export default function SubscriptionScreen() {
 
                         <View style={styles.featuresContainer}>
                             <View style={styles.featureItem}>
-                                <Ionicons
+                                <AppIcon
                                     name={hasPro ? "checkmark-circle" : "close-circle"}
                                     size={20}
-                                    color={hasPro ? "#34C759" : "#8E8E93"}
+                                    color={hasPro ? iconColor.success : iconColor.secondary}
                                     style={styles.featureIcon}
                                 />
                                 <Text style={styles.featureText}>
@@ -285,10 +293,10 @@ export default function SubscriptionScreen() {
                                 </Text>
                             </View>
                             <View style={styles.featureItem}>
-                                <Ionicons
+                                <AppIcon
                                     name={hasPro ? "checkmark-circle" : "close-circle"}
                                     size={20}
-                                    color={hasPro ? "#34C759" : "#8E8E93"}
+                                    color={hasPro ? iconColor.success : iconColor.secondary}
                                     style={styles.featureIcon}
                                 />
                                 <Text style={styles.featureText}>
@@ -296,10 +304,10 @@ export default function SubscriptionScreen() {
                                 </Text>
                             </View>
                             <View style={styles.featureItem}>
-                                <Ionicons
+                                <AppIcon
                                     name={hasPro ? "checkmark-circle" : "close-circle"}
                                     size={20}
-                                    color={hasPro ? "#34C759" : "#8E8E93"}
+                                    color={hasPro ? iconColor.success : iconColor.secondary}
                                     style={styles.featureIcon}
                                 />
                                 <Text style={styles.featureText}>
@@ -307,10 +315,10 @@ export default function SubscriptionScreen() {
                                 </Text>
                             </View>
                             <View style={styles.featureItem}>
-                                <Ionicons
+                                <AppIcon
                                     name={hasPro ? "checkmark-circle" : "close-circle"}
                                     size={20}
-                                    color={hasPro ? "#34C759" : "#8E8E93"}
+                                    color={hasPro ? iconColor.success : iconColor.secondary}
                                     style={styles.featureIcon}
                                 />
                                 <Text style={styles.featureText}>
@@ -362,10 +370,10 @@ export default function SubscriptionScreen() {
                                 <View style={styles.planFeatures}>
                                     {product.features.map((feature, index) => (
                                         <View key={index} style={styles.featureItem}>
-                                            <Ionicons
+                                            <AppIcon
                                                 name="checkmark-circle"
                                                 size={18}
-                                                color="#34C759"
+                                                color={iconColor.success}
                                                 style={styles.featureIcon}
                                             />
                                             <Text style={styles.featureText}>
@@ -396,12 +404,12 @@ export default function SubscriptionScreen() {
                 <ItemGroup footer={t('subscription.footer')}>
                     <Item
                         title={t('subscription.terms')}
-                        icon={<Ionicons name="document-text-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="document-text-outline" size={29} color={iconColor.accent} />}
                         onPress={() => {/* 跳转到条款 */}}
                     />
                     <Item
                         title={t('subscription.privacy')}
-                        icon={<Ionicons name="shield-checkmark-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="shield-checkmark-outline" size={29} color={iconColor.accent} />}
                         onPress={() => {/* 跳转到隐私政策 */}}
                     />
                 </ItemGroup>

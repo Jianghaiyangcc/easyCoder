@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Pressable, Modal as RNModal, Platform, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon, type AppIconName } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { useSessionQuickActions, SessionActionItem } from '@/hooks/useSessionQuickActions';
 import { useSession } from '@/sync/storage';
@@ -174,9 +174,9 @@ export function SessionActionsPopover({
                             pressed && styles.menuItemPressed,
                         ]}
                     >
-                        <Ionicons
+                        <AppIcon
                             color={color}
-                            name={action.icon as keyof typeof Ionicons.glyphMap}
+                            name={action.icon as AppIconName}
                             size={18}
                         />
                         <Text numberOfLines={1} style={[styles.menuItemLabel, { color }]}>

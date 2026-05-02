@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
@@ -82,14 +82,14 @@ export default function LanguageSettingsScreen() {
                         key={option.key}
                         title={option.title}
                         subtitle={option.subtitle}
-                        icon={<Ionicons 
+                        icon={<AppIcon 
                             name="language-outline" 
                             size={29} 
                             color="#007AFF" 
                         />}
                         rightElement={
                             currentSelection === option.key ? (
-                                <Ionicons 
+                                <AppIcon 
                                     name="checkmark" 
                                     size={20} 
                                     color="#007AFF" 

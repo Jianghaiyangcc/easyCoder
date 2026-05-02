@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native-unistyles';
 import { t } from '@/text';
 import { layout } from '@/components/layout';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Modal } from '@/modal';
 import { sync } from '@/sync/sync';
 import { deleteArtifact } from '@/sync/apiArtifacts';
@@ -198,7 +198,7 @@ export default function ArtifactDetailScreen() {
                     }}
                 />
                 <View style={styles.errorContainer}>
-                        <Ionicons 
+                        <AppIcon 
                             name="alert-circle-outline" 
                             size={64} 
                             style={styles.errorIcon}
@@ -224,14 +224,14 @@ export default function ArtifactDetailScreen() {
                                 style={{ padding: 8, marginRight: 8 }}
                                 disabled={isDeleting}
                             >
-                                <Ionicons name="create-outline" size={22} color={styles.title.color} />
+                                <AppIcon name="create-outline" size={22} color={styles.title.color} />
                             </Pressable>
                             <Pressable
                                 onPress={handleDelete}
                                 style={{ padding: 8 }}
                                 disabled={isDeleting}
                             >
-                                <Ionicons 
+                                <AppIcon 
                                     name="trash-outline" 
                                     size={22} 
                                     color={isDeleting ? styles.meta.color : styles.errorIcon.color} 

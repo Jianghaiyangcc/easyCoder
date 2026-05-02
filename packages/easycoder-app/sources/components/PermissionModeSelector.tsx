@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Platform, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { hapticsLight } from './haptics';
 import { hackMode, hackModes } from '@/sync/modeHacks';
 import type {
@@ -61,7 +61,7 @@ export const PermissionModeSelector: React.FC<PermissionModeSelectorProps> = ({
                 opacity: disabled ? 0.5 : 1,
             }}
         >
-            <Ionicons name={'hammer-outline'} size={16} color={'black'} style={{ marginRight: 4 }} />
+            <AppIcon name={'hammer-outline'} size={16} color={'black'} style={{ marginRight: 4 }} />
             <View />
         </Pressable>
     );

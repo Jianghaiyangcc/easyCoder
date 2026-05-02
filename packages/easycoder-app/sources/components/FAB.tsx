@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import * as React from 'react';
 import { View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,7 +46,7 @@ export const FAB = React.memo(({ onPress }: { onPress: () => void }) => {
                 ]}
                 onPress={onPress}
             >
-                <Ionicons name="add" size={24} color={theme.colors.fab.icon} />
+                <AppIcon name="add" size={24} color={theme.colors.fab.icon} />
             </Pressable>
         </View>
     )

@@ -4,7 +4,8 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { Text } from '@/components/StyledText';
 import { Machine } from '@/sync/storageTypes';
 import { SessionRowData } from '@/sync/storage';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { type SessionState, formatPathRelativeToHome, formatLastSeen } from '@/utils/sessionUtils';
 import { Avatar } from './Avatar';
 import { Typography } from '@/constants/Typography';
@@ -128,7 +129,7 @@ const SectionHeader = React.memo(({ session, displayPath }: { session: SessionRo
                 hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
                 style={styles.addButton}
             >
-                <Ionicons name="add-outline" size={14} color={theme.colors.textSecondary} />
+                <AppIcon name="add-outline" size={14} color={theme.colors.textSecondary} />
             </Pressable>
         </View>
     );
@@ -147,7 +148,7 @@ const MachineSeparator = React.memo(({ machineName, machineId }: { machineName: 
     return (
         <Pressable onPress={handlePress} style={styles.machineSeparator} hitSlop={{ top: 8, bottom: 8 }}>
             <View style={styles.machineSeparatorLine} />
-            <Ionicons name="desktop-outline" size={11} color={theme.colors.textSecondary} style={{ marginHorizontal: 6 }} />
+            <AppIcon name="desktop-outline" size={11} color={theme.colors.textSecondary} style={{ marginHorizontal: 6 }} />
             <Text style={styles.machineSeparatorText} numberOfLines={1}>
                 {machineName}
             </Text>
@@ -321,7 +322,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
                     {(() => {
                         if (session.state === 'waiting' && session.hasDraft) {
                             return (
-                                <Ionicons
+                                <AppIcon
                                     name="create-outline"
                                     size={14}
                                     color={theme.colors.textSecondary}
@@ -383,7 +384,7 @@ const CompactSessionRow = React.memo(({ session, selected, showBorder }: { sessi
             onPress={handleArchive}
             disabled={archivingSession}
         >
-            <Ionicons name="archive-outline" size={20} color="#FFFFFF" />
+            <AppIcon name="archive-outline" size={20} color="#FFFFFF" />
             <Text style={styles.swipeActionText} numberOfLines={2}>
                 {t('sessionInfo.archiveSession')}
             </Text>

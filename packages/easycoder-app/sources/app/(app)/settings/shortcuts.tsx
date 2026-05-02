@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { ItemList } from '@/components/ItemList';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -14,6 +14,15 @@ import { Switch } from '@/components/Switch';
 import { layout } from '@/components/layout';
 
 export default function QuickPhrasesSettingsScreen() {
+    const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const [quickPhrases, setQuickPhrases] = useSettingMutable('quickPhrases');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [editingPhrase, setEditingPhrase] = React.useState<QuickPhrase | null>(null);
@@ -174,7 +183,7 @@ export default function QuickPhrasesSettingsScreen() {
             <ItemList style={{ paddingTop: 0 }}>
                 <View style={{ maxWidth: layout.maxWidth, alignSelf: 'center', width: '100%' }}>
                     <View style={styles.searchContainer}>
-                        <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
+                        <AppIcon name="search" size={20} color={iconColor.secondary} style={styles.searchIcon} />
                         <TextInput
                             style={styles.searchInput}
                             placeholder={t('quickPhrases.searchPlaceholder')}
@@ -226,7 +235,7 @@ export default function QuickPhrasesSettingsScreen() {
                                             ]}
                                             disabled={index === 0}
                                         >
-                                            <Ionicons name="chevron-up" size={20} color="#007AFF" />
+                                            <AppIcon name="chevron-up" size={20} color={iconColor.accent} />
                                         </Pressable>
                                         <Pressable
                                             onPress={() => handleMoveDown(phrase)}
@@ -237,7 +246,7 @@ export default function QuickPhrasesSettingsScreen() {
                                             ]}
                                             disabled={index === customPhrases.length - 1}
                                         >
-                                            <Ionicons name="chevron-down" size={20} color="#007AFF" />
+                                            <AppIcon name="chevron-down" size={20} color={iconColor.accent} />
                                         </Pressable>
                                         <Pressable
                                             onPress={() => handleEdit(phrase)}
@@ -246,7 +255,7 @@ export default function QuickPhrasesSettingsScreen() {
                                                 pressed && styles.actionButtonPressed,
                                             ]}
                                         >
-                                            <Ionicons name="create-outline" size={20} color="#007AFF" />
+                                            <AppIcon name="create-outline" size={20} color={iconColor.accent} />
                                         </Pressable>
                                         <Pressable
                                             onPress={() => handleDelete(phrase.id)}
@@ -255,7 +264,7 @@ export default function QuickPhrasesSettingsScreen() {
                                                 pressed && styles.actionButtonPressed,
                                             ]}
                                         >
-                                            <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                                            <AppIcon name="trash-outline" size={20} color={iconColor.danger} />
                                         </Pressable>
                                     </View>
                                 </View>
@@ -265,7 +274,7 @@ export default function QuickPhrasesSettingsScreen() {
 
                     {sortedPhrases.length === 0 && (
                         <View style={styles.emptyContainer}>
-                            <Ionicons name="flash-outline" size={60} color="#C7C7CC" />
+                            <AppIcon name="flash-outline" size={60} color={iconColor.secondary} />
                             <Text style={styles.emptyText}>
                                 {t('quickPhrases.empty')}
                             </Text>
@@ -279,7 +288,7 @@ export default function QuickPhrasesSettingsScreen() {
                         ]}
                         onPress={handleAdd}
                     >
-                        <Ionicons name="add" size={24} color="#007AFF" />
+                        <AppIcon name="add" size={24} color={iconColor.accent} />
                         <Text style={styles.addButtonText}>{t('quickPhrases.add')}</Text>
                     </Pressable>
                 </View>

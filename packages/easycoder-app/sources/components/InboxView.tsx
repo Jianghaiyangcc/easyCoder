@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { layout } from '@/components/layout';
 import { useIsTablet } from '@/utils/responsive';
 import { Header } from './navigation/Header';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Image } from 'expo-image';
 import { FeedItemCard } from './FeedItemCard';
 import { VoiceAssistantStatusBar } from './VoiceAssistantStatusBar';
@@ -91,7 +91,7 @@ function HeaderRightTablet() {
                 justifyContent: 'center',
             }}
         >
-            <Ionicons name="person-add-outline" size={24} color={theme.colors.header.tint} />
+            <AppIcon name="person-add-outline" size={24} color={theme.colors.header.tint} />
         </Pressable>
     );
 }

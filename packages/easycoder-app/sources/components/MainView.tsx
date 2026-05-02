@@ -16,7 +16,7 @@ import { Header } from './navigation/Header';
 import { HeaderLogo } from './HeaderLogo';
 import { VoiceAssistantStatusBar } from './VoiceAssistantStatusBar';
 import { StatusDot } from './StatusDot';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
 
@@ -181,7 +181,7 @@ const HeaderRight = React.memo(({ activeTab }: { activeTab: ActiveTabType }) => 
                 hitSlop={15}
                 style={styles.headerButton}
             >
-                <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
+                <AppIcon name="add-outline" size={28} color={theme.colors.header.tint} />
             </Pressable>
         );
     }
@@ -197,7 +197,7 @@ const HeaderRight = React.memo(({ activeTab }: { activeTab: ActiveTabType }) => 
                 hitSlop={15}
                 style={styles.headerButton}
             >
-                <Ionicons name="server-outline" size={24} color={theme.colors.header.tint} />
+                <AppIcon name="server-outline" size={24} color={theme.colors.header.tint} />
             </Pressable>
         );
     }

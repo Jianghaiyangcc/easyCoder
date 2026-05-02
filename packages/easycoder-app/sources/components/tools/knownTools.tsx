@@ -3,7 +3,8 @@ import { ToolCall, Message } from '@/sync/typesMessage';
 import { resolvePath } from '@/utils/pathUtils';
 import { stringifyToolCommand } from '@/utils/toolCommand';
 import * as z from 'zod';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import React from 'react';
 import { t } from '@/text';
 
@@ -13,11 +14,11 @@ const ICON_TERMINAL = (size: number = 24, color: string = '#000') => <Octicons n
 const ICON_SEARCH = (size: number = 24, color: string = '#000') => <Octicons name="search" size={size} color={color} />;
 const ICON_READ = (size: number = 24, color: string = '#000') => <Octicons name="eye" size={size} color={color} />;
 const ICON_EDIT = (size: number = 24, color: string = '#000') => <Octicons name="file-diff" size={size} color={color} />;
-const ICON_WEB = (size: number = 24, color: string = '#000') => <Ionicons name="globe-outline" size={size} color={color} />;
-const ICON_EXIT = (size: number = 24, color: string = '#000') => <Ionicons name="exit-outline" size={size} color={color} />;
-const ICON_TODO = (size: number = 24, color: string = '#000') => <Ionicons name="bulb-outline" size={size} color={color} />;
+const ICON_WEB = (size: number = 24, color: string = '#000') => <AppIcon name="globe-outline" size={size} color={color} />;
+const ICON_EXIT = (size: number = 24, color: string = '#000') => <AppIcon name="exit-outline" size={size} color={color} />;
+const ICON_TODO = (size: number = 24, color: string = '#000') => <AppIcon name="bulb-outline" size={size} color={color} />;
 const ICON_REASONING = (size: number = 24, color: string = '#000') => <Octicons name="light-bulb" size={size} color={color} />;
-const ICON_QUESTION = (size: number = 24, color: string = '#000') => <Ionicons name="help-circle-outline" size={size} color={color} />;
+const ICON_QUESTION = (size: number = 24, color: string = '#000') => <AppIcon name="help-circle-outline" size={size} color={color} />;
 
 function getPatchFiles(input: any): string[] {
     if (input?.changes && typeof input.changes === 'object' && !Array.isArray(input.changes)) {

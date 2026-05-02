@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, ViewStyle, TextStyle } from 'react-native';
 import { Typography } from '@/constants/Typography';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useUnistyles } from 'react-native-unistyles';
 
 interface ChatFooterProps {
@@ -35,7 +35,7 @@ export const ChatFooter = React.memo((props: ChatFooterProps) => {
         <View style={containerStyle}>
             {props.controlledByUser && (
                 <View style={warningContainerStyle}>
-                    <Ionicons 
+                    <AppIcon 
                         name="information-circle" 
                         size={16} 
                         color={theme.colors.box.warning.text}

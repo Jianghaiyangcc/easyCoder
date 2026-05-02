@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Text, View, ScrollView, Platform, useWindowDimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { ToolCall, Message } from '@/sync/typesMessage';
 import { CodeView } from '../CodeView';
 import { Metadata } from '@/sync/storageTypes';
 import { getToolFullViewComponent } from './views/_all';
 import { layout } from '../layout';
 import { useLocalSetting } from '@/sync/storage';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
 
 interface ToolFullViewProps {
@@ -17,6 +17,15 @@ interface ToolFullViewProps {
 }
 
 export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProps) {
+    const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     // Check if there's a specialized content view for this tool
     const SpecializedFullView = getToolFullViewComponent(tool.name);
     const screenWidth = useWindowDimensions().width;
@@ -36,7 +45,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                     {tool.description && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Ionicons name="information-circle" size={20} color="#5856D6" />
+                                <AppIcon name="information-circle" size={20} color={iconColor.secondary} />
                                 <Text style={styles.sectionTitle}>{t('tools.fullView.description')}</Text>
                             </View>
                             <Text style={styles.description}>{tool.description}</Text>
@@ -46,7 +55,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                     {tool.input && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Ionicons name="log-in" size={20} color="#5856D6" />
+                                <AppIcon name="log-in" size={20} color={iconColor.secondary} />
                                 <Text style={styles.sectionTitle}>{t('tools.fullView.inputParams')}</Text>
                             </View>
                             <CodeView code={JSON.stringify(tool.input, null, 2)} />
@@ -57,7 +66,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                     {tool.state === 'completed' && tool.result && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Ionicons name="log-out" size={20} color="#34C759" />
+                                <AppIcon name="log-out" size={20} color={iconColor.success} />
                                 <Text style={styles.sectionTitle}>{t('tools.fullView.output')}</Text>
                             </View>
                             <CodeView
@@ -70,7 +79,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                     {tool.state === 'error' && tool.result && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <Ionicons name="close-circle" size={20} color="#FF3B30" />
+                                <AppIcon name="close-circle" size={20} color={iconColor.danger} />
                                 <Text style={styles.sectionTitle}>{t('tools.fullView.error')}</Text>
                             </View>
                             <View style={styles.errorContainer}>
@@ -83,7 +92,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                     {tool.state === 'completed' && !tool.result && (
                         <View style={styles.section}>
                             <View style={styles.emptyOutputContainer}>
-                                <Ionicons name="checkmark-circle-outline" size={48} color="#34C759" />
+                                <AppIcon name="checkmark-circle-outline" size={48} color={iconColor.success} />
                                 <Text style={styles.emptyOutputText}>{t('tools.fullView.completed')}</Text>
                                 <Text style={styles.emptyOutputSubtext}>{t('tools.fullView.noOutput')}</Text>
                             </View>
@@ -97,7 +106,7 @@ export function ToolFullView({ tool, metadata, messages = [] }: ToolFullViewProp
                 {devModeEnabled && (
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Ionicons name="code-slash" size={20} color="#FF9500" />
+                            <AppIcon name="code-slash" size={20} color={iconColor.warning} />
                             <Text style={styles.sectionTitle}>{t('tools.fullView.rawJsonDevMode')}</Text>
                         </View>
                         <CodeView 

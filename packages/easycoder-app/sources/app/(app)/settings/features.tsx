@@ -1,13 +1,23 @@
 import { Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { useSettingMutable, useLocalSettingMutable } from '@/sync/storage';
 import { Switch } from '@/components/Switch';
 import { t } from '@/text';
+import { useUnistyles } from 'react-native-unistyles';
 
 export default function FeaturesSettingsScreen() {
+    const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const [experiments, setExperiments] = useSettingMutable('experiments');
     const [agentInputEnterToSend, setAgentInputEnterToSend] = useSettingMutable('agentInputEnterToSend');
     const [commandPaletteEnabled, setCommandPaletteEnabled] = useLocalSettingMutable('commandPaletteEnabled');
@@ -26,7 +36,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.experimentalFeatures')}
                     subtitle={experiments ? t('settingsFeatures.experimentalFeaturesEnabled') : t('settingsFeatures.experimentalFeaturesDisabled')}
-                    icon={<Ionicons name="flask-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="flask-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={experiments}
@@ -38,7 +48,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.customServer')}
                     subtitle={t('settingsFeatures.customServerSubtitle')}
-                    icon={<Ionicons name="server-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="server-outline" size={29} color={iconColor.accent} />}
                     rightElement={
                         <Switch
                             value={customServerEnabled}
@@ -50,7 +60,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.markdownCopyV2')}
                     subtitle={t('settingsFeatures.markdownCopyV2Subtitle')}
-                    icon={<Ionicons name="text-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="text-outline" size={29} color={iconColor.success} />}
                     rightElement={
                         <Switch
                             value={markdownCopyV2}
@@ -62,7 +72,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title={t('settingsFeatures.hideInactiveSessions')}
                     subtitle={t('settingsFeatures.hideInactiveSessionsSubtitle')}
-                    icon={<Ionicons name="eye-off-outline" size={29} color="#FF9500" />}
+                    icon={<AppIcon name="eye-off-outline" size={29} color={iconColor.warning} />}
                     rightElement={
                         <Switch
                             value={hideInactiveSessions}
@@ -74,7 +84,7 @@ export default function FeaturesSettingsScreen() {
                 <Item
                     title="Resume Session"
                     subtitle="Allow resuming disconnected sessions via the machine daemon"
-                    icon={<Ionicons name="play-circle-outline" size={29} color="#30D158" />}
+                    icon={<AppIcon name="play-circle-outline" size={29} color={iconColor.success} />}
                     rightElement={
                         <Switch
                             value={expResumeSession}
@@ -94,7 +104,7 @@ export default function FeaturesSettingsScreen() {
                     <Item
                         title={t('settingsFeatures.enterToSend')}
                         subtitle={agentInputEnterToSend ? t('settingsFeatures.enterToSendEnabled') : t('settingsFeatures.enterToSendDisabled')}
-                        icon={<Ionicons name="return-down-forward-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="return-down-forward-outline" size={29} color={iconColor.accent} />}
                         rightElement={
                             <Switch
                                 value={agentInputEnterToSend}
@@ -106,7 +116,7 @@ export default function FeaturesSettingsScreen() {
                     <Item
                         title={t('settingsFeatures.commandPalette')}
                         subtitle={commandPaletteEnabled ? t('settingsFeatures.commandPaletteEnabled') : t('settingsFeatures.commandPaletteDisabled')}
-                        icon={<Ionicons name="keypad-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="keypad-outline" size={29} color={iconColor.accent} />}
                         rightElement={
                             <Switch
                                 value={commandPaletteEnabled}

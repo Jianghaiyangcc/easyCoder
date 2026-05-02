@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon, type AppIconName } from '@/components/AppIcon';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
@@ -31,6 +31,14 @@ const isKnownAvatarStyle = (style: string): style is KnownAvatarStyle => {
 
 export default function AppearanceSettingsScreen() {
     const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const router = useRouter();
     const [viewInline, setViewInline] = useSettingMutable('viewInline');
     const [expandTodos, setExpandTodos] = useSettingMutable('expandTodos');
@@ -97,7 +105,7 @@ export default function AppearanceSettingsScreen() {
             | 'settingsAppearance.themeDescriptions.zinc'
             | 'settingsAppearance.themeDescriptions.midnight'
             | 'settingsAppearance.themeDescriptions.claude';
-        icon: keyof typeof Ionicons.glyphMap;
+        icon: AppIconName;
         color: string;
     }[] = [
         {
@@ -105,42 +113,42 @@ export default function AppearanceSettingsScreen() {
             titleKey: 'settingsAppearance.themeOptions.adaptive',
             subtitleKey: 'settingsAppearance.themeDescriptions.adaptive',
             icon: 'contrast-outline',
-            color: theme.colors.status.connecting,
+            color: iconColor.accent,
         },
         {
             key: 'light',
             titleKey: 'settingsAppearance.themeOptions.light',
             subtitleKey: 'settingsAppearance.themeDescriptions.light',
             icon: 'sunny-outline',
-            color: '#FF9500',
+            color: iconColor.warning,
         },
         {
             key: 'dark',
             titleKey: 'settingsAppearance.themeOptions.dark',
             subtitleKey: 'settingsAppearance.themeDescriptions.dark',
             icon: 'moon-outline',
-            color: '#34C759',
+            color: iconColor.success,
         },
         {
             key: 'zinc',
             titleKey: 'settingsAppearance.themeOptions.zinc',
             subtitleKey: 'settingsAppearance.themeDescriptions.zinc',
             icon: 'albums-outline',
-            color: '#8E8E93',
+            color: iconColor.secondary,
         },
         {
             key: 'midnight',
             titleKey: 'settingsAppearance.themeOptions.midnight',
             subtitleKey: 'settingsAppearance.themeDescriptions.midnight',
             icon: 'water-outline',
-            color: '#5F8BDB',
+            color: iconColor.accent,
         },
         {
             key: 'claude',
             titleKey: 'settingsAppearance.themeOptions.claude',
             subtitleKey: 'settingsAppearance.themeDescriptions.claude',
             icon: 'flame-outline',
-            color: '#D97757',
+            color: iconColor.accent,
         },
     ];
 
@@ -154,10 +162,10 @@ export default function AppearanceSettingsScreen() {
                         key={option.key}
                         title={t(option.titleKey)}
                         subtitle={t(option.subtitleKey)}
-                        icon={<Ionicons name={option.icon} size={29} color={option.color} />}
+                        icon={<AppIcon name={option.icon} size={29} color={option.color} />}
                         rightElement={
                             themePreference === option.key
-                                ? <Ionicons name="checkmark-circle" size={20} color={theme.colors.status.connected} />
+                                ? <AppIcon name="checkmark-circle" size={20} color={theme.colors.status.connected} />
                                 : undefined
                         }
                         showChevron={false}
@@ -170,7 +178,7 @@ export default function AppearanceSettingsScreen() {
             <ItemGroup title={t('settingsLanguage.title')} footer={t('settingsLanguage.description')}>
                 <Item
                     title={t('settingsLanguage.currentLanguage')}
-                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="language-outline" size={29} color={iconColor.accent} />}
                     detail={getLanguageDisplayText()}
                     onPress={() => router.push('/settings/language')}
                 />
@@ -181,7 +189,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Text Size"
                     subtitle="Make text larger or smaller"
-                    icon={<Ionicons name="text-outline" size={29} color="#FF9500" />}
+                    icon={<AppIcon name="text-outline" size={29} color={iconColor.warning} />}
                     detail="Default"
                     onPress={() => { }}
                     disabled
@@ -189,7 +197,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Font"
                     subtitle="Choose your preferred font"
-                    icon={<Ionicons name="text-outline" size={29} color="#FF9500" />}
+                    icon={<AppIcon name="text-outline" size={29} color={iconColor.warning} />}
                     detail="System"
                     onPress={() => { }}
                     disabled
@@ -201,7 +209,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.compactSessionView')}
                     subtitle={t('settingsAppearance.compactSessionViewDescription')}
-                    icon={<Ionicons name="albums-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="albums-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={compactSessionView}
@@ -212,7 +220,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.inlineToolCalls')}
                     subtitle={t('settingsAppearance.inlineToolCallsDescription')}
-                    icon={<Ionicons name="code-slash-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="code-slash-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={viewInline}
@@ -223,7 +231,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.expandTodoLists')}
                     subtitle={t('settingsAppearance.expandTodoListsDescription')}
-                    icon={<Ionicons name="checkmark-done-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="checkmark-done-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={expandTodos}
@@ -234,7 +242,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showLineNumbersInDiffs')}
                     subtitle={t('settingsAppearance.showLineNumbersInDiffsDescription')}
-                    icon={<Ionicons name="list-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="list-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={showLineNumbers}
@@ -245,7 +253,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showLineNumbersInToolViews')}
                     subtitle={t('settingsAppearance.showLineNumbersInToolViewsDescription')}
-                    icon={<Ionicons name="code-working-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="code-working-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={showLineNumbersInToolViews}
@@ -256,7 +264,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.wrapLinesInDiffs')}
                     subtitle={t('settingsAppearance.wrapLinesInDiffsDescription')}
-                    icon={<Ionicons name="return-down-forward-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="return-down-forward-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={wrapLinesInDiffs}
@@ -267,7 +275,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.alwaysShowContextSize')}
                     subtitle={t('settingsAppearance.alwaysShowContextSizeDescription')}
-                    icon={<Ionicons name="analytics-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="analytics-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={alwaysShowContextSize}
@@ -278,7 +286,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.avatarStyle')}
                     subtitle={t('settingsAppearance.avatarStyleDescription')}
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="person-circle-outline" size={29} color={iconColor.secondary} />}
                     detail={displayStyle === 'pixelated' ? t('settingsAppearance.avatarOptions.pixelated') : displayStyle === 'brutalist' ? t('settingsAppearance.avatarOptions.brutalist') : t('settingsAppearance.avatarOptions.gradient')}
                     onPress={() => {
                         const currentIndex = displayStyle === 'pixelated' ? 0 : displayStyle === 'gradient' ? 1 : 2;
@@ -290,7 +298,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title={t('settingsAppearance.showFlavorIcons')}
                     subtitle={t('settingsAppearance.showFlavorIconsDescription')}
-                    icon={<Ionicons name="apps-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="apps-outline" size={29} color={iconColor.secondary} />}
                     rightElement={
                         <Switch
                             value={showFlavorIcons}
@@ -301,7 +309,7 @@ export default function AppearanceSettingsScreen() {
                 {/* <Item
                     title="Compact Mode"
                     subtitle="Reduce spacing between elements"
-                    icon={<Ionicons name="contract-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="contract-outline" size={29} color={iconColor.secondary} />}
                     disabled
                     rightElement={
                         <Switch
@@ -313,7 +321,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Show Avatars"
                     subtitle="Display user and assistant avatars"
-                    icon={<Ionicons name="person-circle-outline" size={29} color="#5856D6" />}
+                    icon={<AppIcon name="person-circle-outline" size={29} color={iconColor.secondary} />}
                     disabled
                     rightElement={
                         <Switch
@@ -329,7 +337,7 @@ export default function AppearanceSettingsScreen() {
                 <Item
                     title="Accent Color"
                     subtitle="Choose your accent color"
-                    icon={<Ionicons name="color-palette-outline" size={29} color="#FF3B30" />}
+                    icon={<AppIcon name="color-palette-outline" size={29} color={iconColor.danger} />}
                     detail="Blue"
                     onPress={() => { }}
                     disabled

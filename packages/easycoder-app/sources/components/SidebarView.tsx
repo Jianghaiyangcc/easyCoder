@@ -13,7 +13,7 @@ import { MainView } from './MainView';
 import { Image } from 'expo-image';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
@@ -219,7 +219,7 @@ export const SidebarView = React.memo(() => {
                             onPress={handleNewSession}
                             hitSlop={15}
                         >
-                            <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
+                            <AppIcon name="add-outline" size={28} color={theme.colors.header.tint} />
                         </Pressable>
                     </View>
 

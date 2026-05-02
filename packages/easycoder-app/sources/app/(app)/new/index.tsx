@@ -16,7 +16,8 @@ import {
     Image as RNImage,
 } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
-import { Ionicons, Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Typography } from '@/constants/Typography';
 import { layout } from '@/components/layout';
@@ -262,7 +263,7 @@ function PickerContent({
             <Text style={[pickerStyles.title, { color: theme.colors.text }]}>{title}</Text>
 
             <View style={[pickerStyles.searchRow, { backgroundColor: theme.colors.input.background }]}>
-                <Ionicons name="search" size={16} color={theme.colors.textSecondary} />
+                <AppIcon name="search" size={16} color={theme.colors.textSecondary} />
                 <TextInput
                     value={search}
                     onChangeText={setSearch}
@@ -372,7 +373,7 @@ function PathPickerContent({
                                 { borderColor: 'rgba(255,255,255,0.16)' },
                             ]}
                         >
-                            <Ionicons
+                            <AppIcon
                                 name="checkmark"
                                 size={20}
                                 color={doneIconColor}
@@ -391,7 +392,7 @@ function PathPickerContent({
                     },
                 ]}
             >
-                <Ionicons name="folder-outline" size={16} color={theme.colors.textSecondary} />
+                <AppIcon name="folder-outline" size={16} color={theme.colors.textSecondary} />
                 <View style={pickerStyles.pathInputField}>
                     <TextInput
                         ref={inputRef}
@@ -432,7 +433,7 @@ function PathPickerContent({
                             style={(p) => [pickerStyles.option, p.pressed && pickerStyles.optionPressed]}
                             onPress={() => handleSuggestionPress(item)}
                         >
-                            <Ionicons
+                            <AppIcon
                                 name="folder-outline"
                                 size={16}
                                 color={theme.colors.textSecondary}
@@ -443,7 +444,7 @@ function PathPickerContent({
                                 </Text>
                             </View>
                             {isSelected && (
-                                <Ionicons
+                                <AppIcon
                                     name="checkmark-circle"
                                     size={18}
                                     color={theme.colors.button.primary.background}
@@ -1005,7 +1006,7 @@ function NewSessionScreen() {
                                         style={(p) => [styles.configRow, { flex: 1 }, p.pressed && styles.configRowPressed]}
                                         onPress={() => togglePicker('machine')}
                                     >
-                                        <Ionicons name="desktop-outline" size={15} color={theme.colors.textSecondary} />
+                                        <AppIcon name="desktop-outline" size={15} color={theme.colors.textSecondary} />
                                         <Text style={styles.configLabel} numberOfLines={1}>
                                             {machineName}
                                         </Text>
@@ -1015,14 +1016,14 @@ function NewSessionScreen() {
                                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                         style={(p) => [styles.collapseToggle, p.pressed && styles.configRowPressed]}
                                     >
-                                        <Ionicons name="chevron-up" size={16} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-up" size={16} color={theme.colors.textSecondary} />
                                     </Pressable>
                                 </View>
 
                                 {/* Offline help section — right under machine */}
                                 {isOffline && (
                                     <View style={styles.offlineHelp}>
-                                        <Ionicons name="cloud-offline-outline" size={14} color={theme.colors.status.disconnected} />
+                                        <AppIcon name="cloud-offline-outline" size={14} color={theme.colors.status.disconnected} />
                                         <View style={{ flex: 1 }}>
                                             <Text style={[styles.offlineHelpTitle, { color: theme.colors.status.disconnected }]}>
                                                 {t('newSession.machineOffline')}
@@ -1042,7 +1043,7 @@ function NewSessionScreen() {
                                         style={(p) => [styles.configRow, p.pressed && styles.configRowPressed]}
                                         onPress={() => togglePicker('path')}
                                     >
-                                        <Ionicons name="folder-outline" size={15} color={theme.colors.textSecondary} />
+                                        <AppIcon name="folder-outline" size={15} color={theme.colors.textSecondary} />
                                         <Text style={styles.configLabel} numberOfLines={1}>
                                             {pathName}
                                         </Text>
@@ -1093,7 +1094,7 @@ function NewSessionScreen() {
                                             style={(p) => [styles.configRow, p.pressed && styles.configRowPressed]}
                                             onPress={cyclePermission}
                                         >
-                                            <Ionicons
+                                            <AppIcon
                                                 name={permissionStyle?.icon ?? 'shield-outline'}
                                                 size={15}
                                                 color={theme.colors.textSecondary}
@@ -1128,7 +1129,7 @@ function NewSessionScreen() {
                                         style={(p) => [styles.collapsedRow, { flex: 1 }, p.pressed && styles.configRowPressed]}
                                         onPress={() => togglePicker('path')}
                                     >
-                                        <Ionicons name="folder-outline" size={15} color={theme.colors.textSecondary} />
+                                        <AppIcon name="folder-outline" size={15} color={theme.colors.textSecondary} />
                                         <Text style={[styles.configLabel, { flex: 1 }]} numberOfLines={1}>
                                             {pathName}
                                         </Text>
@@ -1138,7 +1139,7 @@ function NewSessionScreen() {
                                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                         style={(p) => [styles.collapseToggle, p.pressed && styles.configRowPressed]}
                                     >
-                                        <Ionicons name="chevron-down" size={16} color={theme.colors.textSecondary} />
+                                        <AppIcon name="chevron-down" size={16} color={theme.colors.textSecondary} />
                                     </Pressable>
                                 </View>
 
@@ -1150,7 +1151,7 @@ function NewSessionScreen() {
                                         hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
                                         style={(p) => [styles.collapsedIconButton, p.pressed && styles.configRowPressed]}
                                     >
-                                        <Ionicons name="desktop-outline" size={14} color={isOffline ? theme.colors.status.disconnected : theme.colors.textSecondary} />
+                                        <AppIcon name="desktop-outline" size={14} color={isOffline ? theme.colors.status.disconnected : theme.colors.textSecondary} />
                                     </Pressable>
 
                                     {/* Agent */}
@@ -1182,7 +1183,7 @@ function NewSessionScreen() {
                                             hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
                                             style={(p) => [styles.collapsedIconButton, p.pressed && styles.configRowPressed]}
                                         >
-                                            <Ionicons
+                                            <AppIcon
                                                 name={permissionStyle?.icon ?? 'shield-outline'}
                                                 size={14}
                                                 color={permissionStyle?.color ?? theme.colors.textSecondary}
@@ -1205,7 +1206,7 @@ function NewSessionScreen() {
                                 {/* Offline warning in collapsed state */}
                                 {isOffline && (
                                     <View style={styles.offlineHelp}>
-                                        <Ionicons name="cloud-offline-outline" size={14} color={theme.colors.status.disconnected} />
+                                        <AppIcon name="cloud-offline-outline" size={14} color={theme.colors.status.disconnected} />
                                         <View style={{ flex: 1 }}>
                                             <Text style={[styles.offlineHelpTitle, { color: theme.colors.status.disconnected }]}>
                                                 {t('newSession.machineOffline')}

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
 
@@ -40,7 +40,7 @@ export const FileMentionSuggestion = React.memo(({ fileName, filePath, fileType 
     return (
         <View style={styles.suggestionContainer}>
             <View style={styles.iconContainer}>
-                <Ionicons
+                <AppIcon
                     name={fileType === 'folder' ? 'folder' : 'document-text'}
                     size={18}
                     color={styles.iconColor.color}

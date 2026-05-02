@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Text } from '@/components/StyledText';
 import { Item } from '@/components/Item';
@@ -135,7 +135,7 @@ export const UsagePanel: React.FC = () => {
     if (error) {
         return (
             <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle-outline" size={48} color={theme.colors.status.error} />
+                <AppIcon name="alert-circle-outline" size={48} color={theme.colors.status.error} />
                 <Text style={styles.errorText}>{error}</Text>
             </View>
         );
@@ -221,7 +221,7 @@ export const UsagePanel: React.FC = () => {
                         key={`${item.key}-limit`}
                         title={t('usage.limitReachedTitle')}
                         subtitle={t('usage.limitReachedSubtitle', { metric: item.label })}
-                        icon={<Ionicons name="alert-circle-outline" size={29} color={theme.colors.status.error} />}
+                        icon={<AppIcon name="alert-circle-outline" size={29} color={theme.colors.status.error} />}
                         showChevron={false}
                     />
                 ))}
@@ -230,7 +230,7 @@ export const UsagePanel: React.FC = () => {
                     <Item
                         title={t('subscription.upgradeToPro')}
                         subtitle={t('settingsVoice.supportSubtitle')}
-                        icon={<Ionicons name="pricetag-outline" size={29} color="#FF9500" />}
+                        icon={<AppIcon name="pricetag-outline" size={29} color={theme.colors.icon?.warning ?? theme.colors.warning} />}
                         onPress={handleUpgrade}
                     />
                 )}

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Text, View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import { Octicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { getToolViewComponent } from './views/_all';
 import { Message, ToolCall } from '@/sync/typesMessage';
 import { CodeView } from '../CodeView';
@@ -52,7 +53,7 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
     let description: string | null = null;
     let status: string | null = null;
     let minimal = false;
-    let icon = <Ionicons name="construct-outline" size={18} color={theme.colors.textSecondary} />;
+    let icon = <AppIcon name="construct-outline" size={18} color={theme.colors.textSecondary} />;
     let noStatus = false;
     let hideDefaultError = false;
     
@@ -78,7 +79,7 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
     // Special handling for MCP tools
     if (tool.name.startsWith('mcp__')) {
         toolTitle = formatMCPTitle(tool.name);
-        icon = <Ionicons name="extension-puzzle-outline" size={18} color={theme.colors.textSecondary} />;
+        icon = <AppIcon name="extension-puzzle-outline" size={18} color={theme.colors.textSecondary} />;
         minimal = true;
     } else if (knownTool?.title) {
         if (typeof knownTool.title === 'function') {
@@ -133,9 +134,9 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
 
     // Check permission status first for denied/canceled states
     if (tool.permission && (tool.permission.status === 'denied' || tool.permission.status === 'canceled')) {
-        statusIcon = <Ionicons name="remove-circle-outline" size={20} color={theme.colors.textSecondary} />;
+        statusIcon = <AppIcon name="remove-circle-outline" size={20} color={theme.colors.textSecondary} />;
     } else if (isToolUseError) {
-        statusIcon = <Ionicons name="remove-circle-outline" size={20} color={theme.colors.textSecondary} />;
+        statusIcon = <AppIcon name="remove-circle-outline" size={20} color={theme.colors.textSecondary} />;
         hideDefaultError = true;
         minimal = true;
     } else {
@@ -147,11 +148,11 @@ export const ToolView = React.memo<ToolViewProps>((props) => {
                 break;
             case 'completed':
                 // if (!noStatus) {
-                //     statusIcon = <Ionicons name="checkmark-circle" size={20} color="#34C759" />;
+                //     statusIcon = <AppIcon name="checkmark-circle" size={20} color="#34C759" />;
                 // }
                 break;
             case 'error':
-                statusIcon = <Ionicons name="alert-circle-outline" size={20} color={theme.colors.warning} />;
+                statusIcon = <AppIcon name="alert-circle-outline" size={20} color={theme.colors.warning} />;
                 break;
         }
     }

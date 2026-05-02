@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useAllMachines } from '@/sync/storage';
@@ -70,7 +70,7 @@ export function EmptySessionsTablet() {
     
     return (
         <View style={styles.container}>
-            <Ionicons 
+            <AppIcon 
                 name="terminal-outline" 
                 size={64} 
                 color={theme.colors.textSecondary}
@@ -90,7 +90,7 @@ export function EmptySessionsTablet() {
                         style={styles.button}
                         onPress={handleStartNewSession}
                     >
-                        <Ionicons
+                        <AppIcon
                             name="add"
                             size={20}
                             color={theme.colors.button.primary.tint}

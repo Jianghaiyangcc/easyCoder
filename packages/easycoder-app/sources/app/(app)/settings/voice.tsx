@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/StyledText';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon } from '@/components/AppIcon';
 import { useRouter } from 'expo-router';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
 import { ItemList } from '@/components/ItemList';
 import { Switch } from '@/components/Switch';
 import { UsageBar } from '@/components/usage/UsageBar';
+import { useUnistyles } from 'react-native-unistyles';
 import { useSettingMutable, useEntitlement, useLocalSetting, useLocalSettingMutable, useSetting } from '@/sync/storage';
 import { useAuth } from '@/auth/AuthContext';
 import { findLanguageByCode, getLanguageDisplayName, LANGUAGES } from '@/constants/Languages';
@@ -32,6 +33,15 @@ function formatVoiceTime(totalSeconds: number): string {
 
 export default React.memo(function VoiceSettingsScreen() {
     const router = useRouter();
+    const { theme } = useUnistyles();
+    const iconColor = theme.colors.icon ?? {
+        primary: theme.colors.text,
+        secondary: theme.colors.textSecondary,
+        accent: theme.colors.textLink,
+        success: theme.colors.status.connected,
+        warning: theme.colors.warning,
+        danger: theme.colors.textDestructive,
+    };
     const auth = useAuth();
     const [voiceAssistantLanguage] = useSettingMutable('voiceAssistantLanguage');
     const [voiceProvider, setVoiceProvider] = useSettingMutable('voiceProvider');
@@ -257,7 +267,7 @@ export default React.memo(function VoiceSettingsScreen() {
                     title={modeLabel}
                     subtitle={modeDescription}
                     detail={providerLabel}
-                    icon={<Ionicons name="radio-outline" size={29} color="#34C759" />}
+                    icon={<AppIcon name="radio-outline" size={29} color={iconColor.success} />}
                     showChevron={false}
                 />
             </ItemGroup>
@@ -267,20 +277,20 @@ export default React.memo(function VoiceSettingsScreen() {
                     title={t('settingsVoice.voiceModeTitle')}
                     subtitle={t('settingsVoice.voiceModeSubtitle')}
                     detail={modeLabel}
-                    icon={<Ionicons name="swap-horizontal-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="swap-horizontal-outline" size={29} color={iconColor.accent} />}
                     onPress={handleVoiceModePicker}
                 />
                 <Item
                     title={t('settingsVoice.preferredLanguage')}
                     subtitle={preferredLanguageSubtitle}
-                    icon={<Ionicons name="language-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="language-outline" size={29} color={iconColor.accent} />}
                     detail={getLanguageDisplayName(currentLanguage)}
                     onPress={() => router.push('/settings/voice/language')}
                 />
                 <Item
                     title={t('settingsVoice.microphonePermission')}
                     subtitle={microphonePermissionSubtitle}
-                    icon={<Ionicons name="mic-outline" size={29} color="#FF9500" />}
+                    icon={<AppIcon name="mic-outline" size={29} color={iconColor.warning} />}
                     onPress={handleMicrophonePermissionPress}
                 />
             </ItemGroup>
@@ -302,9 +312,9 @@ export default React.memo(function VoiceSettingsScreen() {
                                     label={t('settingsVoice.usageLabel')}
                                     value={usage.usedSeconds}
                                     maxValue={usage.limitSeconds}
-                                    color={usage.usedSeconds >= usage.limitSeconds ? '#FF3B30' : '#007AFF'}
+                                    color={usage.usedSeconds >= usage.limitSeconds ? iconColor.danger : iconColor.accent}
                                 />
-                                <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                <Text style={{ fontSize: 13, color: iconColor.secondary, marginTop: 4 }}>
                                     {formatVoiceTime(usage.usedSeconds)} / {formatVoiceTime(usage.limitSeconds)}
                                 </Text>
                                 {!isBailianMode && (
@@ -313,9 +323,9 @@ export default React.memo(function VoiceSettingsScreen() {
                                             label={t('settingsVoice.conversationsLabel')}
                                             value={usage.conversationCount}
                                             maxValue={usage.conversationLimit}
-                                            color={usage.conversationCount >= usage.conversationLimit ? '#FF3B30' : '#007AFF'}
+                                            color={usage.conversationCount >= usage.conversationLimit ? iconColor.danger : iconColor.accent}
                                         />
-                                        <Text style={{ fontSize: 13, color: '#8E8E93', marginTop: 4 }}>
+                                        <Text style={{ fontSize: 13, color: iconColor.secondary, marginTop: 4 }}>
                                             {usage.conversationCount} / {usage.conversationLimit}
                                         </Text>
                                     </>
@@ -326,7 +336,7 @@ export default React.memo(function VoiceSettingsScreen() {
                                 <Item
                                     title={t('errors.voiceLimitReachedTitle')}
                                     subtitle={usageTimeLimitSubtitle}
-                                    icon={<Ionicons name="alert-circle-outline" size={29} color="#FF3B30" />}
+                                    icon={<AppIcon name="alert-circle-outline" size={29} color={iconColor.danger} />}
                                     showChevron={false}
                                 />
                             )}
@@ -335,7 +345,7 @@ export default React.memo(function VoiceSettingsScreen() {
                                 <Item
                                     title={t('errors.voiceLimitReachedTitle')}
                                     subtitle={t('errors.voiceConversationLimitReached')}
-                                    icon={<Ionicons name="alert-circle-outline" size={29} color="#FF3B30" />}
+                                    icon={<AppIcon name="alert-circle-outline" size={29} color={iconColor.danger} />}
                                     showChevron={false}
                                 />
                             )}
@@ -346,7 +356,7 @@ export default React.memo(function VoiceSettingsScreen() {
                             subtitle={usageError
                                 ? t('settingsVoice.usageUnavailableSubtitle')
                                 : t('common.loading')}
-                            icon={<Ionicons name="stats-chart-outline" size={29} color="#8E8E93" />}
+                            icon={<AppIcon name="stats-chart-outline" size={29} color={iconColor.secondary} />}
                             showChevron={false}
                         />
                     )}
@@ -359,7 +369,7 @@ export default React.memo(function VoiceSettingsScreen() {
                     <Item
                         title={t('settingsVoice.supportTitle')}
                         subtitle={t('settingsVoice.supportSubtitle')}
-                        icon={<Ionicons name="heart-outline" size={29} color="#FF2D55" />}
+                        icon={<AppIcon name="heart-outline" size={29} color={iconColor.danger} />}
                         onPress={handleSupportUs}
                     />
                 </ItemGroup>
@@ -374,7 +384,7 @@ export default React.memo(function VoiceSettingsScreen() {
                     <Item
                         title={t('settingsVoice.advancedLockedTitle')}
                         subtitle={t('settingsVoice.advancedLockedSubtitle')}
-                        icon={<Ionicons name="information-circle-outline" size={29} color="#8E8E93" />}
+                        icon={<AppIcon name="information-circle-outline" size={29} color={iconColor.secondary} />}
                         showChevron={false}
                     />
                 ) : (
@@ -382,13 +392,13 @@ export default React.memo(function VoiceSettingsScreen() {
                         <Item
                             title={t('settingsVoice.customAgentId')}
                             subtitle={voiceCustomAgentId ?? t('settingsVoice.customAgentIdNotSet')}
-                            icon={<Ionicons name="key-outline" size={29} color="#FF9500" />}
+                            icon={<AppIcon name="key-outline" size={29} color={iconColor.warning} />}
                             onPress={handleCustomAgentId}
                         />
                         <Item
                             title={t('settingsVoice.bypassToken')}
                             subtitle={t('settingsVoice.bypassTokenSubtitle')}
-                            icon={<Ionicons name="flash-outline" size={29} color="#FF3B30" />}
+                            icon={<AppIcon name="flash-outline" size={29} color={iconColor.danger} />}
                             rightElement={
                                 <Switch
                                     value={voiceBypassToken}
@@ -404,13 +414,13 @@ export default React.memo(function VoiceSettingsScreen() {
                 <Item
                     title={t('settingsVoice.modeVoiceInputLabel')}
                     subtitle={t('settingsVoice.helpVoiceInput')}
-                    icon={<Ionicons name="mic-outline" size={29} color="#007AFF" />}
+                    icon={<AppIcon name="mic-outline" size={29} color={iconColor.accent} />}
                     showChevron={false}
                 />
                 <Item
                     title={t('settingsVoice.modeRealtimeAssistantLabel')}
                     subtitle={t('settingsVoice.helpRealtimeAssistant')}
-                    icon={<Ionicons name="sparkles-outline" size={29} color="#AF52DE" />}
+                    icon={<AppIcon name="sparkles-outline" size={29} color={iconColor.secondary} />}
                     showChevron={false}
                 />
             </ItemGroup>
@@ -438,14 +448,14 @@ export default React.memo(function VoiceSettingsScreen() {
                         title="Voice Experiment Override"
                         subtitle="Simple local override for the voice-upsell flag"
                         detail={developerOverrideLabel}
-                        icon={<Ionicons name="options-outline" size={29} color="#007AFF" />}
+                        icon={<AppIcon name="options-outline" size={29} color={iconColor.accent} />}
                         onPress={handleVoiceExperimentOverride}
                     />
                     <Item
                         title="Voice Experiment Status"
                         subtitle={developerExperimentSubtitle}
                         subtitleLines={0}
-                        icon={<Ionicons name="flask-outline" size={29} color="#5856D6" />}
+                        icon={<AppIcon name="flask-outline" size={29} color={iconColor.secondary} />}
                         showChevron={false}
                         copy={developerExperimentSubtitle}
                     />
@@ -453,7 +463,7 @@ export default React.memo(function VoiceSettingsScreen() {
                         title="Reset Voice Counters"
                         subtitle={developerCountersSubtitle}
                         subtitleLines={0}
-                        icon={<Ionicons name="refresh-outline" size={29} color="#FF9500" />}
+                        icon={<AppIcon name="refresh-outline" size={29} color={iconColor.warning} />}
                         onPress={handleResetVoiceCounters}
                     />
                 </ItemGroup>

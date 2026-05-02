@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { AppIcon, type AppIconName } from '@/components/AppIcon';
 import { Typography } from '@/constants/Typography';
 import { Session } from '@/sync/storageTypes';
 import { useSessionStatus, formatPathRelativeToHome } from '@/utils/sessionUtils';
@@ -51,7 +51,7 @@ interface EmptyMessagesProps {
     session: Session;
 }
 
-function getOSIcon(os?: string): keyof typeof Ionicons.glyphMap {
+function getOSIcon(os?: string): AppIconName {
     if (!os) return 'hardware-chip-outline';
     
     const osLower = os.toLowerCase();
@@ -92,7 +92,7 @@ export function EmptyMessages({ session }: EmptyMessagesProps) {
     
     return (
         <View style={styles.container}>
-            <Ionicons 
+            <AppIcon 
                 name={osIcon}
                 size={72} 
                 color={theme.colors.textSecondary}
