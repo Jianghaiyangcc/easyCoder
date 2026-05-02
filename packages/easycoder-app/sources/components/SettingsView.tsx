@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import * as React from 'react';
 import { Text } from '@/components/StyledText';
 import { useRouter } from 'expo-router';
-import { AppIcon } from '@/components/AppIcon';
+import { AppIcon, type AppIconName } from '@/components/AppIcon';
 import Constants from 'expo-constants';
 import { Item } from '@/components/Item';
 import { ItemGroup } from '@/components/ItemGroup';
@@ -25,6 +25,10 @@ import { Avatar } from '@/components/Avatar';
 import { t } from '@/text';
 
 const stylesheet = StyleSheet.create((theme) => ({
+    list: {
+        paddingTop: 0,
+        paddingBottom: 24,
+    },
     headerWrap: {
         maxWidth: layout.maxWidth,
         alignSelf: 'center',
@@ -109,6 +113,72 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.text,
         fontWeight: '600',
     },
+    groupWrap: {
+        marginTop: 2,
+    },
+    groupHeader: {
+        paddingTop: 18,
+        paddingBottom: 8,
+        paddingHorizontal: 28,
+    },
+    groupTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    groupTitle: {
+        fontSize: 13,
+        letterSpacing: 0.6,
+        textTransform: 'uppercase',
+        color: theme.colors.groupped.sectionTitle,
+        fontWeight: '600',
+    },
+    groupMeta: {
+        fontSize: 12,
+        color: theme.colors.textSecondary,
+    },
+    groupContainer: {
+        marginHorizontal: 16,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(12,16,25,0.08)',
+        backgroundColor: theme.colors.surface,
+        shadowColor: theme.colors.shadow.color,
+        shadowOpacity: theme.dark ? 0.22 : 0.08,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 3,
+    },
+    groupFooter: {
+        paddingTop: 8,
+        paddingBottom: 12,
+        paddingHorizontal: 28,
+    },
+    groupFooterText: {
+        fontSize: 12,
+        lineHeight: 18,
+        color: theme.colors.textSecondary,
+    },
+    iconChip: {
+        width: 30,
+        height: 30,
+        borderRadius: 9,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    itemTitle: {
+        fontSize: 15.5,
+        fontWeight: '500',
+        letterSpacing: 0.1,
+    },
+    itemSubtitle: {
+        fontSize: 13,
+        lineHeight: 18,
+        marginTop: 2,
+    },
+    itemDetail: {
+        fontSize: 14,
+    },
 }));
 
 export const SettingsView = React.memo(function SettingsView() {
@@ -170,8 +240,27 @@ export const SettingsView = React.memo(function SettingsView() {
     const planLabel = hasPro ? 'PRO' : 'FREE';
     const connectivityLabel = isGatewayConnected ? t('status.online') : t('status.offline');
     const machineSummary = `${onlineMachineCount}/${allMachinesWithOffline.length}`;
+    const iconChipBackground = theme.dark ? 'rgba(255,255,255,0.07)' : 'rgba(15,20,30,0.05)';
 
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
+    const groupProps = React.useMemo(() => ({
+        style: styles.groupWrap,
+        headerStyle: styles.groupHeader,
+        containerStyle: styles.groupContainer,
+        footerStyle: styles.groupFooter,
+        footerTextStyle: styles.groupFooterText,
+    }), [styles]);
+    const renderSectionTitle = React.useCallback((label: string, meta?: string) => (
+        <View style={styles.groupTitleRow}>
+            <Text style={styles.groupTitle}>{label}</Text>
+            {meta ? <Text style={styles.groupMeta}>{meta}</Text> : null}
+        </View>
+    ), [styles]);
+    const renderIcon = React.useCallback((name: AppIconName | string, color: string) => (
+        <View style={[styles.iconChip, { backgroundColor: iconChipBackground }]}>
+            <AppIcon name={name} size={18} color={color} />
+        </View>
+    ), [iconChipBackground, styles]);
 
     const handleGitHub = async () => {
         const url = 'https://github.com/Jianghaiyangcc/easyCoder';
@@ -212,7 +301,7 @@ export const SettingsView = React.memo(function SettingsView() {
 
     return (
 
-        <ItemList style={{ paddingTop: 0 }}>
+        <ItemList style={styles.list}>
             {/* App Info Header */}
             <View style={styles.headerWrap}>
                 <View style={styles.headerCard}>
@@ -295,11 +384,16 @@ export const SettingsView = React.memo(function SettingsView() {
             </View>
 
             {/* Connect Terminal */}
-            <ItemGroup>
+            <ItemGroup
+                {...groupProps}
+                title={renderSectionTitle(t('modals.authenticateTerminal'))}
+            >
                 {Platform.OS !== 'web' && (
                     <Item
                         title={t('settings.scanQrCodeToAuthenticate')}
-                        icon={<AppIcon name="qr-code-outline" size={29} color={iconColor.accent} />}
+                        icon={renderIcon('qr-code-outline', iconColor.accent)}
+                        titleStyle={styles.itemTitle}
+                        subtitleStyle={styles.itemSubtitle}
                         onPress={connectTerminal}
                         loading={isLoading}
                         showChevron={false}
@@ -307,7 +401,9 @@ export const SettingsView = React.memo(function SettingsView() {
                 )}
                 <Item
                     title={t('connect.enterUrlManually')}
-                    icon={<AppIcon name="link-outline" size={29} color={iconColor.accent} />}
+                    icon={renderIcon('link-outline', iconColor.accent)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={async () => {
                         const url = await Modal.prompt(
                             t('modals.authenticateTerminal'),
@@ -326,17 +422,24 @@ export const SettingsView = React.memo(function SettingsView() {
             </ItemGroup>
 
             {/* Support Us */}
-            <ItemGroup>
+            <ItemGroup
+                {...groupProps}
+                title={renderSectionTitle(t('settings.supportUs'))}
+            >
                 <Item
                     title={t('subscription.title')}
                     subtitle={hasPro ? t('subscription.manageSubscription') : t('subscription.upgradeToPro')}
-                    icon={<AppIcon name="pricetag-outline" size={29} color={iconColor.accent} />}
+                    icon={renderIcon('pricetag-outline', iconColor.accent)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/subscription')}
                 />
                 <Item
                     title={t('settings.supportUs')}
                     subtitle={hasPro ? t('settings.supportUsSubtitlePro') : t('settings.supportUsSubtitle')}
-                    icon={<AppIcon name="heart" size={29} color={iconColor.danger} />}
+                    icon={renderIcon('heart', iconColor.danger)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     showChevron={false}
                     onPress={handleSupportUs}
                 />
@@ -354,7 +457,10 @@ export const SettingsView = React.memo(function SettingsView() {
 
             {/* Machines (sorted: online first, then last seen desc) */}
             {allMachinesWithOffline.length > 0 && (
-                <ItemGroup title={t('settings.machines')}>
+                <ItemGroup
+                    {...groupProps}
+                    title={renderSectionTitle(t('settings.machines'), machineSummary)}
+                >
                     {visibleMachines.map((machine) => {
                         const isOnline = isMachineOnline(machine);
                         const host = machine.metadata?.host || 'Unknown';
@@ -379,13 +485,9 @@ export const SettingsView = React.memo(function SettingsView() {
                                 key={machine.id}
                                 title={title}
                                 subtitle={subtitle}
-                                icon={
-                                    <AppIcon
-                                        name="desktop-outline"
-                                        size={29}
-                                        color={isOnline ? theme.colors.status.connected : theme.colors.status.disconnected}
-                                    />
-                                }
+                                icon={renderIcon('desktop-outline', isOnline ? theme.colors.status.connected : theme.colors.status.disconnected)}
+                                titleStyle={styles.itemTitle}
+                                subtitleStyle={styles.itemSubtitle}
                                 onPress={() => router.push(`/machine/${machine.id}`)}
                             />
                         );
@@ -397,7 +499,9 @@ export const SettingsView = React.memo(function SettingsView() {
                                 : t('settings.showOfflineMachines', { count: offlineMachineCount })}
                             onPress={() => setShowOfflineMachines(v => !v)}
                             showChevron={false}
+                            subtitleStyle={styles.itemSubtitle}
                             titleStyle={{
+                                ...styles.itemTitle,
                                 textAlign: 'center',
                                 color: theme.colors.textLink,
                             }}
@@ -407,68 +511,95 @@ export const SettingsView = React.memo(function SettingsView() {
             )}
 
             {/* Features */}
-            <ItemGroup title={t('settings.features')}>
+            <ItemGroup
+                {...groupProps}
+                title={renderSectionTitle(t('settings.features'))}
+            >
                 <Item
                     title={t('settings.account')}
                     subtitle={t('settings.accountSubtitle')}
-                    icon={<AppIcon name="person-circle-outline" size={29} color={iconColor.primary} />}
+                    icon={renderIcon('person-circle-outline', iconColor.primary)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/account')}
                 />
                 <Item
                     title={t('settings.appearance')}
                     subtitle={t('settings.appearanceSubtitle')}
-                    icon={<AppIcon name="color-palette-outline" size={29} color={iconColor.secondary} />}
+                    icon={renderIcon('color-palette-outline', iconColor.secondary)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/appearance')}
                 />
                 <Item
                     title={t('settings.voiceAssistant')}
                     subtitle={t('settings.voiceAssistantSubtitle')}
-                    icon={<AppIcon name="mic-outline" size={29} color={iconColor.success} />}
+                    icon={renderIcon('mic-outline', iconColor.success)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/voice')}
                 />
                 <Item
                     title={t('settings.featuresTitle')}
                     subtitle={t('settings.featuresSubtitle')}
-                    icon={<AppIcon name="flask-outline" size={29} color={iconColor.secondary} />}
+                    icon={renderIcon('flask-outline', iconColor.secondary)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/features')}
                 />
                 <Item
                     title={t('settings.systemStatus')}
                     subtitle={systemStatusSubtitle}
-                    icon={<AppIcon name={systemStatusIconName} size={29} color={systemStatusIconColor} />}
+                    icon={renderIcon(systemStatusIconName, systemStatusIconColor)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push(isGatewayConnected ? '/help' : '/server')}
                 />
                 <Item
                     title={t('settings.quickPhrases')}
                     subtitle={t('settings.quickPhrasesSubtitle')}
-                    icon={<AppIcon name="flash-outline" size={29} color={iconColor.secondary} />}
+                    icon={renderIcon('flash-outline', iconColor.secondary)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/shortcuts')}
                 />
                 <Item
                     title={t('settings.usage')}
                     subtitle={t('settings.usageSubtitle')}
-                    icon={<AppIcon name="analytics-outline" size={29} color={iconColor.accent} />}
+                    icon={renderIcon('analytics-outline', iconColor.accent)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => router.push('/settings/usage')}
                 />
             </ItemGroup>
 
             {/* Developer */}
             {(__DEV__ || devModeEnabled) && (
-                <ItemGroup title={t('settings.developer')}>
+                <ItemGroup
+                    {...groupProps}
+                    title={renderSectionTitle(t('settings.developer'))}
+                >
                     <Item
                         title={t('settings.developerTools')}
-                        icon={<AppIcon name="construct-outline" size={29} color={iconColor.secondary} />}
+                        icon={renderIcon('construct-outline', iconColor.secondary)}
+                        titleStyle={styles.itemTitle}
                         onPress={() => router.push('/dev')}
                     />
                 </ItemGroup>
             )}
 
             {/* About */}
-            <ItemGroup title={t('settings.about')} footer={t('settings.aboutFooter')}>
+            <ItemGroup
+                {...groupProps}
+                title={renderSectionTitle(t('settings.about'))}
+                footer={t('settings.aboutFooter')}
+            >
                 <Item
                     title={t('settings.whatsNew')}
                     subtitle={t('settings.whatsNewSubtitle')}
-                    icon={<AppIcon name="sparkles-outline" size={29} color={iconColor.accent} />}
+                    icon={renderIcon('sparkles-outline', iconColor.accent)}
+                    titleStyle={styles.itemTitle}
+                    subtitleStyle={styles.itemSubtitle}
                     onPress={() => {
                         trackWhatsNewClicked();
                         router.push('/changelog');
@@ -476,18 +607,22 @@ export const SettingsView = React.memo(function SettingsView() {
                 />
                 <Item
                     title={t('settings.github')}
-                    icon={<AppIcon name="logo-github" size={29} color={iconColor.primary} />}
+                    icon={renderIcon('logo-github', iconColor.primary)}
+                    titleStyle={styles.itemTitle}
                     detail="Jianghaiyangcc/easyCoder"
+                    detailStyle={styles.itemDetail}
                     onPress={handleGitHub}
                 />
                 <Item
                     title={t('settings.reportIssue')}
-                    icon={<AppIcon name="bug-outline" size={29} color={iconColor.danger} />}
+                    icon={renderIcon('bug-outline', iconColor.danger)}
+                    titleStyle={styles.itemTitle}
                     onPress={handleReportIssue}
                 />
                 <Item
                     title={t('settings.privacyPolicy')}
-                    icon={<AppIcon name="shield-checkmark-outline" size={29} color={iconColor.secondary} />}
+                    icon={renderIcon('shield-checkmark-outline', iconColor.secondary)}
+                    titleStyle={styles.itemTitle}
                     onPress={async () => {
                         const url = 'https://code.daima.club/privacy/';
                         const supported = await Linking.canOpenURL(url);
@@ -498,7 +633,8 @@ export const SettingsView = React.memo(function SettingsView() {
                 />
                 <Item
                     title={t('settings.termsOfService')}
-                    icon={<AppIcon name="document-text-outline" size={29} color={iconColor.secondary} />}
+                    icon={renderIcon('document-text-outline', iconColor.secondary)}
+                    titleStyle={styles.itemTitle}
                     onPress={async () => {
                         const url = 'https://github.com/Jianghaiyangcc/easyCoder/blob/main/TERMS.md';
                         const supported = await Linking.canOpenURL(url);
@@ -510,7 +646,8 @@ export const SettingsView = React.memo(function SettingsView() {
                 {Platform.OS === 'ios' && (
                     <Item
                         title={t('settings.eula')}
-                        icon={<AppIcon name="document-text-outline" size={29} color={iconColor.secondary} />}
+                        icon={renderIcon('document-text-outline', iconColor.secondary)}
+                        titleStyle={styles.itemTitle}
                         onPress={async () => {
                             const url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
                             const supported = await Linking.canOpenURL(url);
@@ -523,7 +660,9 @@ export const SettingsView = React.memo(function SettingsView() {
                 <Item
                     title={t('common.version')}
                     detail={appVersion}
-                    icon={<AppIcon name="information-circle-outline" size={29} color={iconColor.secondary} />}
+                    detailStyle={styles.itemDetail}
+                    titleStyle={styles.itemTitle}
+                    icon={renderIcon('information-circle-outline', iconColor.secondary)}
                     onPress={handleVersionClick}
                     showChevron={false}
                 />
