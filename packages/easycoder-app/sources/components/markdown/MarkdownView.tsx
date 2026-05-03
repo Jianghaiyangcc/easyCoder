@@ -1,6 +1,6 @@
 import { MarkdownSpan, parseMarkdown } from './parseMarkdown';
 import * as React from 'react';
-import { Image, Pressable, ScrollView, View, Platform } from 'react-native';
+import { Image, Pressable, ScrollView, View, Platform, Modal as NativeModal } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native-unistyles';
 import { Text } from '../StyledText';
@@ -20,6 +20,15 @@ import { parseMarkdownAst } from './parseMarkdownAst';
 // Option type for callback
 export type Option = {
     title: string;
+};
+
+type MarkdownMediaViewerState = {
+    type: 'image';
+    url: string;
+    alt: string;
+} | {
+    type: 'mermaid';
+    content: string;
 };
 
 export const MarkdownView = React.memo((props: { 
@@ -49,6 +58,7 @@ export const MarkdownView = React.memo((props: {
     const markdownCopyV2 = useLocalSetting('markdownCopyV2');
     const selectable = Platform.OS === 'web' || !markdownCopyV2;
     const router = useRouter();
+    const [mediaViewer, setMediaViewer] = React.useState<MarkdownMediaViewerState | null>(null);
 
     const handleLinkPress = React.useCallback((url: string) => {
         if (!isHttpMarkdownLink(url)) {
@@ -93,7 +103,13 @@ export const MarkdownView = React.memo((props: {
                     } else if (block.type === 'code-block') {
                         return <RenderCodeBlock content={block.content} language={block.language} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} />;
                     } else if (block.type === 'mermaid') {
-                        return <MermaidRenderer content={block.content} key={index} />;
+                        return (
+                            <RenderMermaidBlock
+                                key={index}
+                                content={block.content}
+                                onExpand={() => setMediaViewer({ type: 'mermaid', content: block.content })}
+                            />
+                        );
                     } else if (block.type === 'options') {
                         return <RenderOptionsBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onOptionPress={props.onOptionPress} />;
                     } else if (block.type === 'blockquote') {
@@ -101,7 +117,7 @@ export const MarkdownView = React.memo((props: {
                     } else if (block.type === 'table') {
                         return <RenderTableBlock headers={block.headers} rows={block.rows} onLinkPress={handleLinkPress} selectable={selectable} key={index} first={index === 0} last={index === blocks.length - 1} />;
                     } else if (block.type === 'image') {
-                        return <RenderImageBlock url={block.url} alt={block.alt} key={index} first={index === 0} last={index === blocks.length - 1} />;
+                        return <RenderImageBlock url={block.url} alt={block.alt} key={index} first={index === 0} last={index === blocks.length - 1} onPress={() => setMediaViewer({ type: 'image', url: block.url, alt: block.alt })} />;
                     } else {
                         return null;
                     }
@@ -110,29 +126,35 @@ export const MarkdownView = React.memo((props: {
         );
     }
 
-    if (!markdownCopyV2) {
-        return renderContent();
-    }
-    
-    if (Platform.OS === 'web') {
-        return renderContent();
-    }
-    
-    // Use GestureDetector with LongPress gesture - it doesn't block pan gestures
-    // so horizontal scrolling in code blocks and tables still works
-    const longPressGesture = Gesture.LongPress()
-        .minDuration(500)
-        .onStart(() => {
-            handleLongPress();
-        })
-        .runOnJS(true);
+    const closeMediaViewer = () => setMediaViewer(null);
+    const contentView = (() => {
+        if (!markdownCopyV2 || Platform.OS === 'web') {
+            return renderContent();
+        }
+
+        // Use GestureDetector with LongPress gesture - it doesn't block pan gestures
+        // so horizontal scrolling in code blocks and tables still works
+        const longPressGesture = Gesture.LongPress()
+            .minDuration(500)
+            .onStart(() => {
+                handleLongPress();
+            })
+            .runOnJS(true);
+
+        return (
+            <GestureDetector gesture={longPressGesture}>
+                <View style={{ width: '100%' }}>
+                    {renderContent()}
+                </View>
+            </GestureDetector>
+        );
+    })();
 
     return (
-        <GestureDetector gesture={longPressGesture}>
-            <View style={{ width: '100%' }}>
-                {renderContent()}
-            </View>
-        </GestureDetector>
+        <>
+            {contentView}
+            <MarkdownMediaViewer viewer={mediaViewer} onClose={closeMediaViewer} />
+        </>
     );
 });
 
@@ -251,11 +273,22 @@ function RenderCodeBlock(props: { content: string, language: string | null, firs
     );
 }
 
-function RenderImageBlock(props: { url: string, alt: string, first: boolean, last: boolean }) {
+function RenderMermaidBlock(props: { content: string, onExpand: () => void }) {
+    return (
+        <View style={style.mermaidBlockContainer}>
+            <MermaidRenderer content={props.content} />
+            <Pressable style={style.mermaidExpandButton} onPress={props.onExpand}>
+                <Text style={style.mermaidExpandButtonText}>Full Screen</Text>
+            </Pressable>
+        </View>
+    );
+}
+
+function RenderImageBlock(props: { url: string, alt: string, first: boolean, last: boolean, onPress?: () => void }) {
     const accessibleLabel = props.alt || 'Markdown image';
 
     return (
-        <View style={[style.imageBlock, props.first && style.first, props.last && style.last]}>
+        <Pressable style={[style.imageBlock, props.first && style.first, props.last && style.last]} onPress={props.onPress}>
             <Image
                 source={{ uri: props.url }}
                 style={style.image}
@@ -265,7 +298,34 @@ function RenderImageBlock(props: { url: string, alt: string, first: boolean, las
             {props.alt ? (
                 <Text style={style.imageCaption}>{props.alt}</Text>
             ) : null}
-        </View>
+        </Pressable>
+    );
+}
+
+function MarkdownMediaViewer(props: { viewer: MarkdownMediaViewerState | null, onClose: () => void }) {
+    const visible = props.viewer !== null;
+
+    return (
+        <NativeModal visible={visible} animationType="fade" transparent={true} onRequestClose={props.onClose}>
+            <View style={style.mediaOverlay}>
+                <Pressable style={style.mediaBackdrop} onPress={props.onClose} />
+                <View style={style.mediaContent}>
+                    <Pressable style={style.mediaCloseButton} onPress={props.onClose}>
+                        <Text style={style.mediaCloseButtonText}>Close</Text>
+                    </Pressable>
+                    <ScrollView contentContainerStyle={style.mediaScrollContent} maximumZoomScale={3} minimumZoomScale={1} centerContent={true}>
+                        {props.viewer?.type === 'image' ? (
+                            <Image source={{ uri: props.viewer.url }} style={style.mediaImage} resizeMode="contain" accessibilityLabel={props.viewer.alt || 'Markdown image'} />
+                        ) : null}
+                        {props.viewer?.type === 'mermaid' ? (
+                            <View style={style.mediaMermaidContainer}>
+                                <MermaidRenderer content={props.viewer.content} />
+                            </View>
+                        ) : null}
+                    </ScrollView>
+                </View>
+            </View>
+        </NativeModal>
     );
 }
 
@@ -561,13 +621,13 @@ const style = StyleSheet.create((theme) => ({
         width: '100%',
         maxWidth: 520,
         marginVertical: 8,
-        alignSelf: 'flex-start',
+        alignSelf: 'stretch',
         gap: 8,
     },
     image: {
         width: '100%',
         minHeight: 160,
-        height: 240,
+        aspectRatio: 16 / 9,
         borderRadius: 12,
         backgroundColor: theme.colors.surfaceHighest,
     },
@@ -576,6 +636,66 @@ const style = StyleSheet.create((theme) => ({
         fontSize: 14,
         lineHeight: 20,
         color: theme.colors.textSecondary,
+    },
+    mediaOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.92)',
+    },
+    mediaBackdrop: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    mediaContent: {
+        flex: 1,
+        paddingTop: 48,
+        paddingBottom: 24,
+        paddingHorizontal: 16,
+    },
+    mediaCloseButton: {
+        alignSelf: 'flex-end',
+        backgroundColor: 'rgba(255, 255, 255, 0.18)',
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        marginBottom: 16,
+    },
+    mediaCloseButtonText: {
+        ...Typography.default('semiBold'),
+        color: '#fff',
+        fontSize: 14,
+        lineHeight: 18,
+    },
+    mediaScrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    mediaImage: {
+        width: '100%',
+        height: '100%',
+        maxHeight: 700,
+        maxWidth: 1200,
+    },
+    mediaMermaidContainer: {
+        width: '100%',
+        maxWidth: 1200,
+    },
+    mermaidBlockContainer: {
+        position: 'relative',
+    },
+    mermaidExpandButton: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        borderRadius: 999,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+    },
+    mermaidExpandButtonText: {
+        ...Typography.default('semiBold'),
+        color: '#fff',
+        fontSize: 12,
+        lineHeight: 16,
     },
     copyButtonContainer: {
         position: 'absolute',
