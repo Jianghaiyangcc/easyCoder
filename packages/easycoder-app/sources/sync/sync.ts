@@ -1724,6 +1724,9 @@ class Sync {
             while (hasMore) {
                 const response = await apiSocket.request(`/v3/sessions/${sessionId}/messages?after_seq=${afterSeq}&limit=100`);
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        return;
+                    }
                     throw new Error(`Failed to fetch messages for ${sessionId}: ${response.status}`);
                 }
                 const data = await response.json() as V3GetSessionMessagesResponse;
