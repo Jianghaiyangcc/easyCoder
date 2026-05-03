@@ -266,6 +266,8 @@ export const en: TranslationStructure = {
         customServerSubtitle: 'Customize the gateway server address',
         markdownCopyV2: 'Markdown Copy v2',
         markdownCopyV2Subtitle: 'Long press opens copy modal',
+        markdownAst: 'Markdown AST Parser',
+        markdownAstSubtitle: 'Use AST-based markdown parsing',
         hideInactiveSessions: 'Hide inactive sessions',
         hideInactiveSessionsSubtitle: 'Show only active chats in your list',
     },

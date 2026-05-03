@@ -15,6 +15,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { MermaidRenderer } from './MermaidRenderer';
 import { t } from '@/text';
 import { isHttpMarkdownLink } from './linkUtils';
+import { parseMarkdownAst } from './parseMarkdownAst';
 
 // Option type for callback
 export type Option = {
@@ -26,7 +27,19 @@ export const MarkdownView = React.memo((props: {
     onOptionPress?: (option: Option) => void;
     sessionId?: string;
 }) => {
-    const blocks = React.useMemo(() => parseMarkdown(props.markdown), [props.markdown]);
+    const markdownAstEnabled = useLocalSetting('markdownAstEnabled');
+    const blocks = React.useMemo(() => {
+        if (!markdownAstEnabled) {
+            return parseMarkdown(props.markdown);
+        }
+
+        try {
+            return parseMarkdownAst(props.markdown);
+        } catch (error) {
+            console.warn('[Markdown AST] Falling back to legacy parser:', error);
+            return parseMarkdown(props.markdown);
+        }
+    }, [props.markdown, markdownAstEnabled]);
     
     // Backwards compatibility: The original version just returned the view, wrapping the list of blocks.
     // It made each of the individual text elements selectable. When we enable the markdownCopyV2 feature,
@@ -75,12 +88,16 @@ export const MarkdownView = React.memo((props: {
                         return <RenderListBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onLinkPress={handleLinkPress} />;
                     } else if (block.type === 'numbered-list') {
                         return <RenderNumberedListBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onLinkPress={handleLinkPress} />;
+                    } else if (block.type === 'task-list') {
+                        return <RenderTaskListBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onLinkPress={handleLinkPress} />;
                     } else if (block.type === 'code-block') {
                         return <RenderCodeBlock content={block.content} language={block.language} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} />;
                     } else if (block.type === 'mermaid') {
                         return <MermaidRenderer content={block.content} key={index} />;
                     } else if (block.type === 'options') {
                         return <RenderOptionsBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onOptionPress={props.onOptionPress} />;
+                    } else if (block.type === 'blockquote') {
+                        return <RenderBlockquoteBlock items={block.items} key={index} first={index === 0} last={index === blocks.length - 1} selectable={selectable} onLinkPress={handleLinkPress} />;
                     } else if (block.type === 'table') {
                         return <RenderTableBlock headers={block.headers} rows={block.rows} onLinkPress={handleLinkPress} selectable={selectable} key={index} first={index === 0} last={index === blocks.length - 1} />;
                     } else if (block.type === 'image') {
@@ -154,6 +171,33 @@ function RenderNumberedListBlock(props: { items: { number: number, spans: Markdo
             {props.items.map((item, index) => (
                 <Text selectable={props.selectable} style={listStyle} key={index}>{item.number.toString()}. <RenderSpans spans={item.spans} baseStyle={listStyle} selectable={props.selectable} onLinkPress={props.onLinkPress} /></Text>
             ))}
+        </View>
+    );
+}
+
+function RenderTaskListBlock(props: { items: { checked: boolean, spans: MarkdownSpan[] }[], first: boolean, last: boolean, selectable: boolean, onLinkPress: (url: string) => void }) {
+    const listStyle = [style.text, style.list];
+    return (
+        <View style={{ flexDirection: 'column', marginBottom: 8, gap: 1 }}>
+            {props.items.map((item, index) => (
+                <Text selectable={props.selectable} style={listStyle} key={index}>{item.checked ? '☑ ' : '☐ '}<RenderSpans spans={item.spans} baseStyle={listStyle} selectable={props.selectable} onLinkPress={props.onLinkPress} /></Text>
+            ))}
+        </View>
+    );
+}
+
+function RenderBlockquoteBlock(props: { items: MarkdownSpan[][], first: boolean, last: boolean, selectable: boolean, onLinkPress: (url: string) => void }) {
+    const quoteTextStyle = [style.text, style.blockquoteText];
+    return (
+        <View style={[style.blockquoteContainer, props.first && style.first, props.last && style.last]}>
+            <View style={style.blockquoteBar} />
+            <View style={style.blockquoteContent}>
+                {props.items.map((item, index) => (
+                    <Text selectable={props.selectable} style={quoteTextStyle} key={index}>
+                        <RenderSpans spans={item} baseStyle={quoteTextStyle} selectable={props.selectable} onLinkPress={props.onLinkPress} />
+                    </Text>
+                ))}
+            </View>
         </View>
     );
 }
@@ -367,6 +411,9 @@ const style = StyleSheet.create((theme) => ({
     semibold: {
         fontWeight: '600',
     },
+    strikethrough: {
+        textDecorationLine: 'line-through',
+    },
     code: {
         ...Typography.mono(),
         fontSize: 16,
@@ -435,6 +482,24 @@ const style = StyleSheet.create((theme) => ({
         color: theme.colors.text,
         marginTop: 0,
         marginBottom: 0,
+    },
+    blockquoteContainer: {
+        flexDirection: 'row',
+        marginVertical: 8,
+        gap: 12,
+    },
+    blockquoteBar: {
+        width: 3,
+        borderRadius: 2,
+        backgroundColor: theme.colors.divider,
+    },
+    blockquoteContent: {
+        flex: 1,
+    },
+    blockquoteText: {
+        color: theme.colors.textSecondary,
+        marginTop: 0,
+        marginBottom: 4,
     },
 
     //

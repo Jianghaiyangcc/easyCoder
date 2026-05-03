@@ -22,6 +22,7 @@ export default function FeaturesSettingsScreen() {
     const [agentInputEnterToSend, setAgentInputEnterToSend] = useSettingMutable('agentInputEnterToSend');
     const [commandPaletteEnabled, setCommandPaletteEnabled] = useLocalSettingMutable('commandPaletteEnabled');
     const [markdownCopyV2, setMarkdownCopyV2] = useLocalSettingMutable('markdownCopyV2');
+    const [markdownAstEnabled, setMarkdownAstEnabled] = useLocalSettingMutable('markdownAstEnabled');
     const [customServerEnabled, setCustomServerEnabled] = useLocalSettingMutable('customServerEnabled');
     const [hideInactiveSessions, setHideInactiveSessions] = useSettingMutable('hideInactiveSessions');
     const [expResumeSession, setExpResumeSession] = useSettingMutable('expResumeSession');
@@ -65,6 +66,18 @@ export default function FeaturesSettingsScreen() {
                         <Switch
                             value={markdownCopyV2}
                             onValueChange={setMarkdownCopyV2}
+                        />
+                    }
+                    showChevron={false}
+                />
+                <Item
+                    title={t('settingsFeatures.markdownAst')}
+                    subtitle={t('settingsFeatures.markdownAstSubtitle')}
+                    icon={<AppIcon name="git-branch-outline" size={29} color={iconColor.accent} />}
+                    rightElement={
+                        <Switch
+                            value={markdownAstEnabled}
+                            onValueChange={setMarkdownAstEnabled}
                         />
                     }
                     showChevron={false}

@@ -253,6 +253,8 @@ export const zhHans: TranslationStructure = {
         customServerSubtitle: '自定义网关服务器的地址',
         markdownCopyV2: 'Markdown 复制 v2',
         markdownCopyV2Subtitle: '长按打开复制模态框',
+        markdownAst: 'Markdown AST 解析器',
+        markdownAstSubtitle: '使用基于 AST 的 Markdown 解析',
         hideInactiveSessions: '隐藏非活跃会话',
         hideInactiveSessionsSubtitle: '仅在列表中显示活跃的聊天',
     },

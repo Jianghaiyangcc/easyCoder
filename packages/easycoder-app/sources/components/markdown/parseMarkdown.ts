@@ -14,6 +14,9 @@ export type MarkdownBlock = {
     type: 'numbered-list',
     items: { number: number, spans: MarkdownSpan[] }[]
 } | {
+    type: 'task-list',
+    items: { checked: boolean, spans: MarkdownSpan[] }[]
+} | {
     type: 'code-block',
     language: string | null,
     content: string
@@ -33,10 +36,13 @@ export type MarkdownBlock = {
     type: 'image',
     alt: string,
     url: string
+} | {
+    type: 'blockquote',
+    items: MarkdownSpan[][]
 }
 
 export type MarkdownSpan = {
-    styles: ('italic' | 'bold' | 'semibold' | 'code')[],
+    styles: ('italic' | 'bold' | 'semibold' | 'code' | 'strikethrough')[],
     text: string,
     url: string | null
 }

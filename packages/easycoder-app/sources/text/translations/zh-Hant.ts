@@ -252,6 +252,8 @@ export const zhHant: TranslationStructure = {
         customServerSubtitle: '自訂閘道伺服器的位址',
         markdownCopyV2: 'Markdown 複製 v2',
         markdownCopyV2Subtitle: '長按開啟複製強制回應視窗',
+        markdownAst: 'Markdown AST 解析器',
+        markdownAstSubtitle: '使用 AST 管線解析 Markdown',
         hideInactiveSessions: '隱藏非活躍工作階段',
         hideInactiveSessionsSubtitle: '僅在清單中顯示活躍的聊天',
     },
